@@ -3464,11 +3464,11 @@ fieldset:disabled .btn {
 
 .btn-primary {
     --bs-btn-color: #fff;
-    --bs-btn-bg: #000064;
-    --bs-btn-border-color: #000064;
+    --bs-btn-bg: #1d4e89;
+    --bs-btn-border-color: #14355d;
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #000075;
-    --bs-btn-hover-border-color: #000055;
+    --bs-btn-hover-bg: #14355d;
+    --bs-btn-hover-border-color: #14355d;
     --bs-btn-focus-shadow-rgb: 60, 60, 60;
     --bs-btn-active-color: #fff;
     --bs-btn-active-bg: #151515;
