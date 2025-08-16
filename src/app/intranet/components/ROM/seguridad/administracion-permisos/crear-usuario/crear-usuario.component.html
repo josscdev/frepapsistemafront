@@ -1,0 +1,153 @@
+<div class="container-fluid mt-3">
+    <h5 mat-dialog-title>Crear o Editar Usuario</h5>
+</div>
+
+<div class="dialog-body-scrollable">
+    <form [formGroup]="formUsuario" (ngSubmit)="guardar()" class="container-fluid row p-3">
+
+        <div class="col-12 col-sm-6 mb-3">
+            <label style="font-weight: lighter;">Documento <span class="text-danger">(*)</span></label>
+            <div class="input-group">
+                <input class="form-control" formControlName="docusuario" maxlength="15" placeholder="Ingrese Documento"
+                    type="text" (keydown.enter)="buscarUsuario()" (input)="transformarInput($event, 'docusuario')" />
+                <button type="button" class="btn btn-success" (click)="buscarUsuario()">
+                    <i class="bi bi-search"></i>
+                </button>
+                <button type="button" class="btn btn-info" (click)="nuevoUsuario()">
+                    <i class="bi bi-plus-square"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <ng-container *ngIf="mostrarCampos">
+            <div *ngIf="isLoading" class="spinner-overlay custom-spinner">
+                <mat-spinner></mat-spinner>
+            </div>
+            <div *ngIf="!isLoading" class="contenedor-scroll row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label style="font-weight: lighter;">Nombres <span class="text-danger">(*)</span></label>
+                    <input class="form-control" formControlName="nombres" placeholder="Ingrese nombres" type="text"
+                        (input)="transformToUpperCase($event, 'nombres')" maxlength="100" />
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label style="font-weight: lighter;">Apellido Paterno <span class="text-danger">(*)</span></label>
+                    <input class="form-control" formControlName="apellidopaterno" placeholder="Ingrese apellido paterno"
+                        type="text" (input)="transformToUpperCase($event, 'apellidopaterno')" maxlength="200" />
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label style="font-weight: lighter;">Apellido Materno <span class="text-danger">(*)</span></label>
+                    <input class="form-control" formControlName="apellidomaterno" placeholder="Ingrese apellido materno"
+                        type="text" (input)="transformToUpperCase($event, 'apellidomaterno')" maxlength="200" />
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label style="font-weight: lighter;">Dirección </label>
+                    <input class="form-control" formControlName="direccion" placeholder="Ingrese dirección" type="text"
+                        (input)="transformToUpperCase($event, 'direccion')" maxlength="500" />
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label style="font-weight: lighter;">Celular </label>
+                    <input class="form-control" formControlName="celular" placeholder="Ingrese celular" type="text"
+                        maxlength="9" />
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label style="font-weight: lighter;">Correo personal </label>
+                    <input class="form-control" formControlName="correopersonal" placeholder="Ingrese correo personal"
+                        type="text" maxlength="100" />
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label style="font-weight: lighter;">Correo corporativo </label>
+                    <input class="form-control" formControlName="correocorp"
+                        placeholder="Ingrese correo corporativo" type="text" maxlength="200" />
+                </div>
+
+                <div class="col-12 col-sm-6">
+                    <label style="font-weight: lighter;">Fecha Ingreso</label>
+                    <mat-form-field appearance="outline" class="w-100">
+                        <input matInput [matDatepicker]="fechaingresoPicker" formControlName="fechaingreso"
+                            (focus)="fechaingresoPicker.open()" [max]="today" readonly>
+                        <mat-datepicker #fechaingresoPicker></mat-datepicker>
+                        <mat-error *ngIf="formUsuario.get('fechaingreso')?.hasError('maxDate')">
+                            La fecha no puede ser posterior a hoy.
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="col-12 col-sm-6">
+                    <label style="font-weight: lighter;">Fecha Nacimiento</label>
+                    <mat-form-field appearance="outline" class="w-100">
+                        <input matInput [matDatepicker]="fechanacimientoPicker" formControlName="fechanacimiento"
+                            (focus)="fechanacimientoPicker.open()" [max]="today" readonly>
+                        <mat-datepicker #fechanacimientoPicker></mat-datepicker>
+                        <mat-error *ngIf="formUsuario.get('fechanacimiento')?.hasError('maxDate')">
+                            La fecha no puede ser posterior a hoy.
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3" *ngIf="this.perfil === 'ADMIN'">
+                    <label style="font-weight: lighter;">Cuentas (Socios) <span class="text-danger">(*)</span></label>
+                    <ng-select [items]="cuentasListaSocios" bindLabel="nombrecuenta" bindValue="idemppaisnegcue"
+                        placeholder="Seleccione una cuenta de socio" formControlName="idemppaisnegcue">
+                    </ng-select>
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3" *ngIf="this.perfil !== 'ADMIN'">
+                    <label style="font-weight: lighter;">Cuenta <span class="text-danger">(*)</span></label>
+                    <ng-select [items]="cuentasLista" bindLabel="nombrecuenta" bindValue="idemppaisnegcue"
+                        placeholder="Seleccione una cuenta" formControlName="idemppaisnegcue">
+                    </ng-select>
+                </div>
+
+                <div class="col-12 col-sm-2 mb-3">
+                    <label style="font-weight: lighter;">Sexo </label>
+                    <ng-select [items]="sexoList" bindLabel="label" bindValue="value" placeholder="Seleccione Sexo"
+                        formControlName="sexo">
+                    </ng-select>
+                </div>
+
+                <div class="col-12 col-sm-3 mb-3">
+                    <label style="font-weight: lighter;">Usuario <span class="text-danger">(*)</span></label>
+                    <input class="form-control" formControlName="usuario" placeholder="Ingrese nombre de usuario"
+                        type="text" (input)="transformarInput($event, 'usuario')" />
+                </div>
+
+                <div class="col-12 col-sm-5 mb-3">
+                    <label style="font-weight: lighter;">Clave <span class="text-danger">(*)</span></label>
+                    <div class="input-group password-group">
+                        <div class="input-group-text eye-icon" (click)="togglePasswordVisibility()"
+                            style="cursor: pointer;">
+                            <i *ngIf="showPassword" class="bi bi-eye-slash"></i>
+                            <i *ngIf="!showPassword" class="bi bi-eye-fill"></i>
+                        </div>
+                        <input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="clave"
+                            placeholder="Ingrese clave" (input)="limpiarEspacios($event, 'clave')" maxlength="100" />
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-2 mb-3">
+                    <label style="font-weight: lighter;">Estado <span class="text-danger">(*)</span></label>
+                    <ng-select [items]="estadoList" bindLabel="label" bindValue="value" placeholder="Seleccione estado"
+                        formControlName="estado">
+                    </ng-select>
+                </div>
+
+            </div>
+        </ng-container>
+
+        <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+            <ng-container *ngIf="mostrarCampos">
+                <button class="btn btn-primary" type="submit" [disabled]="formUsuario.invalid || loading">
+                    {{ loading ? 'Guardando...' : 'Guardar' }}
+                </button>
+            </ng-container>
+            <button class="btn btn-outline-secondary" type="button" (click)="cerrar()">Cancelar</button>
+        </div>
+    </form>
+</div>

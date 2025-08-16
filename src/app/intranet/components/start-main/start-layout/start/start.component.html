@@ -1,0 +1,85 @@
+<div class="row">
+
+    <div class="col-sm-4 mb-3 mb-sm-0">
+        <div class="card shadow-lg rounded-5 mb-3 border-2 border-primary min-ancho">
+            <div class="card-body text-primary pt-5 pb-5 rounded-5">
+                <div>
+          
+                    <img src="assets/img/Tawa/logo_tawa1.svg" class="img-fluid logo" style="max-height: 70px;"
+                        alt="...">
+                    <p class="card-title fs-1 fw-bold mt-3">ROMBI TAWA</p>
+                    <p class="card-text fs-5 fw-bold text-uppercase">Intranet Tawa</p>
+                    <button type="button" class="btn btn-primary border border-white"
+                    (click)="loginRombiTAWA()" [disabled]="isLoadingTAWA">
+                    <span *ngIf="isLoadingTAWA">
+                        <i class="fa fa-spinner fa-spin"></i> Cargando...
+                    </span>
+                    <span *ngIf="!isLoadingTAWA">
+                        Ingresar
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 mb-3 mb-sm-0">
+        <div class="card shadow-lg rounded-5 mb-3 border-2 border-primary min-ancho">
+            <div class="card-body text-primary pt-5 pb-5 rounded-5">
+                <div>
+                    <img src="assets/img/Rom/logo_rom.svg" class="img-fluid logo" style="max-height: 70px;"
+                        alt="...">
+                    <p class="card-title fs-1 fw-bold mt-3">ROMBI ROM</p>
+                    <p class="card-text fs-5 fw-bold text-uppercase">Intranet ROM</p>
+                    <button type="button" class="btn btn-primary border border-white" (click)="loginRombiROM()" [disabled]="isLoadingROM">
+                        <span *ngIf="isLoadingROM">
+                            <i class="fa fa-spinner fa-spin"></i> Cargando...
+                        </span>
+                        <span *ngIf="!isLoadingROM">
+                            Ingresar
+                            <i class="bi bi-arrow-right-circle"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 mb-3 mb-sm-0">
+        <div class="card shadow-lg rounded-5 mb-3 border-2 border-primary min-ancho">
+            <div class="card-body text-primary pt-5 pb-5 rounded-5">
+                <div>
+                    <img src="assets/img/Limtek/logo_limtek.svg" class="img-fluid logo" style="max-height: 70px;"
+                        alt="...">
+                    <p class="card-title fs-1 fw-bold mt-3">ROMBI LIMTEK</p>
+                    <p class="card-text fs-5 fw-bold text-uppercase">Intranet ROM</p>
+                    <button type="button" class="btn btn-primary border border-white" (click)="loginRombiLIMTEK()" [disabled]="isLoadingLIMTEK">
+                        <span *ngIf="isLoadingLIMTEK">
+                            <i class="fa fa-spinner fa-spin"></i> Cargando...
+                        </span>
+                        <span *ngIf="!isLoadingLIMTEK">
+                            Ingresar
+                            <i class="bi bi-arrow-right-circle"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="col-sm-4 mb-3 mb-sm-0">
+        <div class="card shadow-lg rounded-5 mb-3 border-0 min-ancho"
+            style="background-image: url('assets/img/intranet.jpg');background-size:cover;background-position: center;">
+            <div class="card-header border-0 m-3"></div>
+            <div class="card-body text-white pt-5 pb-5" style="background-color: rgba(0, 0, 100, 0.4);">
+                <div>
+                    <h1 class="card-title texto">Proximamente</h1>
+                    <h5 class="card-text texto text-uppercase">Proximamente</h5>
+                    <button type="button" class="btn btn-primary border border-white">
+                        Ingresar
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-footer text-body-secondary border-0 m-3"></div>
+        </div>
+    </div> -->
+</div>

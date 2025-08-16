@@ -1,0 +1,36 @@
+.wrapper {
+    text-align: center;
+}
+
+.wrapper img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+
+
+@media screen and (min-width: 768px) {
+    .wrapper img {
+        max-width: 40%;
+    }
+}
+
+.wrapper h1,
+.wrapper p {
+    margin: 10px 0;
+}
+
+.wrapper .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.copyRights {
+    margin-top: 20px;
+}

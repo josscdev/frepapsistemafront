@@ -1,0 +1,213 @@
+<div class="col-12 px-3">
+    <div class="container-fluid mt-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item fw-bold"><a class="text-decoration-none">Asignación de Horarios por
+                        PDV</a></li>
+                <li class="breadcrumb-item fw-bold active" aria-current="page">Asignación</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="card border-dark">
+        <div class="card-body">
+            <h4 class="card-title text-uppercase">Asignación de Horarios por PDV</h4>
+            <div class="col-sm-12 mt-1">
+                <div class="row px-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div *ngIf="(perfil==='ADMIN')" class="col-sm-4">
+                                    <label for="input3" class="form-label fw-bold text-black">Jefe:</label>
+                                    <select class="form-select" id="input3" (change)="ongetJefe($event)">
+                                        <option selected>Seleccionar Jefe</option>
+                                        <option *ngFor="let item of listJefe" [value]="item.dnijefe">
+                                            {{ item.nombrejefe }} {{ item.apellidopaternojefe }} {{
+                                            item.apellidomaternojefe }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div *ngIf="(perfil==='ADMIN' || perfil==='JV')" class="col-sm-4">
+                                    <label for="input4" class="form-label fw-bold text-black">Supervisor:</label>
+                                    <select class="form-select" id="input4" (change)="ongetSupervisor($event)">
+                                        <option selected>Seleccionar Supervisor</option>
+                                        <option *ngFor="let item of listSupervisor" [value]="item.dnisupervisor">
+                                            {{ item.nombresupervisor }} {{ item.apellidopaternosupervisor }} {{
+                                            item.apellidomaternosupervisor }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <!-- <div class="col-sm-4 d-flex align-items-center mt-4">
+                                    <button class="btn btn-success me-3 prueba" (click)="descargarExcel()" [disabled]="isDisabled">
+                                        <i class="bi bi-file-spreadsheet-fill"></i>
+                                        <span class="d-none d-sm-inline ms-2">Plantilla</span>
+                                    </button>
+                                    <button class="btn btn-outline-dark me-3 prueba" type="button" (click)="fileInput.click()" [disabled]="isDisabled">
+                                        <div *ngIf="isLoadingSave">
+                                            <i class="fa fa-spinner fa-spin"></i>
+                                            <span class="d-none d-sm-inline ms-2">Cargando...</span>
+                                        </div>
+                                        <div *ngIf="!isLoadingSave">
+                                            <i class="bi bi-upload"></i>
+                                            <span class="d-none d-sm-inline ms-2">Cargar</span>
+                                        </div>
+                                    </button>
+                                    <input type="file" #fileInput (change)="leerExcel($event)" hidden />
+                                    <button class="btn btn-info prueba" type="button" (click)="this.guardarHorariosExcel()" [disabled]="isDisabled">
+                                        <i class="bi bi-floppy-fill"></i>
+                                    </button>
+                                </div> -->
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="row">
+                                        <div class="col-sm-6 mb-3 mb-sm-0">
+                                            <label for="input1" class="form-label fw-bold text-black">Punto de
+                                                Venta:</label>
+                                            <select class="form-select" id="input1" [(ngModel)]="pdvFiltro">
+                                                <option value="0" selected>Seleccionar PDV</option>
+                                                <option *ngFor="let pdv of listSupervisorPDV"
+                                                    [value]="pdv.idpuntoventarol">
+                                                    {{ pdv.puntoventa }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label for="input2" class="form-label fw-bold">
+                                                <i class="bi bi-calendar4-range"
+                                                    style="font-size: 1rem; color: #FF455C;"></i>
+                                                Rangos Semanales:
+                                            </label>
+                                            <select class="form-select" id="input2" [(ngModel)]="rangoFiltro" (change)="onRangoSemanaChange($event)">
+                                                <option value="" *ngIf="listRangoSemana.length>0">Seleccionar</option>
+                                                <option value="" *ngIf="listRangoSemana.length === 0" disabled selected>
+                                                    No hay rangos disponibles</option>
+                                                <option *ngFor="let rango of listRangoSemana"
+                                                    [value]="(rango.lunes + ',' + rango.domingo)">
+                                                    Lunes {{ rango.lunes | date:"dd/MM/yyyy" }} - Domingo {{
+                                                    rango.domingo | date:"dd/MM/yyyy" }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 d-flex align-items-center mt-4">
+                                    <button class="btn btn-primary me-3 prueba" type="button" (click)="filtrar()"
+                                        [disabled]="verTurnos">
+                                        <i class="bi bi-search"></i>
+                                        <span class="d-none d-sm-inline ms-2">Buscar</span>
+                                    </button>
+                                    <button class="btn btn-success prueba" style="background-color: #00680a;"
+                                        type="button" (click)="exportexcel()" [disabled]="verTurnos">
+                                        <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                                        <span class="d-none d-sm-inline ms-2">Exportar Todos</span>
+                                    </button>
+
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-12 mb-3 mb-sm-0">
+                                    <div class="fs-5 fw-bold">Cargar Horarios:</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 d-flex align-items-center mt-4">
+                                    <button class="btn btn-success me-3 prueba" (click)="descargarExcel()" [disabled]="isDisabled">
+                                        <i class="bi bi-file-spreadsheet-fill"></i>
+                                        <span class="d-none d-sm-inline ms-2">Plantilla</span>
+                                    </button>
+                                    <button class="btn btn-outline-dark me-3 prueba" type="button" (click)="fileInput.click()" [disabled]="isDisabled">
+                                        <div *ngIf="isLoadingSave">
+                                            <i class="fa fa-spinner fa-spin"></i>
+                                            <span class="d-none d-sm-inline ms-2">Cargando...</span>
+                                        </div>
+                                        <div *ngIf="!isLoadingSave">
+                                            <i class="bi bi-upload"></i>
+                                            <span class="d-none d-sm-inline ms-2">Cargar</span>
+                                        </div>
+                                    </button>
+                                    <input type="file" #fileInput (change)="leerExcel($event)" hidden />
+                                    <button class="btn btn-info prueba" type="button" (click)="this.guardarHorariosExcel()" [disabled]="isDisabled">
+                                        <i class="bi bi-floppy-fill"></i>
+                                        <span class="d-none d-sm-inline ms-2">Guardar</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive mt-4">
+                    <table id="tablaTurnosAsignadosHorarios"
+                        class="table table-dark caption-top table-hover table-bordered text-center table-sm rounded-2">
+                        <thead>
+                            <tr>
+                                <!-- Celda vacía para la cabecera lateral -->
+                                <th style="margin: 0px; padding-left: 0px; padding-right: 0px;"></th>
+                                <!-- <th></th> -->
+                                <th class="text-center font-weight-bold">Lunes</th>
+                                <th class="text-center font-weight-bold">Martes</th>
+                                <th class="text-center font-weight-bold">Miércoles</th>
+                                <th class="text-center font-weight-bold">Jueves</th>
+                                <th class="text-center font-weight-bold">Viernes</th>
+                                <th class="text-center font-weight-bold">Sábado</th>
+                                <th class="text-center font-weight-bold">Domingo</th>
+                                <!-- Encabezado de los días -->
+                            </tr>
+                            <tr>
+                                <th style="margin: 0px; padding-left: 0px; padding-right: 0px;">Promotores</th>
+                                <th class="text-center font-weight-bold" *ngFor="let dia of listDiasSemana">
+                                    {{ dia.fecha | date:"dd/MM" }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let promotor of promotorList; let i = index">
+                                <th scope="row" class="font-weight-bold" style="min-width: 120px;">
+                                    {{ promotor.nombrepromotor }} {{ promotor.apellidopaternopromotor }} {{
+                                    promotor.apellidomaternopromotor }} <br>  {{ promotor.dnipromotor }}
+                                </th>
+                                <td *ngFor="let dia of listDiasSemana; let j = index" class="p-2">
+                                    <select class="form-control"
+                                        style="padding: 10px; font-size: 10pt;text-align: center;"
+                                        [(ngModel)]="listHorario[i][j].horario" [disabled]="listHorario[i][j].variable">
+                                        <option value="" selected>Seleccionar</option>
+                                        <ng-container
+                                            *ngFor="let horario of listHorario[i][j].horario.split(','); let first = first">
+                                            <option
+                                                *ngIf="first && !coincidencias[i][j] && horarioNoExisteEnLista(horario)"
+                                                [value]="listHorario[i][j].horario" style="text-align: left;">
+                                                {{ horario }}
+                                            </option>
+                                        </ng-container>
+                                        <option *ngFor="let item of listTurnosSupervisorPDVHorarios"
+                                            style="text-align: left;"
+                                            [value]="(item.descripcion + ',' + item.horarioentrada + ',' + item.horariosalida)">
+                                            {{ item.descripcion }}
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row justify-content-md-end">
+                    <div class="col-sm-2" *ngIf="!datosHorarioPlanificado || datosHorarioPlanificado.length === 0">
+                        <button *ngIf="mostrarElemento" class="btn btn-primary" type="menu" (click)="guardarHorarios()"
+                            style="max-width: 100%; height: auto; width:350px">
+                            <i class="bi bi-floppy-fill"></i> Guardar
+                        </button>
+                    </div>
+                    <div class="col-sm-2" *ngIf="datosHorarioPlanificado && datosHorarioPlanificado.length >0">
+                        <button class="btn btn-info" type="menu " (click)="guardarHorarios()"
+                            style="max-width: 100%; height: auto; width:350px">
+                            <i class="bi bi-pencil-fill"></i> Editar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 mt-1">
+            </div>
+        </div>
+    </div>
+</div>
+<div>

@@ -1,0 +1,81 @@
+<div class="container-fluid">
+    <h5 mat-dialog-title>
+        IMEIS Punto Venta: {{data.nombrepdv}}
+    </h5>
+</div>
+<mat-dialog-content>
+    <div class="table-responsive-lg mx-4">
+        <h5 class="text-success">Lista Encontrados</h5>
+        <table class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Documento</th>
+                    <th scope="col">IMEI</th>
+                    <th scope="col">Fecha Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of lEncontrados(); let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item.docpromotorasesor }}</td>
+                    <td>{{ item.imeiserieficticio }}</td>
+                    <td>{{ item.fecharegistroinv | date:'dd/MM/yyyy' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+
+    <div class="table-responsive-lg mx-4">
+        <h5 class="text-info">Lista Sobrantes</h5>
+        <table class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Documento</th>
+                    <th scope="col">IMEI</th>
+                    <th scope="col">Fecha Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of lSobrantes(); let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item.docpromotorasesor }}</td>
+                    <td>{{ item.imeiequipo }}</td>
+                    <td>{{ item.fecharegistroinv | date:'dd/MM/yyyy' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+
+    <div class="table-responsive-lg mx-4">
+        <h5 class="text-danger">Lista Faltantes</h5>
+        <table class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">IMEI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of lFaltantes(); let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item.imeiserieficticio }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container-fluid mb-2">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-outline-danger" type="button" (click)="closeDialog()">
+                <i class="bi bi-x-square-fill" style="font-size: 1.1rem;"></i>
+                Cerrar
+            </button>
+        </div>
+    </div>
+</mat-dialog-content>

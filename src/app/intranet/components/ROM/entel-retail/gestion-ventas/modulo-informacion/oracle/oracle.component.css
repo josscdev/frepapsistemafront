@@ -1,0 +1,22 @@
+.vertical-hr {
+    border-left: 1px solid #acacac;
+    /* Línea vertical */
+    height: 40px;
+    /* Altura de la línea */
+    width: 0;
+    /* No ocupa espacio horizontal */
+    margin: 0 auto;
+    /* Centrar la línea */
+}
+
+.table td,
+.table th {
+    padding: 0.5rem;
+    font-size: 71%;
+    font-weight: 700;
+}
+
+.table thead {
+    background-color: #43494E;
+    color: #ECECEC;
+}

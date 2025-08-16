@@ -1,0 +1,252 @@
+<!-- <h2 >{{ data.titulo }}</h2> -->
+<div class="container text-center" style="max-width: 100%;">
+    <div class="row align-items-center">
+      <div class="col text-start">
+        <h6 mat-dialog-title class="card-title text-uppercase text-black">{{data.titulo}}</h6>
+      </div>
+      <div class="col text-end">
+        <button type="button" (click)="onNoClick()" class="btn btn-light"
+          style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;">
+          <i class="bi bi-x-lg" style="margin: 0.5px;padding: 0.5px;"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="isLoading" class="spinner-overlay custom-spinner">
+    <mat-spinner></mat-spinner>
+  </div>
+  <div *ngIf="!isLoading" class="contenedor-scroll">
+    <div class="dialog-container">
+      <form [formGroup]="editForm" class="container" style="max-width: 95%;">
+        <!-- <h5>Datos Cliente</h5>
+        <hr> -->
+        <div class="card border-1 border-dark rounded-0">
+          <div class="card-header  rounded-0 d-flex justify-content-between align-items-center"
+            style="background-color: #4e5d8f;">
+            <h6 class="card-title text-uppercase text-white fw-bold mt-1">Datos del Cliente</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <label class="text-label">Correo Cliente</label>
+                <input class="form-control" formControlName="correocliente" placeholder="Ingrese Observación"
+                  maxlength="100" readonly />
+              </div>
+              <div class="col-md-4">
+                <label class="text-label">Fecha Operación</label>
+                <mat-form-field appearance="outline" class="w-100">
+                  <input matInput [matDatepicker]="picker" formControlName="fechaoperacion" />
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="text-label">Tipo Documento</label>
+                <input class="form-control" formControlName="nombretipodocumento" maxlength="50" readonly />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="text-label">Documento Cliente</label>
+                <input class="form-control" formControlName="doccliente" maxlength="15" readonly />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="text-label">Nombre Tipo Biometría</label>
+                <input class="form-control" formControlName="nombretipobiometria" maxlength="15" readonly />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-5 mb-3">
+                <label class="text-label">N° Celular Contrato</label>
+                <input class="form-control" formControlName="numcelularcontrato" maxlength="9" readonly />
+              </div>
+              <div class="col-md-7 mb-3">
+                <label class="text-label">Nombre Voucher</label>
+                <input class="form-control" formControlName="nombrevoucher" maxlength="100" readonly />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="text-label">Cod. Venta</label>
+                <input class="form-control" formControlName="idventas" maxlength="10" readonly />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="text-label">Cod. Detalle Venta</label>
+                <input class="form-control" formControlName="idventasdetalle" maxlength="10" readonly />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label class="text-label">Observación</label>
+                <input class="form-control" formControlName="observacion" maxlength="100"
+                  placeholder="Ingrese Observación" readonly />
+              </div>
+            </div>
+          </div>
+    
+        </div>
+    
+    
+    
+    
+        <!-- <h5>Datos Venta</h5>
+        <hr> -->
+    
+        <div class="card border-1 border-dark rounded-0 mt-2">
+          <div class="card-header  rounded-0 d-flex justify-content-between align-items-center"
+            style="background-color: #4e5d8f;">
+            <h6 class="card-title text-uppercase text-white fw-bold mt-1">Datos de la Venta</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="subproducto" class="text-label">Subproducto</label>
+                <ng-select id="subproducto" [items]="tipoSubproductoList" bindLabel="name" bindValue="id"
+                  placeholder="Seleccione un Subproducto" formControlName="idsubproducto" (change)="changeInputs($event)">
+                </ng-select>
+    
+              </div>
+              <div class="col-md-4 mb-3" *ngIf="isOperador">
+                <label for="operador" class="text-label">Operador</label>
+                <ng-select id="operador" [items]="operadorList" bindLabel="nombreoperador" bindValue="idoperador"
+                  placeholder="Seleccione un Operador" formControlName="idoperador">
+                </ng-select>
+              </div>
+              <div class="col-md-4 mb-3" *ngIf="!isAccesorio">
+                <label for="tipoequipo" class="text-label">Tipo Equipo</label>
+                <ng-select id="tipoequipo" [items]="tipoEquipoList" bindLabel="nombretipoequipo" bindValue="idtipoequipo"
+                  placeholder="Seleccione un Tipo Equipo" formControlName="idtipoequipo">
+                </ng-select>
+              </div>
+
+              
+            </div>
+
+            <div  class="row">
+              <div class="col-md-4 mb-3" *ngIf="!isAccesorio">
+                <label for="tiposeguro" class="text-label">Tipo Seguro</label>
+                <ng-select id="tiposeguro" [items]="tipoSeguroList" bindLabel="nombretiposeguro"             bindValue="idtiposeguro"
+                  placeholder="Seleccione un Tipo Seguro" formControlName="idtiposeguro">
+                </ng-select>
+              </div>
+              <div class="col-sm-4 mb-3" *ngIf="isUpselling">
+                <label style="font-weight: lighter;">Monto upselling</label>
+                <input class="form-control" type="number"  id="montoupselling" bindLabel="montoupselling"
+                    bindValue="montoupselling" placeholder="Escriba el monto upselling"
+                    formControlName="montoupselling"/>                                      
+              </div>
+            </div>
+            <div class="row" *ngIf="!isAccesorio">
+              <div class="col-md-4 mb-3">
+                <label class="text-label">Número Celular</label>
+                <input class="form-control" placeholder="Ingrese Numero Celular" formControlName="numerocelular"
+                  maxlength="9" (input)="onInputDocumento($event)" />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="tipoetiqueta" class="text-label">Tipo Etiqueta</label>
+                <ng-select id="tipoetiqueta" [items]="tipoEtiquetaList" bindLabel="nombretipoetiqueta"
+                  bindValue="idtipoetiqueta" placeholder="Seleccione un Tipo Etiqueta" formControlName="idtipoetiqueta">
+                </ng-select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="tipopago" class="text-label">Tipo Pago</label>
+                <ng-select id="tipopago" [items]="tipoPagoList" bindLabel="nombretipopago" bindValue="idtipopago"
+                  placeholder="Seleccione un Tipo Pago" formControlName="idtipopago">
+                </ng-select>
+              </div>
+            </div>
+            <div class="row" *ngIf="!isAccesorio">
+              <div class="col-md-6 mb-3">
+                <label for="plan" class="text-label">Plan</label>
+                <ng-select id="plan" [items]="planesList" bindLabel="name" bindValue="id" placeholder="Seleccione un Plan"
+                  formControlName="idplan">
+                </ng-select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="modelo" class="text-label">Modelo</label>
+                <ng-select id="modelo" [items]="modeloList" bindLabel="name" bindValue="id" placeholder="Seleccione un Plan"
+                  formControlName="idmodelo">
+                </ng-select>
+              </div>
+            </div>
+            <div class="row" *ngIf="!isAccesorio">
+              <div class="col-sm-4">
+                <label class="text-label">IMEI Equipo</label>
+                <input class="form-control" formControlName="imeiequipo" placeholder="Ingrese IMEI Equipo" maxlength="15" />
+              </div>
+              <!-- <div class="col-sm-4" *ngIf="perfil==='HC'">
+                <label for="modelo" class="text-label">IMEI Equipo</label>
+                <ng-select id="modelo" [items]="optionsImeiEquipo" bindLabel="imeiequipo" bindValue="imeiequipo"
+                  placeholder="Seleccione un IMEI Equipo" formControlName="imeiequipo">
+                </ng-select>
+              </div> -->
+              <div class="col-md-4 mb-3">
+                <label class="text-label">IMEI Sim</label>
+                <input class="form-control" formControlName="imeisim" placeholder="Ingrese IMEI Sim" maxlength="20" />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="text-label">ICCID</label>
+                <input class="form-control" formControlName="iccid" placeholder="Ingrese ICCID" maxlength="20" />
+              </div>
+            </div>
+    
+            <div class="row" *ngIf="isAccesorio">
+              <div class="col-md-6 mb-3">
+                <label for="accesorio" class="text-label">Tipo Accesorio</label>
+                <ng-select id="accesorio" [items]="tipoAccesorioList" bindLabel="name" bindValue="id"
+                  placeholder="Seleccione un Tipo Accesorio" formControlName="idtipoaccesorio">
+                </ng-select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-label">Cantidad</label>
+                <input class="form-control" formControlName="cantidadaccesorio" placeholder="Ingrese Cantidad" type="number"
+                  (input)="limitDigits($event)" />
+              </div>
+            </div>
+            <div class="row" *ngIf="isAccesorio">
+              <div class="col-md-6 mb-3">
+                <label class="text-label">Pago Accesorio</label>
+                <input class="form-control" formControlName="pagoaccesorio" placeholder="Ingrese Pago Accesorio"
+                  type="number" (input)="limitDigits($event)" />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-label">IMEI Accesorio</label>
+                <input class="form-control" formControlName="imeiaccesorio" placeholder="Ingrese IMEI Accesorio"
+                  maxlength="15" />
+              </div>
+            </div>
+    
+            <div class="row">
+              <div class="col-md-4 mb-3" *ngIf="!isAccesorio">
+                <label for="bundle" class="text-label">Bundle</label>
+                <ng-select id="bundle" [items]="bundleList" bindLabel="nombrebundle" bindValue="idbundle"
+                  placeholder="Seleccione un Bundle" formControlName="idbundle">
+                </ng-select>
+              </div>
+              <div class="col-md-4 mb-3" *ngIf="!isAccesorio">
+                <label class="text-label">Pago Caja</label>
+                <input class="form-control" formControlName="pagocaja" placeholder="Ingrese Pago en caja" type="number"
+                  (input)="limitDigits($event)" />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="text-label">N° Orden</label>
+                <input class="form-control" formControlName="numeroorden" placeholder="Ingrese N° Orden" maxlength="9"
+                  (input)="onInputDocumento($event)" />
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end pb-4 mt-2">
+          <button class="btn btn-success me-md-2" type="button" (click)="saveEditVenta()">
+            <!-- cdkFocusInitial mat-dialog-close-->
+            <i class="bi bi-floppy2-fill" style="font-size: 1.1rem;"></i>
+            Guardar
+          </button>
+          <button class="btn btn-outline-danger" type="button" (click)="onNoClick()">
+            <i class="bi bi-x-square-fill" style="font-size: 1.1rem;"></i>
+            Cerrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

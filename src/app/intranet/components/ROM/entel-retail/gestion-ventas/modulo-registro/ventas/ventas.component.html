@@ -1,0 +1,201 @@
+<app-spinner [isLoading]="isLoading"></app-spinner>
+<div class="col-12 px-3">
+    <div class="container-fluid mt-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item fw-bold">
+                    <a class="text-decoration-none">
+                        Ventas
+                    </a>
+                </li>
+                <li class="breadcrumb-item fw-bold active" aria-current="page">Listar</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="card border-dark">
+        <div class="card-header">
+            <h4 class="card-title text-uppercase fw-bold text-black mt-3">Ventas Retail</h4>
+        </div>
+        <div class="card-body">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-uppercase fw-bold text-black mt-3">Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form [formGroup]="filtroForm">
+                        <div class="row pb-3">
+                            <div class="col-sm-3 mb-3 mb-sm-0 px-3" style="min-width: 280px;">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Fecha de inicio</mat-label>
+                                    <input matInput [matDatepicker]="startDatePicker" formControlName="startDate"
+                                        (focus)="startDatePicker.open()" readonly>
+                                    <!-- <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle> -->
+                                    <mat-datepicker #startDatePicker></mat-datepicker>
+                                    <mat-error *ngIf="filtroForm.get('startDate')?.hasError('required')">La fecha de
+                                        inicio es obligatoria</mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-sm-3 px-3" style="min-width: 280px;">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Fecha de fin</mat-label>
+                                    <input matInput [matDatepicker]="endDatePicker" formControlName="endDate"
+                                        (focus)="endDatePicker.open()" readonly>
+                                    <!-- <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle> -->
+                                    <mat-datepicker #endDatePicker></mat-datepicker>
+                                    <mat-error *ngIf="filtroForm.get('endDate')?.hasError('required')">La fecha de fin
+                                        es
+                                        obligatoria</mat-error>
+                                </mat-form-field>
+                                <div *ngIf="filtroForm.errors?.['dateRangeInvalid']"
+                                    class="error text-danger lh-1 fst-italic pb-2">
+                                    *La fecha de fin no puede ser menor que la fecha de inicio
+                                </div>
+                            </div>
+                            <div class="col-sm-3 px-3" style="min-width: 220px;">
+                               
+                            </div>
+
+
+                          
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 px-3" *ngIf="perfil==='ADMIN'">
+                               
+                            </div>
+                            <div class="col-sm-3 px-3" *ngIf="perfil==='JV' || perfil==='ADMIN'">
+                                
+                            </div>
+                            <div class="col-sm-3 px-3" *ngIf="perfil==='JV' || perfil==='SG' || perfil==='ADMIN'">
+                                
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button class="btn btn-primary me-md-2" style="background-color: #1F316F;" type="submit"
+                                    (click)="buscar()">
+                                    <i class="bi bi-search"></i>
+                                    Buscar
+                                </button>
+                                <button *ngIf="perfil==='ADMIN' || perfil==='HC'"
+                                    style="--bs-btn-bg:#5B99C2; --bs-btn-color: white;" class="btn btn-info me-md-2"
+                                    type="button" (click)="openDialog()">
+                                    <i class="bi bi-bag-heart-fill"></i>
+                                    Registrar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <div class="table-responsive-sm mt-4 mb-4">
+                <div class="table-responsive-sm mt-4 mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <!-- Contador de ventas a la izquierda -->
+                        <div class="contador-ventas">
+                            <h5>Total de Ventas: {{ filteredVentasdetallelist.length }}</h5>
+                        </div>
+
+                        <!-- Input de búsqueda a la derecha y botón a la izquierda -->
+                        <div class="me-4 d-flex">
+                            <!-- Botón de Excel más delgado -->
+                            <button type="button" class="btn btn-success btn-sm me-2"
+                                style="font-size: 0.75rem; padding: 0.05rem 0.3rem; --bs-btn-bg:#217c4a; --bs-btn-color: white; display: flex; align-items: center;"
+                                (click)="exportarExcel()" [disabled]="!botonExcelHabilitado">
+                                <i class="bi bi-file-earmark-spreadsheet" style="margin-right: 0.25rem;"></i>
+                                Excel
+                            </button>
+
+
+                            <!-- Input de búsqueda más delgado -->
+                            <input type="text" class="form-control form-control-sm me-2" placeholder="Buscar"
+                                [(ngModel)]="searchTerm" (keyup)="search()" aria-describedby="basic-addon1"
+                                style="font-size: 0.75rem; padding: 0.25rem 0.4rem; height: 2.3rem;">
+                        </div>
+
+
+
+
+
+                    </div>
+
+                    <!-- Botones a la derecha -->
+
+
+                    <table
+                        class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+                        <thead style="--bs-table-bg-state:#1F316F; --bs-table-color-type: white;">
+                            <tr>
+                                <th scope="col">Cod. VENTA</th>
+                                <th scope="col">Cod. DET. VENTA</th>
+                                <th scope="col">DOC. PROMOTOR</th>
+                                <th scope="col">FECHA</th>
+                                <th scope="col">PRODUCTO</th>
+                                <th scope="col">TIPO E.</th>
+                                <th scope="col">PORTA CEDENTE</th>
+                                <th scope="col">PLAN</th>
+                                <th scope="col">MODELO</th>
+                                <th scope="col">IMEI EQUIPO</th>
+                                <th scope="col">IMEI SIM</th>
+                                <th scope="col">BUNDLE</th>
+                                <th scope="col">SEGURO</th>
+                                <!-- <th scope="col">MONTO</th> -->
+                                <th scope="col">NUM ORDEN</th>
+
+                                <th scope="col">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let venta of filteredVentasdetallelist   | slice:desde:hasta">
+                                <td>{{ venta.idventas }}</td>
+                                <td>{{ venta.idventasdetalle }}</td>
+                                <td>{{ venta.docpromotorasesor }}</td>
+                                <td>{{ venta.fechaoperacion | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ venta.nombresubproducto }}</td>
+                                <td>{{ venta.nombretipoequipo }}</td>
+                                <td>{{ venta.nombreoperador }}</td>
+                                <td>{{ venta.nombreplan }}</td>
+                                <td>{{ venta.nombremodelo }}</td>
+                                <td>{{ venta.imeiequipo }}</td>
+                                <td>{{ venta.imeisim }}</td>
+                                <td>{{ venta.nombrebundle }}</td>
+                                <td>{{ venta.nombretiposeguro }}</td>
+
+                                <!-- <td>{{ venta.montovoucher }}</td> -->
+                                <td>{{ venta.numeroorden }}</td>
+                                <td class="text-center">
+                                    <button type="button" (click)="openEdit(venta)" class="btn btn-primary"
+                                        title="visualizar Venta"
+                                        style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;--bs-btn-bg:#55679C; --bs-btn-color: white;">
+                                        <i class="bi bi-pencil-fill" style="margin: 0.5px; padding: 0.5px;"></i>
+                                    </button>
+                                    &nbsp;
+                                    <button type="button" (click)="openEditVoucher(venta)" class="btn btn-success"
+                                        title="Ver Voucher"
+                                        style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;--bs-btn-bg:#5B99C2; --bs-btn-color: white;">
+                                        <i class="bi bi-receipt" style="margin: 0.5px; padding: 0.5px;"></i>
+                                    </button>
+                                    &nbsp;
+                                    <button type="button" (click)="eliminarventasdetalle(venta.idventasdetalle)"
+                                        class="btn btn-danger" title="Eliminar Venta"
+                                        style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;">
+                                        <i class="bi bi-trash3-fill" style="margin: 0.5px; padding: 0.5px;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3">
+                        <!-- <mat-paginator #paginator [length]="(ventasdetallelista$ | async)?.length" [pageSize]="pageSize"
+                            (page)="cambiarpagina($event)">
+                        </mat-paginator> -->
+                        <mat-paginator #paginator [length]="filteredVentasdetallelist.length" [pageSize]="pageSize"
+                            (page)="cambiarpagina($event)">
+                        </mat-paginator>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+.list-wrapper {
+    overflow-x: auto;
+    /* Permite el scroll horizontal en el contenedor */
+}
+
+.list-container {
+    min-width: 550px;
+    white-space: nowrap;
+    /* Asegura que el contenido no se rompa en múltiples líneas */
+}
+
+.list-group-item {
+    position: relative;
+    /* border: none; Remove border around list items */
+}
+
+.custom-checkbox {
+    accent-color: blue;
+    /* Change checkbox color to blue */
+}
+
+.form-select-new {
+    color: var(--bs-body-color);
+    font-size: .8rem;
+    font-weight: 600;
+    background-size: 5% 30%;
+    padding: .2rem 2rem .2rem .5rem;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+}
+
+.form-select-new:focus {
+    border-color: #8d8d8d;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(26, 26, 26, .25);
+}

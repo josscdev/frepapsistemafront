@@ -1,0 +1,236 @@
+<div class="col-12 px-3 mb-5">
+   <div class="container-fluid mt-4">
+      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item fw-bold">
+               <a class="text-decoration-none">
+                  Usuario Permisos
+               </a>
+            </li>
+            <li class="breadcrumb-item fw-bold active" aria-current="page">Usuario</li>
+         </ol>
+      </nav>
+   </div>
+   <div class="card border-dark">
+      <div class="card-header">
+         <h4 class="card-title text-uppercase fw-bold text-black mt-3">Usuario Permisos</h4>
+      </div>
+      <div class="card-body">
+         <div class="row">
+            <div class="col-sm-5 mb-3 mb-sm-0">
+               <div class="card">
+                  <div class="card-header">
+                     <h5 class="card-title text-uppercase fw-bold text-black mt-3">Jerarquías</h5>
+                  </div>
+                  <div class="card-body">
+                     <div class="row mb-3 mt-3">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                           <label for="usuario" class="form-label fw-bold text-black">Nombres</label>
+                           <input type="text" id="usuario" [(ngModel)]="selectedItem.nombrecompleto"
+                              class="form-control" readonly>
+                        </div>
+                     </div>
+                     <div class="row mb-3">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                           <label class="form-label fw-bold text-black">Empresa:</label>
+                           <div class="input-group">
+                              <span class="input-group-text" id="basic-addon1">
+                                 <img [src]="this.imgEmpresa" width="20rem">
+                              </span>
+                              <input type="text" class="form-control" placeholder="Empresa" aria-label="Username"
+                                 aria-describedby="basic-addon1" [(ngModel)]="nombreEmpresa" readonly>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="row mb-3">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                           <label class="form-label fw-bold text-black">País:</label>
+                           <div class="input-group">
+                              <span class="input-group-text" id="basic-addon1">
+                                 <img [src]="this.imgPais" width="20rem">
+                              </span>
+                              <input type="text" class="form-control" placeholder="Nombre Pais" aria-label="País"
+                                 aria-describedby="basic-addon1" [(ngModel)]="nombrePais" readonly>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="row mb-3">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                           <label for="idNegocio" class="form-label fw-bold text-black">Negocio</label>
+                           <select class="form-select" id="idNegocio" [(ngModel)]="selectedNegocio"
+                              (change)="onNegocioChange()">
+                              <option value="0" selected>Seleccionar</option>
+                              <option *ngFor="let negocio of negocios" [value]="negocio.idnegocio">
+                                 {{negocio.nombrenegocio}}
+                              </option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="row mb-3">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                           <label for="idCuenta" class="form-label fw-bold text-black">Cuenta</label>
+                           <select class="form-select" id="idCuenta" [(ngModel)]="selectedCuenta"
+                              >
+                              <option value="0" selected>Seleccionar</option>
+                              <option *ngFor="let cuenta of cuentas" [value]="cuenta.idcuenta">
+                                 {{ cuenta.nombrecuenta }}
+                              </option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="row mb-3">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                           <button type="submit" class="btn m-3" style="background-color: #343A40;color: #fff;" (click)="getModulosPermisos()">
+                              <i class="bi bi-search" style="font-size: 1.2rem;"></i> Buscar
+                           </button>
+                           <button type="button" class="btn btn-success m-3" (click)="guardar()" data-bs-toggle="modal"
+                              data-bs-target="#exampleModal" [disabled]="isShowList">
+                              <i class="bi bi-floppy2-fill" style="font-size: 1.2rem;"></i> Guardar
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="card-footer text-body-secondary">
+                     <div class="col-sm-12 mb-3 mb-sm-0">
+                        <button type="button" class="btn btn-outline-info m-3 fw-bold" routerLink="/main/Seguridad/AdministracionPermisos">
+                           <i class="bi bi-box-arrow-in-left" style="font-size: 1.2rem;"></i> Regresar
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-7">
+               <div class="card">
+                  <div class="card-header">
+                     <h5 class="card-title text-uppercase fw-bold text-black mt-3">Módulos</h5>
+                  </div>
+                  <div class="card-body">
+
+                     <div class="list-wrapper">
+                        <div class="list-container" style="font-size: .85rem;">
+                           <ul class="list-group list-group-flush border-top border-bottom">
+                              <li *ngFor="let modulo of modulos" class="list-group-item module-item">
+                                 <div class="d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                       <input class="form-check-input custom-checkbox" type="checkbox"
+                                          *ngIf="modulo.rutamodulo!==null"
+                                          [checked]="modulo.estadomodulopermiso === 'A'"
+                                          id="modulo-{{ modulo.idmodulo }}"
+                                          (change)="toggleEstadoModulo($event,modulo)">
+                                       <label class="form-check-label badge text-bg-dark text-wrap" for="modulo-{{ modulo.idmodulo }}">
+                                          {{ modulo.nombremodulo }}
+                                       </label>
+                                    </div>
+                                    <ng-container *ngIf="modulo.rutamodulo">
+                                       <select [(ngModel)]="modulo.idperfilmodulo" class="form-select-new w-auto ms-3">
+                                          <option value="0">SIN PERFIL</option>
+                                          <option *ngFor="let perfil of listPerfiles" [value]="perfil.idperfiles">{{
+                                             perfil.nombre }}</option>
+                                       </select>
+                                    </ng-container>
+                                 </div>
+                                 <ul class="list-group list-group-flush mt-2 ml-4" *ngIf="modulo.submodules && modulo.submodules.length" style="padding-left: 1.2rem;">
+                                    <li *ngFor="let submodulo of modulo.submodules"
+                                       class="list-group-item submodule-item">
+                                       <div class="d-flex justify-content-between align-items-center">
+                                          <div class="form-check ml-4">
+                                             <input class="form-check-input custom-checkbox" type="checkbox"
+                                                *ngIf="submodulo.rutasubmodulo!==null"
+                                                [checked]="submodulo.estadosubmodulopermiso === 'A'"
+                                                id="submodulo-{{ submodulo.idsubmodulo }}"
+                                                (change)="toggleEstadoSubModulo($event,submodulo)">
+                                             <label class="form-check-label badge text-bg-success text-wrap"
+                                                for="submodulo-{{ submodulo.idsubmodulo }}">
+                                                {{ submodulo.nombresubmodulo }}
+                                             </label>
+                                          </div>
+                                          <ng-container *ngIf="submodulo.rutasubmodulo">
+                                             <select [(ngModel)]="submodulo.idperfilsubmodulo"
+                                                class="form-select-new w-auto ms-3">
+                                                <option value="0">SIN PERFIL</option>
+                                                <option *ngFor="let perfil of listPerfiles" [value]="perfil.idperfiles">
+                                                   {{ perfil.nombre }}</option>
+                                             </select>
+                                          </ng-container>
+                                       </div>
+                                       <ul class="list-group list-group-flush mt-2 ml-4" *ngIf="submodulo.items && submodulo.items.length" style="padding-left: 2.1rem;">
+                                          <li *ngFor="let item of submodulo.items"
+                                             class="list-group-item item-item d-flex justify-content-between align-items-center">
+                                             <div class="form-check ml-4">
+                                                <input class="form-check-input custom-checkbox" type="checkbox"
+                                                   *ngIf="item.rutaitemmodulo!==null"
+                                                   [checked]="item.estadoitemmodulopermiso === 'A'"
+                                                   id="item-{{ item.iditemmodulo }}"
+                                                   (change)="toggleEstadoItemModulo($event,item)">
+                                                <label class="form-check-label badge text-bg-info text-wrap" for="item-{{ item.iditemmodulo }}">
+                                                   {{ item.nombreitemmodulo }}
+                                                </label>
+                                             </div>
+                                             <ng-container *ngIf="item.rutaitemmodulo">
+                                                <select [(ngModel)]="item.idperfilitemmodulo"
+                                                   class="form-select-new w-auto ms-3">
+                                                   <option value="0">SIN PERFIL</option>
+                                                   <option *ngFor="let perfil of listPerfiles"
+                                                      [value]="perfil.idperfiles">{{ perfil.nombre }}</option>
+                                                </select>
+                                             </ng-container>
+                                          </li>
+                                       </ul>
+                                    </li>
+                                 </ul>
+                              </li>
+                           </ul>
+                        </div>
+                     </div>
+
+                  </div>
+               </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+               aria-hidden="true">
+               <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content">
+                     <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Resultados</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                     </div>
+                     <div class="modal-body">
+                        <!-- <div class="alert alert-primary" role="alert">
+                           Recuerda presionar control + F5 luego de guardar para ver los nuevos permisos!
+                        </div>
+                        <div class="list-group">
+                           <button *ngFor="let rpta of listaRespuestas" 
+                                   type="button" 
+                                   class="list-group-item list-group-item-action">
+                             {{ rpta.mensaje }} <br>
+                             {{ rpta.nombreModulos }} <br>
+                             {{ rpta.nombrePerfil }}
+                           </button>
+                         </div> -->
+                        
+                        <div *ngIf="listaRespuestas.length === 0" class="alert alert-warning" role="alert">
+                           No hay registros.
+                        </div>
+                        <div *ngIf="listaRespuestas.length > 0" class="list-group">
+                           <div class="alert alert-primary" role="alert">
+                              Recuerda presionar control + F5 luego de guardar para ver los nuevos permisos!
+                           </div>
+                           <button *ngFor="let rpta of listaRespuestas" 
+                                   type="button" 
+                                   class="list-group-item list-group-item-action">
+                             {{ rpta.mensaje }} <br>
+                             {{ rpta.nombreModulos }} <br>
+                             {{ rpta.nombrePerfil }}
+                           </button>
+                         </div>
+                     </div>
+                     <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                           (click)="getModulosPermisos()">Close</button>
+                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                     </div>
+                  </div>
+               </div>
+            </div>

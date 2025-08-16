@@ -1,0 +1,200 @@
+<div class="container text-center" style="max-width: 100%;">
+    <div class="row align-items-center">
+        <div class="col text-start">
+            <h6 mat-dialog-title class="card-title text-uppercase text-black">{{data.titulo}}</h6>
+        </div>
+        <div class="col text-end">
+            <button type="button" (click)="onNoClick()" class="btn btn-light"
+                style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;">
+                <i class="bi bi-x-lg" style="margin: 0.5px;padding: 0.5px;"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div style="padding: 30px;" class="contenedor-scroll">
+     <div class="dialog-container">
+        <div class="card border-1 border-dark rounded-0 mt-0">
+            <div class="card-header rounded-0 d-flex justify-content-between align-items-center"
+                style="background-color: #1F316F;">
+                <h6 class="card-title text-uppercase text-white fw-bold mt-1">Datos Promotor</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <label class="text-label">Documento</label>
+                        <input class="form-control" [(ngModel)]="docusuario" readonly />
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="text-label">Nombres</label>
+                        <input class="form-control" [(ngModel)]="nombrespromotor" readonly />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="text-label">Usuario RED TDE</label>
+                        <input class="form-control" [(ngModel)]="usuarioredtde" readonly />
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="text-label">Usuario Portal</label>
+                        <input class="form-control" [(ngModel)]="usuarioportal" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <form [formGroup]="editForm">
+            <div class="accordion accordion-flush mt-3" id="accordionPanelsStayOpenExample"
+                formArrayName="roles">
+                <div class="accordion-item" *ngFor="let role of getRolesFormArray().controls; let i = index"
+                    [formGroupName]="i">
+                    <h2 class="accordion-header d-flex align-items-center justify-content-between" id="heading{{i}}">
+                        <button #accordionButton class="accordion-button collapsed custom-header-bg flex-grow-1" type="button" data-bs-toggle="collapse" 
+                                style="font-size: 12px;"
+                                [attr.data-bs-target]="'#panelsStayOpen-collapse'+i" 
+                                aria-expanded="false" 
+                                [attr.aria-controls]="'panelsStayOpen-collapse'+i">
+                            {{i + 1}}. Inicio: {{ role.get('fechainicio')?.value | date:'dd/MM/yyyy' }} 
+                            - Fin: {{ role.get('fechafin')?.value | date:'dd/MM/yyyy' }} 
+                            &nbsp;&nbsp;|&nbsp;&nbsp; PDV: {{ role.get('nombrepdv')?.value || 'No seleccionado' }}
+                        </button>
+                        <button type="button" class="btn btn-success ms-1 me-1"
+                            (click)="saveOneRole(role.get('idrol')?.value, i, accordionButton)"
+                            [disabled]="!botonesGuardar[i]">
+                            <i class="bi bi-floppy2-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger ms-1 me-1" (click)="removeOneRole(i)">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </h2>
+                    <div [id]="'panelsStayOpen-collapse'+i" class="accordion-collapse collapse"
+                        [attr.data-bs-parent]="'#accordionPanelsStayOpenExample'" [attr.aria-labelledby]="'heading'+i">
+                        <div class="accordion-body">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-2 mb-1">
+                                        <label class="text-label">Fecha Inicio</label>
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <input matInput [matDatepicker]="fechainiciopicker"
+                                                formControlName="fechainicio" (click)="fechainiciopicker.open()" readonly />
+                                            <mat-datepicker #fechainiciopicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col-md-2 mb-1">
+                                        <label class="text-label">Fecha Fin</label>
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <input matInput [matDatepicker]="fechafinpicker" formControlName="fechafin"
+                                                (click)="fechafinpicker.open()" readonly />
+                                            <mat-datepicker #fechafinpicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col-md-4 mb-1">
+                                        <label for="puntoventa" class="text-label">Punto Venta</label>
+                                        <ng-select id="puntoventa" [items]="puntoVentaList" bindLabel="nombrepdv"
+                                            (change)="changePdv(i)"
+                                            bindValue="idpdv" placeholder="Seleccione" formControlName="idpdv">
+                                        </ng-select>
+                                    </div>
+                                    <!-- <div class="col-md-2 mb-1">
+                                        <label class="text-label">Usuario RED TDE</label>
+                                        <input class="form-control" formControlName="usuarioredtde" />
+                                    </div>
+                                    <div class="col-md-2 mb-1">
+                                        <label class="text-label">Usuario Portal</label>
+                                        <input class="form-control" formControlName="usuarioportal" />
+                                    </div> -->
+                                </div>
+                                <div class="row">
+                                    <hr style="padding-left:5px; padding-right:5px;">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="estadopromotor" class="text-label">Estado Promotor</label>
+                                        <ng-select id="estadopromotor" [items]="estadoPromotorList"
+                                            bindLabel="nombretipoestado" bindValue="idtipoestado" placeholder="Seleccione"
+                                            formControlName="idtipoestado">
+                                        </ng-select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="funcionalidad" class="text-label">Tipo Funcionalidad</label>
+                                        <ng-select id="funcionalidad" [items]="funcionalidadList"
+                                            bindLabel="nombretipofuncionalidad" bindValue="idtipofuncionalidad"
+                                            placeholder="Seleccione" formControlName="idtipofuncionalidad">
+                                        </ng-select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="tipoTrabajo" class="text-label">Tipo Trabajo</label>
+                                        <ng-select id="tipoTrabajo" [items]="tipoTrabajoList" bindLabel="nombretipotrabajo"
+                                            bindValue="idtipotrabajo" placeholder="Seleccione"
+                                            formControlName="idtipotrabajo">
+                                        </ng-select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="referente" class="text-label">Referente</label>
+                                        <ng-select id="referente" [items]="options" bindLabel="description"
+                                            bindValue="value" placeholder="Seleccione" formControlName="referente">
+                                        </ng-select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr style="padding-left:5px; padding-right:5px;">
+                                    <div class="col-md-2 mb-1">
+                                        <label class="text-label">Carnet Sanidad</label>
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <input matInput [matDatepicker]="fechacarnetsanidadpicker"
+                                                formControlName="fechacarnetsanidad"
+                                                (focus)="fechacarnetsanidadpicker.open()" readonly />
+                                            <mat-datepicker #fechacarnetsanidadpicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col-md-2 mb-1">
+                                        <label for="gestante" class="text-label">Gestante</label>
+                                        <ng-select id="gestante" [items]="options" bindLabel="description" bindValue="value"
+                                            placeholder="Seleccione" formControlName="gestante">
+                                        </ng-select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr style="padding-left:5px; padding-right:5px;">
+                                    <div class="col-md-5 mb-1">
+                                        <label for="tipoLicencia" class="text-label">Tipo Licencia</label>
+                                        <ng-select id="tipoLicencia" [items]="tipoLicenciaList"
+                                            bindLabel="nombretipolicencia" bindValue="idtipolicencia"
+                                            placeholder="Seleccione" formControlName="idtipolicencia">
+                                        </ng-select>
+                                    </div>
+                                    <div class="col-md-5 mb-1">
+                                        <label class="text-label">Observación</label>
+                                        <input class="form-control" formControlName="observacionlicencia" />
+                                    </div>
+                                    <div class="col-md-2 mb-1">
+                                        <label class="text-label">Fecha Cese</label>
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <input matInput [matDatepicker]="fechacesepicker" formControlName="fechacese"
+                                                (click)="fechacesepicker.open()" readonly />
+                                            <mat-datepicker #fechacesepicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón para añadir nuevo conjunto de campos -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end pb-2 mt-4">
+                <button class="btn btn-info" type="button" style="--bs-btn-bg:#5B99C2; --bs-btn-color: white;" 
+                    (click)="addRole()">
+                    <i class="bi bi-plus-square"></i> Añadir Rol
+                </button>
+            </div>
+            <hr>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end pb-2 mt-4">
+                <!-- <button class="btn btn-success me-md-2" type="submit"
+                    (click)="saveAllocation()" *ngIf="perfil==='ADMIN'">
+                    <i class="bi bi-floppy2-fill" style="font-size: 1.1rem;"></i> Guardar
+                </button> -->
+                <button class="btn btn-outline-danger" type="button" (click)="onNoClick()">
+                    <i class="bi bi-x-square-fill" style="font-size: 1.1rem;"></i> Cerrar
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>

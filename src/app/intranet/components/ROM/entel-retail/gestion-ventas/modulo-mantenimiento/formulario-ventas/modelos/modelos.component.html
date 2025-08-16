@@ -1,0 +1,98 @@
+<form [formGroup]="manegementForm" (ngSubmit)="getManegementForm('modelos')">
+    <div class="row">
+        <div class="col-sm-4 mb-3">
+            <label style="font-weight: lighter;">
+                Descripción
+            </label>
+            <input type="text" class="form-control" maxlength="100" formControlName="description"
+                placeholder="Ingrese Descripción" (input)="transformToUpperCase($event)">
+        </div>
+        <div class="col-sm-4 mb-3">
+            <label style="font-weight: lighter;">
+                Marca
+            </label>
+            <ng-select [items]="marcas" placeholder="Seleccione Marca" formControlName="nombremarca">
+            </ng-select>
+        </div>
+        <div class="col-sm-4 mb-3">
+            <label style="font-weight: lighter;">
+                Gamma
+            </label>
+            <ng-select [items]="gammas" placeholder="Seleccione Gamma" formControlName="nombregamma">
+            </ng-select>
+        </div>
+    </div>
+    <div class="row justify-content-md-start">
+        <div class="col-sm-12 mb-3">
+            <button type="submit" class="btn btn-primary m-3">Guardar</button>
+            <button type="button" class="btn btn-info m-3" (click)="limpiarFormulario()">Limpiar
+                Campos</button>
+        </div>
+    </div>
+</form>
+<div class="table-responsive-sm mt-4">
+    <table class="table table-dark caption-top table-hover table-bordered text-center table-sm rounded-2">
+        <caption class="text-black fw-bold">
+            <div class="row justify-content-md-end my-2">
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar" [(ngModel)]="searchTermModelo"
+                            (keyup)="searchModelo()" aria-label="Username" aria-describedby="basic-addon1"
+                            maxlength="100">
+                    </div>
+                </div>
+            </div>
+        </caption>
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Item</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Marca</th>
+                <th scope="col">Gamma</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let modelo of filteredModelosList.slice(desdeM, hastaM)">
+                <th scope="row">{{ modelo.idmodelo }}</th>
+                <td>
+                    <ng-container *ngIf="!modelo.editing">{{ modelo.nombremodelo
+                        }}</ng-container>
+                    <input type="text" id="inputE" class="form-control" maxlength="100" *ngIf="modelo.editing"
+                        [value]="modelo.nombremodelo | uppercase" (input)="onDescriptionChangeModelo($event, modelo)"
+                        placeholder="Ingrese Descripción">
+                </td>
+                <td>
+                    <ng-container *ngIf="!modelo.editing">{{ modelo.nombremarca }}</ng-container>
+                    <ng-select *ngIf="modelo.editing" [items]="marcas" [clearable]="false"
+                        [(ngModel)]="modelo.nombremarca">
+                    </ng-select>
+                </td>
+                <td>
+                    <ng-container *ngIf="!modelo.editing">{{ modelo.nombregamma }}</ng-container>
+                    <ng-select *ngIf="modelo.editing" [items]="gammas" [clearable]="false"
+                        [(ngModel)]="modelo.nombregamma">
+                    </ng-select>
+                </td>
+                <td>
+                    <a *ngIf="!modelo.editing" (click)="enableEditingModelo(modelo)">
+                        <i class="bi bi-pencil-square me-3" style="color: #4f8bd9; font-size: 1.4rem;"></i>
+                    </a>
+                    <a *ngIf="modelo.editing" (click)="saveChangesModelo(modelo)">
+                        <i class="bi bi-check2-circle me-3" style="color: #4fd976; font-size: 1.4rem;"></i>
+                    </a>
+                    <a *ngIf="modelo.editing" (click)="cancelEditingModelo(modelo)">
+                        <i class="bi bi-x-square me-3" style="color: #d9534f; font-size: 1.4rem;"></i>
+                    </a>&nbsp;
+                    <a (click)="eliminarModelo(modelo)">
+                        <i class="bi bi-trash" style="color: #d9534f; font-size: 1.4rem;"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="mt-5">
+        <mat-paginator [length]="filteredModelosList.length" [pageSize]="pageSizeModelo"
+            (page)="cambiarpaginaModelo($event)"></mat-paginator>
+    </div>
+</div>

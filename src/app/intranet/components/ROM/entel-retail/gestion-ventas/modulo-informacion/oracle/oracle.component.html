@@ -1,0 +1,192 @@
+<div class="col-12 px-3">
+   <div class="container-fluid mt-4">
+      <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item fw-bold">
+               <a class="text-decoration-none"> Oracle </a>
+            </li>
+            <li class="breadcrumb-item fw-bold active" aria-current="page">
+               Listar
+            </li>
+         </ol>
+      </nav>
+   </div>
+   <div class="card border-dark">
+      <div class="card-header">
+         <h4 class="card-title text-uppercase fw-bold text-black mt-3">
+            Oracle Retail
+         </h4>
+      </div>
+      <div class="card-body">
+         <div class="card">
+            <div class="card-header">
+               <h5 class="card-title text-uppercase fw-bold text-black mt-3">
+                  Funciones
+               </h5>
+            </div>
+            <div class="card-body">
+               <form [formGroup]="filtroForm">
+                  <div class="row pb-3">
+                     <div class="col-sm-3 mb-3 mb-sm-0 px-3" style="min-width: 280px">
+                        <mat-form-field appearance="outline" class="w-100">
+                           <mat-label>Fecha de inicio Inventario</mat-label>
+                           <input matInput [matDatepicker]="startDatePicker" formControlName="startDateinv"
+                              (focus)="startDatePicker.open()" readonly />
+                           <!-- <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle> -->
+                           <mat-datepicker #startDatePicker></mat-datepicker>
+                           <mat-error *ngIf="filtroForm.get('startDateinv')?.hasError('required')">La fecha de inicio es
+                              obligatoria</mat-error>
+                        </mat-form-field>
+                     </div>
+                     <div class="col-sm-3 px-3" style="min-width: 280px">
+                        <mat-form-field appearance="outline" class="w-100">
+                           <mat-label>Fecha de fin Inventario</mat-label>
+                           <input matInput [matDatepicker]="endDatePicker" formControlName="endDateinv"
+                              (focus)="endDatePicker.open()" readonly />
+                           <!-- <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle> -->
+                           <mat-datepicker #endDatePicker></mat-datepicker>
+                           <mat-error *ngIf="filtroForm.get('endDateinv')?.hasError('required')">La fecha de fin es
+                              obligatoria</mat-error>
+                        </mat-form-field>
+                        <div *ngIf="filtroForm.errors?.['dateRangeInvalid']"
+                           class="error text-danger lh-1 fst-italic pb-2">
+                           *La fecha de fin no puede ser menor que la fecha de inicio
+                        </div>
+                     </div>
+                     <div class="col-sm-3 mb-3 mb-sm-0 px-3" style="min-width: 280px">
+                        <mat-form-field appearance="outline" class="w-100">
+                           <mat-label>Fecha de inicio Oracle</mat-label>
+                           <input matInput [matDatepicker]="startDatePicker2" formControlName="startDateol"
+                              (focus)="startDatePicker2.open()" readonly />
+                           <!-- <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle> -->
+                           <mat-datepicker #startDatePicker2></mat-datepicker>
+                           <mat-error *ngIf="filtroForm.get('startDateol')?.hasError('required')">La fecha de inicio es
+                              obligatoria</mat-error>
+                        </mat-form-field>
+                     </div>
+                     <div class="col-sm-3 px-3" style="min-width: 280px">
+                        <mat-form-field appearance="outline" class="w-100">
+                           <mat-label>Fecha de fin Oracle</mat-label>
+                           <input matInput [matDatepicker]="endDatePicker2" formControlName="endDateol"
+                              (focus)="endDatePicker2.open()" readonly />
+                           <!-- <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle> -->
+                           <mat-datepicker #endDatePicker2></mat-datepicker>
+                           <mat-error *ngIf="filtroForm.get('endDateol')?.hasError('required')">La fecha de fin es
+                              obligatoria</mat-error>
+                        </mat-form-field>
+                        <div *ngIf="filtroForm.errors?.['dateRangeInvalid']"
+                           class="error text-danger lh-1 fst-italic pb-2">
+                           *La fecha de fin no puede ser menor que la fecha de inicio
+                        </div>
+                     </div>
+                  </div>
+
+               </form>
+               <hr>
+               <form>
+                  <div class="row pb-3">
+                     <div class="col-12 col-sm-2 mb-2 mb-sm-0">
+                        <button id="btndescarga" type="button" class="btn btn-outline-success p-1" style="width: 100%;"
+                           (click)="downloadExcel()">
+                           <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
+                           Descargar
+                        </button>
+                     </div>
+                     <div class="col-12 col-sm-3">
+                        <input class="form-control form-control-sm" id="fileselect" type="file"
+                           (change)="onFileChange($event)">
+                        <div *ngIf="fileName">{{ fileName }}</div>
+                     </div>
+                     <div class="col-12 col-sm-2">
+                        <button id="btncarga" type="button" class="btn btn-outline-dark p-1" style="width: 100%;"
+                           (click)="guardarOracle()">
+                           <i class="bi bi-arrow-up-circle fs-4"></i> Cargar
+                        </button>
+                     </div>
+                     <div class="col-12 col-sm-1 d-none d-sm-flex justify-content-center">
+                        <div class="vertical-hr"></div>
+                     </div>
+                     <div class="col-12 col-sm-2">
+                        <button id="btncarga" type="button" class="btn btn-dark p-1" style="width: 100%;"
+                           (click)="conciliarOracle()">
+                           <i class="bi bi-arrow-left-right fs-4"></i> Conciliar
+                        </button>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+
+         <div class="table-responsive-sm mt-4 mb-4">
+            <div class="table-responsive-sm mt-4 mb-4">
+               <div class="d-flex justify-content-between mb-2">
+                  <div class="me-4 d-flex"></div>
+               </div>
+               <div class="row mb-3 mt-4">
+                  <div class="col-md-6">
+                     <input type="text" class="form-control" placeholder="Buscar en la tabla..."
+                        [(ngModel)]="filtroTexto" (input)="aplicarFiltro()" />
+                  </div>
+               </div>
+               <table
+                  class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+                  <thead style="--bs-table-bg-state:#1F316F; --bs-table-color-type: white;">
+                     <tr>
+                        <th (click)="ordenarPor('nombrepdv')" style="cursor: pointer">
+                           Punto Venta
+                           <span *ngIf="columnaOrden === 'nombrepdv'">
+                              {{ direccionOrden === 'asc' ? '▲' : '▼' }}
+                           </span>
+                        </th>
+                        <th (click)="ordenarPor('fechaconciliacion')" style="cursor: pointer">
+                           Fecha Conciliación
+                           <span *ngIf="columnaOrden === 'fechaconciliacion'">
+                              {{ direccionOrden === 'asc' ? '▲' : '▼' }}
+                           </span>
+                        </th>
+                        <th>Acciones</th>
+                     </tr>
+                  </thead>
+
+                  <tbody>
+                     <tr *ngFor="let item of paginador()">
+                        <td>{{ item.nombrepdv }}</td>
+                        <td>{{ item.fechaconciliacion | date : "dd/MM/yyyy" }}</td>
+                        <td class="text-center">
+                           <button type="button" (click)="detalleConciliacion(item)" class="btn btn-info"
+                              title="Detalle Venta"
+                              style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;--bs-btn-bg:#55679C; --bs-btn-color: white;">
+                              <i class="bi bi-pencil-square" style="margin: 0.5px; padding: 0.5px;"></i>
+                           </button>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+               <nav class="d-flex justify-content-end">
+                  <ul class="pagination pagination-sm">
+                     <li class="page-item" [class.disabled]="paginaActual === 1">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual - 1)">
+                           Anterior
+                        </button>
+                     </li>
+                     <li class="page-item" *ngFor="let pagina of totalPaginasArray"
+                        [class.active]="paginaActual === pagina">
+                        <button class="page-link" (click)="cambiarPagina(pagina)">
+                           {{ pagina }}
+                        </button>
+                     </li>
+                     <li [class.disabled]="paginaActual === totalPaginas" class="page-item">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual + 1)">
+                           Siguiente
+                        </button>
+                     </li>
+                  </ul>
+               </nav>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+</div>

@@ -1,0 +1,153 @@
+<div class="col-12 px-3">
+    <div class="container-fluid mt-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item fw-bold">
+                    <a class="text-decoration-none">
+                        Allocation
+                    </a>
+                </li>
+                <li class="breadcrumb-item fw-bold active" aria-current="page">Listar</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="card border-dark">
+        <div class="card-header">
+            <h4 class="card-title text-uppercase fw-bold text-black mt-3">Allocation</h4>
+        </div>
+        <div class="card-body">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-uppercase fw-bold text-black mt-0 mb-0">Gestión de Allocation Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row pb-3">
+                        <div class="col-12 col-sm-2 mb-2 mb-sm-0">
+                            <label for="btndescarga">Formato:</label>
+                            <button id="btndescarga" type="button" class="btn btn-outline-success p-1"
+                                style="width: 100%;" (click)="downloadExcel()">
+                                <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
+                                Descargar
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-2">
+                            <label for="fileselect">Archivo de Carga:</label>
+                            <input class="form-control form-control-sm" id="fileselect" type="file"
+                                (change)="onFileChange($event)">
+                            <div *ngIf="fileName">{{ fileName }}</div>
+                        </div>
+                        <div class="col-12 col-sm-2">
+                            <label for="btncarga">Cargar:</label>
+                            <button id="btncarga" type="button" class="btn btn-outline-dark p-1" style="width: 100%;"
+                                (click)="guardarRoles()">
+                                <i class="bi bi-arrow-up-circle fs-4"></i> Cargar
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-1 d-none d-sm-flex justify-content-center" *ngIf="perfil!=='ADMIN'">
+                            <div class="vertical-hr"></div>
+                        </div>
+                        <div class="col-12 col-sm-2" *ngIf="perfil==='ADMIN'">
+                            <label for="btnactual-ant">Periodo Anterior:</label>
+                            <button id="btnactual-ant" type="button"
+                                [ngClass]="{'btn-selected': selectedButton === 'ANT'}" class="btn btn-outline-info p-1"
+                                style="width: 100%;" (click)="selectButton('ANT')">
+                                <i class="bi bi-arrow-repeat fs-4"></i> Refrescar
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-2">
+                            <label for="btnactual-act">Periodo Actual:</label>
+                            <button id="btnactual-act" type="button"
+                                [ngClass]="{'btn-selected': selectedButton === 'ACT'}" class="btn btn-outline-info p-1"
+                                style="width: 100%;" (click)="selectButton('ACT')">
+                                <i class="bi bi-arrow-repeat fs-4"></i> Refrescar
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-2">
+                            <label for="btnanterior">Periodo Posterior:</label>
+                            <button id="btnanterior" type="button"
+                                [ngClass]="{'btn-selected': selectedButton === 'POST'}" class="btn btn-outline-info p-1"
+                                style="width: 100%;" (click)="selectButton('POST')">
+                                <i class="bi bi-arrow-repeat fs-4"></i> Refrescar
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-2" *ngIf="perfil==='ADMIN'">
+                            <label for="btnanterior">Periodo Posterior-1:</label>
+                            <button id="btnanterior" type="button"
+                                [ngClass]="{'btn-selected': selectedButton === 'POST-1'}"
+                                class="btn btn-outline-info p-1" style="width: 100%;" (click)="selectButton('POST-1')">
+                                <i class="bi bi-arrow-repeat fs-4"></i> Refrescar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive-sm mt-4 mb-4">
+                <div class="table-responsive-sm mt-4 mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="contador-ventas">
+                            <h5>Roles registrados del periodo de <span class="badge text-bg-custom">{{mes}}</span></h5>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <!-- Contador de ventas a la izquierda -->
+                        <div class="contador-ventas">
+                            <h5>Total de Registros: {{ filteredAllocationList.length }}</h5>
+                        </div>
+                        <!-- Input de búsqueda a la derecha y botón a la izquierda -->
+                        <div class="me-4 d-flex">
+                            <!-- Botón de Excel más delgado -->
+                            <!-- <button type="button" class="btn btn-success btn-sm me-2"
+                                style="font-size: 0.75rem; padding: 0.05rem 0.3rem; --bs-btn-bg:#217c4a; --bs-btn-color: white; display: flex; align-items: center;">
+                                <i class="bi bi-file-earmark-spreadsheet" style="margin-right: 0.25rem;"></i>
+                                Excel
+                            </button> -->
+
+
+                            <!-- Input de búsqueda más delgado -->
+                            <input type="text" class="form-control form-control-sm me-2" placeholder="Buscar"
+                                aria-describedby="basic-addon1" [(ngModel)]="searchTerm" (keyup)="search()"
+                                style="font-size: 0.75rem; padding: 0.25rem 0.4rem; height: 2.3rem;">
+                        </div>
+                    </div>
+                    <table
+                        class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+                        <thead style="--bs-table-bg-state:#1F316F; --bs-table-color-type: white;">
+                            <tr>
+                                <th scope="col" style="min-width: 60px;"></th>
+                                <th scope="col">N° Doc.</th>
+                                <th scope="col" style="max-width: 110px;">Promotor</th>
+                                <th scope="col">Puntos Venta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let allocation of filteredPuntosDeVentaPorPromotor | slice:desde:hasta">
+                                <td class="text-center" style="min-width: 60px;">
+                                    <button type="button" class="btn btn-primary mx-1" title="Editar"
+                                        (click)="openEdit(allocation)"
+                                        style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;--bs-btn-bg:#55679C; --bs-btn-color: white;">
+                                        <i class="bi bi-pencil-fill" style="margin: 0.5px; padding: 0.5px;"></i>
+                                    </button>
+                                </td>
+                                <td>{{allocation.docusuario}}</td>
+                                <td style="max-width: 110px;">{{allocation.nombres}}</td>
+                                <td class="text-start">
+                                    <div *ngFor="let punto of allocation.puntosDeVenta"
+                                        class="badge fw-semibold mb-1 mx-1"
+                                        [ngClass]="getClaseLicencia(punto.nombretipolicencia)">
+                                        <div>{{ punto.nombrepdv }} - {{ punto.nombretipolicencia }}</div>
+                                        <div class="pt-1">{{ punto.fechainicio }} - {{ punto.fechafin }}</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3">
+                        <mat-paginator #paginator [length]="filteredAllocationList.length" [pageSize]="pageSize"
+                            (page)="cambiarpagina($event)">
+                        </mat-paginator>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

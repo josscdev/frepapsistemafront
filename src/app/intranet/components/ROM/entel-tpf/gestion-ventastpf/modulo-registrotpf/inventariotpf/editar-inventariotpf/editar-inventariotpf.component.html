@@ -1,0 +1,48 @@
+<div class="container-fluid">
+    <h5 mat-dialog-title>
+        Registrado por: {{data.nombrepromotor}} - {{data.docpromotorasesor}}
+    </h5>
+</div>
+<br>
+<mat-dialog-content>
+    <div class="table-responsive-lg mx-4">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" placeholder="Buscar en la tabla..." [(ngModel)]="filtroTexto"
+                    (input)="aplicarFiltro()" />
+            </div>
+        </div>
+        <table class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">IMEI</th>
+                    <th scope="col">Fecha Registro</th>
+                    <th scope="col" *ngIf="listaFiltrada.length > 1">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of listaFiltrada; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item.imeiequipo }}</td>
+                    <td>{{ item.fechacreacion }}</td>
+                    <td *ngIf="listaFiltrada.length > 1">
+                        <button type="button" (click)="eliminarIMEI(item.idinventariodetalle)" class="btn btn-danger"
+                            title="Eliminar Venta"
+                            style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;">
+                            <i class="bi bi-trash3-fill" style="margin: 0.5px; padding: 0.5px;"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="container-fluid mb-2">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-outline-danger" type="button" (click)="closeDialog()">
+                <i class="bi bi-x-square-fill" style="font-size: 1.1rem;"></i>
+                Cerrar
+            </button>
+        </div>
+    </div>
+</mat-dialog-content>

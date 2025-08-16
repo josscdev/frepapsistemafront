@@ -1,0 +1,519 @@
+<div class="contenedor-scroll">
+    <div class="card border-0">
+        <div class="card-header bg-transparent border-secondary border-1">
+
+            <div class="container text-center" style="max-width: 100%;">
+                <div class="row align-items-center">
+                    <div class="col text-start">
+                        <h5 class="card-title text-uppercase text-black mt-3 fw-bold">{{data.titulo}}</h5>
+                    </div>
+                    <div class="col">
+
+                    </div>
+                    <div class="col text-end">
+                        <button type="button" (click)="onNoClick()" class="btn btn-light"
+                            style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;">
+                            <i class="bi bi-x-lg" style="margin: 0.5px;padding: 0.5px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dialog-container">
+            <form [formGroup]="ventaForm" (ngSubmit)="onSubmit()">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                            <div class="card border-1 border-dark rounded-0">
+                                <div class="card-header  rounded-0 d-flex justify-content-between align-items-center"
+                                    style="background-color: #4e5d8f;">
+                                    <h6 class="card-title text-uppercase text-white fw-bold mt-1">Datos del Cliente</h6>
+                                    <button class="btn btn-outline-light btn-sm" (click)="limpiarDatosCliente()"
+                                        style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .45rem;">
+                                        Limpiar Campos
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-9 mb-3">
+                                            <label style="font-weight: lighter;">
+                                                Correo Cliente
+                                                <span style="color: red;">(*)</span>
+                                            </label>
+                                            <input type="email" id="correo" class="form-control"
+                                                placeholder="Ingrese Correo" formControlName="correo" maxlength="100"
+                                                [ngClass]="{'invalid': ventaForm.get('correo')?.invalid}">
+
+                                            <!-- Mensajes de error -->
+                                            <div *ngIf="ventaForm.get('correo')?.hasError('email') && !ventaForm.get('correo')?.hasError('required')"
+                                                class="text-danger m-1" style="font-size: 0.7rem;">
+                                                El correo no es válido.
+                                            </div>
+                                            <div *ngIf="ventaForm.get('correo')?.hasError('required')"
+                                                class="text-danger m-1" style="font-size: 0.7rem;">
+                                                El correo es obligatorio.
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label style="font-weight: lighter;">Fecha Operación</label>
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <!-- <mat-label>Fecha Operación</mat-label> -->
+                                                <input matInput [matDatepicker]="startDatePicker"
+                                                    formControlName="startdate" (focus)="startDatePicker.open()"
+                                                    [max]="today" readonly>
+                                                <!-- <mat-datepicker-toggle matSuffix
+                                                    [for]="startDatePicker"></mat-datepicker-toggle> -->
+                                                <mat-datepicker #startDatePicker></mat-datepicker>
+                                                <mat-error *ngIf="ventaForm.get('startdate')?.hasError('maxDate')">
+                                                    La fecha no puede ser posterior a hoy.
+                                                </mat-error>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4 mb-3">
+                                            <label for="tipodocumento" style="font-weight: lighter;">
+                                                Tipo Documento
+                                                <span style="color: red;">(*)</span>
+                                            </label>
+                                            <ng-select id="tipodocumento" [items]="tipoDocumentoList"
+                                                bindLabel="nombretipodocumento" bindValue="idtipodocumento"
+                                                placeholder="Seleccione un Tipo Documento" formControlName="idtipodocumento"
+                                                [ngClass]="{'invalid': ventaForm.get('idtipodocumento')?.invalid}"
+                                                (change)="changeTipoDocumento($event)">
+                                            </ng-select>
+                                            <!-- Mensaje de error -->
+                                            <div *ngIf="ventaForm.get('idtipodocumento')?.invalid" class="text-danger m-1"
+                                                style="font-size: 0.7rem; font-style: italic;">
+                                                Este campo es obligatorio.
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">
+                                                N° Documento
+                                                <span style="color: red;">(*)</span>
+                                            </label>
+                                            <input class="form-control" formControlName="numerodocumento" maxlength="15"
+                                                placeholder="Ingrese N° Documento"
+                                                (input)="onInputDocumento($event, 'numerodocumento')"
+                                                [ngClass]="{'invalid': ventaForm.get('numerodocumento')?.invalid}" />
+
+                                            <!-- Mensaje de error -->
+                                            <div *ngIf="ventaForm.get('numerodocumento')?.hasError('required')"
+                                                class="text-danger m-1" style="font-size: 0.7rem; font-style: italic;">
+                                                Este campo es obligatorio.
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label for="tipobiometria" style="font-weight: lighter;">
+                                                Tipo Biometría
+                                                <span style="color: red;">(*)</span>
+                                            </label>
+                                            <ng-select id="tipobiometria" [items]="tipoBiometriaList"
+                                                bindLabel="nombretipobiometria" bindValue="idtipobiometria"
+                                                placeholder="Seleccione un Tipo Biometría" formControlName="idtipobiometria"
+                                                [ngClass]="{'invalid': ventaForm.get('idtipobiometria')?.invalid}">
+                                            </ng-select>
+
+                                            <!-- Mensaje de error -->
+                                            <div *ngIf="ventaForm.get('idtipobiometria')?.hasError('required')"
+                                                class="text-danger m-1" style="font-size: 0.7rem; font-style: italic;">
+                                                Este campo es obligatorio.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">
+                                                N° Celular Contrato
+                                                <span style="color: red;">(*)</span>
+                                            </label>
+                                            <input class="form-control" formControlName="celularcontrato" maxlength="9"
+                                                placeholder="Ingrese N° Celular Contrato"
+                                                (input)="onInputDocumento($event, 'celularcontrato')"
+                                                [ngClass]="{'invalid': ventaForm.get('celularcontrato')?.invalid}" />
+
+                                            <!-- Mensaje de error -->
+                                            <div *ngIf="ventaForm.get('celularcontrato')?.hasError('required')"
+                                                class="text-danger m-1" style="font-size: 0.7rem; font-style: italic;">
+                                                Este campo es obligatorio.
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-1 d-none d-sm-flex justify-content-center">
+                                            <div class="vertical-hr"></div>
+                                        </div>
+                                        <div class="col-sm-7 mb-3">
+                                            <!-- Botón para subir archivo y mostrar el nombre del archivo seleccionado -->
+                                            <div class="file-upload">
+                                                <button class="btn " style="background-color: #49597e; color: white;"
+                                                    type="button" (click)="fileInput.click()">
+                                                    <i class="bi bi-upload"></i> Subir Voucher
+                                                </button>
+                                                <input type="file" #fileInput (change)="onFileSelected($event)" hidden />
+                                            </div>
+
+                                            <div *ngIf="fileName" class="file-name fs-6">
+                                                <mat-icon matSuffix><i class="bi bi-image-fill"
+                                                        style="padding-right: 1px; font-size: 1.1rem; color: #616161;"></i></mat-icon>
+                                                <span>{{ fileName }}</span>
+                                                <button type="button" class="btn btn-outline-danger"
+                                                    (click)="limpiarImagen()"
+                                                    style="--bs-btn-padding-y: .03rem; --bs-btn-padding-x: .2rem; font-size: .7rem;">
+                                                    Borrar <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card border-1 border-dark rounded-0 mt-2">
+                                <div class="card-header  rounded-0 d-flex justify-content-between align-items-center"
+                                    style="background-color: #4e5d8f;">
+                                    <h6 class="card-title text-uppercase text-white fw-bold mt-1">Datos de la Boleta</h6>
+                                    <!-- <button class="btn btn-outline-light btn-sm" (click)="limpiarDatosBoleta()"
+                                        [disabled]="botonBloqueado"
+                                        style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .45rem;">
+                                        Limpiar Campos
+                                    </button> -->
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-4 mb-3">
+                                            <!-- <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>N° RUC</mat-label>
+                                                <input matInput placeholder="Ingrese RUC" formControlName="numeroruc"
+                                                    maxlength="15">
+                                                <mat-icon matSuffix>
+                                                    <i class="bi bi-file-earmark-text-fill"
+                                                        style="padding-right: 15px; font-size: 1.4rem; color: #616161;"></i>
+                                                </mat-icon>
+                                            </mat-form-field> -->
+                                            <label style="font-weight: lighter;">N° RUC</label>
+                                            <input class="form-control" formControlName="numeroruc"
+                                                placeholder="Ingrese RUC" maxlength="15" />
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">Cod. Comprobante</label>
+                                            <input class="form-control" formControlName="codcomprobante"
+                                                placeholder="Ingrese Cod. Comprobante" maxlength="15" />
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">N° RUC</label>
+                                            <input class="form-control" formControlName="numeroserie"
+                                                placeholder="Ingrese N° Serie" maxlength="15" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">Número</label>
+                                            <input class="form-control" formControlName="numero"
+                                                placeholder="Ingrese Número" maxlength="15" />
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">Fecha Emisión</label>
+                                            <input class="form-control" formControlName="fechaemision"
+                                                placeholder="Ingrese Fecha Emisión" maxlength="15" />
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">Monto</label>
+                                            <input class="form-control" formControlName="montovoucher" type="number"
+                                                placeholder="Ingrese Monto" (input)="limitDigits($event)" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 mb-3">
+                                            <label style="font-weight: lighter;">Observación</label>
+                                            <input class="form-control" formControlName="observacion"
+                                                placeholder="Ingrese Observación" maxlength="100" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card border-1 border-dark rounded-0 mt-2">
+                                <div class="card-header rounded-0 d-flex justify-content-between align-items-center"
+                                    style="background-color: #4e5d8f;">
+                                    <h6 class="card-title text-uppercase text-white fw-bold mt-1">Datos de la Venta</h6>
+                                    <button class="btn btn-outline-light btn-sm" (click)="limpiarDatosVenta()"
+                                        style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .45rem;">
+                                        Limpiar Campos
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-4 mb-3">
+                                            <label for="subproducto" style="font-weight: lighter;">Subproducto</label>
+                                            <span style="color: red;">(*)</span>
+                                            <!-- <ng-select id="subproducto" [items]="tipoSubproductoList" 
+                                                bindValue="idsubproducto" placeholder="Seleccione un Subproducto"
+                                                bindLabel="nombresubproducto" 
+                                                formControlName="idsubproducto" (change)="changeInputs($event)"
+                                                [ngClass]="{'invalid': ventaForm.get('idsubproducto')?.invalid}">
+                                            </ng-select> -->
+                                            <ng-select id="subproducto"
+                                                    [items]="tipoSubproductoList"
+                                                    bindLabel="name"
+                                                    bindValue="id"
+                                                    placeholder="Seleccione un Subproducto"
+                                                    formControlName="idsubproducto"
+                                                    (change)="changeInputs($event)"
+                                                    [ngClass]="{'invalid': ventaForm.get('idsubproducto')?.invalid }">
+                                            </ng-select>
+
+                                            <div *ngIf="ventaForm.get('idsubproducto')?.invalid" class="text-danger m-1"
+                                                style="font-size: 0.7rem; font-style: italic;">
+                                                Este campo es obligatorio.
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 mb-3" *ngIf="isOperador">
+                                            <label for="operador" style="font-weight: lighter;">Operador</label>
+                                            <ng-select id="operador" [items]="operadorList" bindLabel="nombreoperador"
+                                                bindValue="idoperador" placeholder="Seleccione un Operador"
+                                                formControlName="idoperador">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-4 mb-3" *ngIf="!isAccesorio">
+                                            <label for="tipoequipo" style="font-weight: lighter;">Tipo Equipo</label>
+                                            <ng-select id="tipoequipo" [items]="tipoEquipoList" bindLabel="nombretipoequipo"
+                                                bindValue="idtipoequipo" placeholder="Seleccione un Tipo Equipo"
+                                                formControlName="idtipoequipo">
+                                            </ng-select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4 mb-3" *ngIf="!isAccesorio">
+                                            <label for="tiposeguro" style="font-weight: lighter;">Tipo Seguro</label>
+                                            <ng-select id="tiposeguro" [items]="tipoSeguroList" bindLabel="nombretiposeguro"
+                                                bindValue="idtiposeguro" placeholder="Seleccione un Tipo Seguro"
+                                                formControlName="idtiposeguro">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-4 mb-3" *ngIf="isUpselling">
+                                            <label style="font-weight: lighter;">Monto upselling</label>
+                                            <input class="form-control" type="number"  id="montoupselling" bindLabel="montoupselling"
+                                                bindValue="montoupselling" placeholder="Escriba el monto upselling"
+                                                formControlName="montoupselling"/>                                      
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <hr>
+                                        <div class="col-sm-4 mb-3" *ngIf="!isAccesorio">
+                                            <label style="font-weight: lighter;">N° Celular</label>
+                                            <input class="form-control" placeholder="Ingrese Numero Celular"
+                                                formControlName="numerocelular" maxlength="9"
+                                                (input)="onInputDocumento($event,'numerocelular')" />
+                                        </div>
+                                        <div class="col-sm-4 mb-3" *ngIf="!isAccesorio">
+                                            <label for="tipoetiqueta" style="font-weight: lighter;">Tipo Etiqueta</label>
+                                            <ng-select id="tipoetiqueta" [items]="tipoEtiquetaList"
+                                                bindLabel="nombretipoetiqueta" bindValue="idtipoetiqueta"
+                                                placeholder="Seleccione un Tipo Etiqueta" formControlName="idtipoetiqueta">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-4 mb-3" *ngIf="!isAccesorio">
+                                            <label for="tipopago" style="font-weight: lighter;">Tipo Pago</label>
+                                            <ng-select id="tipopago" [items]="tipoPagoList" bindLabel="nombretipopago"
+                                                bindValue="idtipopago" placeholder="Seleccione un Tipo Pago"
+                                                formControlName="idtipopago">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-6 mb-3" *ngIf="isAccesorio">
+                                            <label for="accesorio" style="font-weight: lighter;">Tipo Accesorio</label>
+                                            <ng-select id="accesorio" [items]="tipoAccesorioList" bindLabel="name"
+                                                bindValue="id" placeholder="Seleccione un Tipo Accesorio"
+                                                formControlName="idtipoaccesorio">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-6 mb-3" *ngIf="isAccesorio">
+                                            <label style="font-weight: lighter;">Cantidad</label>
+                                            <input class="form-control" formControlName="cantidadaccesorio"
+                                                placeholder="Ingrese Cantidad" type="number"
+                                                (input)="limitDigits($event)" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <hr>
+                                        <div class="col-sm-6 mb-3" *ngIf="!isAccesorio">
+                                            <label for="plan" style="font-weight: lighter;">Plan</label>
+                                            <ng-select id="plan" [items]="planesList" bindLabel="name" bindValue="id"
+                                                placeholder="Seleccione un Plan" formControlName="idplan">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-6 mb-3" *ngIf="!isAccesorio">
+                                            <label for="modelo" style="font-weight: lighter;">Modelo</label>
+                                            <ng-select id="modelo" [items]="modeloList" bindLabel="name" bindValue="id"
+                                                placeholder="Seleccione un Plan" formControlName="idmodelo">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-6 mb-3" *ngIf="isAccesorio">
+                                            <label style="font-weight: lighter;">Pago Accesorio</label>
+                                            <input class="form-control" formControlName="pagoaccesorio"
+                                                placeholder="Ingrese Pago Accesorio" type="number"
+                                                (input)="limitDigits($event)" />
+                                        </div>
+                                        <div class="col-sm-6 mb-3" *ngIf="isAccesorio">
+                                            <label style="font-weight: lighter;">IMEI Accesorio</label>
+                                            <input class="form-control" formControlName="imeiaccesorio"
+                                                placeholder="Ingrese IMEI Accesorio" maxlength="15" />
+                                        </div>
+                                    </div>
+                                    <div class="row" *ngIf="!isAccesorio">
+                                        <hr>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">IMEI Equipo</label>
+                                            <input class="form-control" formControlName="imeiequipo"
+                                                placeholder="Ingrese IMEI Equipo" maxlength="15" />
+                                        </div>
+                                        <!-- <div class="col-sm-4 mb-3" *ngIf="perfil==='HC'">
+                                            <label for="modelo" style="font-weight: lighter;">IMEI Equipo</label>
+                                            <ng-select id="modelo" [items]="optionsImeiEquipo" bindLabel="imeiequipo"
+                                                bindValue="imeiequipo" placeholder="Seleccione un IMEI Equipo"
+                                                formControlName="imeiequipo">
+                                            </ng-select>
+                                        </div> -->
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">IMEI Sim</label>
+                                            <input class="form-control" formControlName="imeisim"
+                                                placeholder="Ingrese IMEI Sim" maxlength="20" />
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">ICCID</label>
+                                            <input class="form-control" formControlName="iccid" placeholder="Ingrese ICCID"
+                                                maxlength="20" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <hr>
+                                        <div class="col-sm-4 mb-3" *ngIf="!isAccesorio">
+                                            <label for="bundle" style="font-weight: lighter;">Bundle</label>
+                                            <ng-select id="bundle" [items]="bundleList" bindLabel="nombrebundle"
+                                                bindValue="idbundle" placeholder="Seleccione un Bundle"
+                                                formControlName="idbundle">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-sm-4 mb-3" *ngIf="!isAccesorio">
+                                            <label style="font-weight: lighter;">Pago Caja</label>
+                                            <input class="form-control" formControlName="pagocaja"
+                                                placeholder="Ingrese Pago en caja" type="number"
+                                                (input)="limitDigits($event)" />
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label style="font-weight: lighter;">
+                                                N° Orden
+                                                <span style="color: red;">(*)</span>
+                                            </label>
+                                            <input class="form-control" formControlName="numeroorden"
+                                                placeholder="Ingrese N° Orden" maxlength="9"
+                                                (input)="onInputDocumento($event, 'numeroorden')"
+                                                [ngClass]="{'invalid': ventaForm.get('numeroorden')?.invalid}" />
+
+                                            <!-- Mensaje de error -->
+                                            <div *ngIf="ventaForm.get('numeroorden')?.hasError('required')"
+                                                class="text-danger m-1" style="font-size: 0.7rem; font-style: italic;">
+                                                Este campo es obligatorio.
+                                            </div>
+                                            <div *ngIf="ventaForm.get('numeroorden')?.hasError('pattern')"
+                                                class="text-danger m-1" style="font-size: 0.7rem; font-style: italic;">
+                                                El número debe tener solo dígitos.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card border-0 bg-transparent mt-2">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn me-md-2" type="submit" [disabled]="ventaForm.invalid" [ngClass]="{
+                                                'btn-info': ventaForm.valid,
+                                                'btn-invalid': ventaForm.invalid
+                                                }">
+                                            <i class="bi bi-bag-plus-fill" style="font-size: 1.1rem;"></i>
+                                            Agregar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="table-responsive mt-2 mb-4">
+                        <table
+                            class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm">
+                            <caption class="text-uppercase">Productos Agregados</caption>
+                            <thead style="--bs-table-bg-state:#4e5d8f; --bs-table-color-type: white;">
+                                <tr class="table-header">
+                                    <th scope="col">ACCION</th>
+                                    <th scope="col">SUBPRODUCTO</th>
+                                    <th scope="col">OPERADOR</th>
+                                    <th scope="col">T. EQUIPO</th>
+                                    <th scope="col">T. ETIQUETA</th>
+                                    <th scope="col">T. PAGO</th>
+                                    <th scope="col">PLAN</th>
+                                    <th scope="col">MODELO</th>
+                                    <th scope="col">IMEI EQUIPO</th>
+                                    <th scope="col">IMEI SIM</th>
+                                    <th scope="col">ICCID</th>
+                                    <th scope="col">BUNDLE</th>
+                                    <th scope="col">PAGO CAJA</th>
+                                    <th scope="col">N° ORDEN</th>
+                                    <th scope="col">T. ACCESORIO</th>
+                                    <th scope="col">CANT. ACCESORIO</th>
+                                    <th scope="col">PAGO ACCESORIO</th>
+                                    <th scope="col">IMEI ACCESORIO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let ventasdetalle of ventasDetalle">
+                                    <td class="text-center">
+                                        <button type="button" (click)="eliminarVenta(ventasdetalle)" class="btn btn-danger"
+                                            title="Eliminar Venta"
+                                            style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .45rem; --bs-btn-font-size: 1.3rem;">
+                                            <i class="bi bi-trash3-fill" style="margin: 0.5px;padding: 0.5px;"></i>
+                                        </button>
+                                    </td>
+                                    <td>{{ ventasdetalle.nombresubproducto }}</td>
+                                    <td>{{ ventasdetalle.nombreoperador }}</td>
+                                    <td>{{ ventasdetalle.nombretipoequipo }}</td>
+                                    <td>{{ ventasdetalle.nombretipoetiqueta }}</td>
+                                    <td>{{ ventasdetalle.nombrepago }}</td>
+                                    <td>{{ ventasdetalle.nombreplan }}</td>
+                                    <td>{{ ventasdetalle.nombremodelo }}</td>
+                                    <td>{{ ventasdetalle.imeiequipo }}</td>
+                                    <td>{{ ventasdetalle.imeisim }}</td>
+                                    <td>{{ ventasdetalle.iccid }}</td>
+                                    <td>{{ ventasdetalle.nombrebundle }}</td>
+                                    <td>{{ ventasdetalle.pagocaja }}</td>
+                                    <td>{{ ventasdetalle.numeroorden }}</td>
+                                    <td>{{ ventasdetalle.nombretipoaccesorio }}</td>
+                                    <td>{{ ventasdetalle.cantidadaccesorio }}</td>
+                                    <td>{{ ventasdetalle.pagoaccesorio }}</td>
+                                    <td>{{ ventasdetalle.imeiaccesorio }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button class="btn me-md-2" type="button" (click)="saveVentas()"
+                            [disabled]="isBlockSave || isButtonDisabled" [ngClass]="{
+                                'btn-success': !isBlockSave,
+                                'btn-invalid': isBlockSave
+                                }">
+                            <i class="bi bi-floppy2-fill" style="font-size: 1.1rem;"></i>
+                            Guardar
+                        </button>
+                        <button class="btn btn-outline-danger" type="button" (click)="onNoClick()">
+                            <i class="bi bi-x-square-fill" style="font-size: 1.1rem;"></i>
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>

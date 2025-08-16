@@ -1,0 +1,16 @@
+.select-cuenta {
+    min-width: 220px;
+    max-width: 300px;
+}
+
+@media screen and (max-width: 768px) {
+    .select-cuenta {
+        width: 100%;
+    }
+}
+
+.btn-carga-masiva {
+    font-size: 16px; /* o 1rem, o lo que necesites */
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}

@@ -1,0 +1,8 @@
+.table td,
+.table th {
+    padding: 0.5rem
+}
+
+.swal2-styled.swal2-confirm.swalBtnColor {
+    color: #FFC900
+  }

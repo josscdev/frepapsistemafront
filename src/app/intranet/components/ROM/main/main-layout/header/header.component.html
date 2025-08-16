@@ -1,0 +1,169 @@
+<nav class="navbar navbar-dark bg-primary" style="padding-top: 10px;padding-bottom: 10px;">
+
+    <div class="d-flex align-items-center">
+        <button class="navbar-toggler me-0" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation"
+            style="margin-left: 30px;">
+            <i class="navbar-toggler-icon" style="color: rgb(255, 255, 255);"></i>
+
+        </button>
+        <a class="navbar-brand pe-0">
+            <img src="assets/img/Rom/ROM_sobre azul2.png" class="img-fluid" style="max-height: 35px;margin-left: 30px;">
+        </a>
+        <a class="navbar-brand mt-2 btn btn-primary ps-0 text-wrap text-break" [routerLink]="['/main/start']">
+            <i class="bi bi-house-door-fill "></i>
+            Home
+        </a> 
+
+        <!-- <div class="ms-auto d-flex align-items-center" style="color: white;">
+            <div style="text-align: center;">
+              <label id="dteFechaSl" style="display: inline-block">{{ asistencia.dteFecha || 'fecha' }}</label>
+              <strong>|</strong>
+              <label id="dteFeHoraMarcacion" style="display: inline-block">{{ asistencia.dteFeHoraIngreso || 'horaaa' }}</label>
+              <strong>-</strong>
+              <label id="dteFeHoraSalida" style="display: inline-block; margin-left: 2px;">
+                {{ asistencia.dteFeHorSalida || 'hora salida' }}
+              </label>
+            </div>
+            <li class="dropdown sectAsistenciaPleca" style="display: none;"><strong>|</strong></li>
+          </div> -->
+          <div class="ms-auto d-flex align-items-center" style="color: white;">
+            <div style="text-align: center;">
+              <!-- Mostrar loader mientras isLoading es true -->
+              <ng-container *ngIf="isLoading; else contentLoaded">
+                <!-- Loader pequeño -->
+                <div class="spinner-border text-light spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </ng-container>
+          
+              <!-- Mostrar contenido cuando isLoading es false -->
+              <ng-template #contentLoaded>
+                <ng-container *ngIf="asistencia; else noHorario">
+                  <!-- Mostrar la fecha de ingreso -->
+                  <label id="dteFechaSl" style="display: inline-block;text-transform: lowercase;text-transform: capitalize;">
+                    <i class="bi bi-calendar-week"></i> Fecha: {{ asistencia.dteFechaIngreso || 'Fecha' }}</label>
+                  <strong> | </strong>
+                  
+                  <!-- Mostrar la hora de ingreso -->
+                  <label id="dteFeHoraMarcacion" style="display: inline-block; text-transform: lowercase;text-transform: capitalize;">Entrada: {{ asistencia.horaIngreso || 'No Registró entrada' }}</label>
+                  <strong> - </strong>
+                  
+                  <!-- Mostrar la hora de salida -->
+                  <label id="dteFeHoraSalida" style="display: inline-block; margin-left: 2px;text-transform: lowercase;text-transform: capitalize;">
+                   Salida: {{ asistencia.horaSalida || 'No Registró salida' }}
+                  </label>
+                </ng-container>
+                
+                <!-- Mostrar si no hay horario disponible -->
+                <ng-template #noHorario>
+                  <label style="display: inline-block">No tiene horario disponible</label>
+                </ng-template>
+              </ng-template>
+            </div>
+          </div>
+          
+          
+        
+        <div class="offcanvas offcanvas-start p-3" style="background-color: #00002e;" tabindex="-1"
+            id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+            <div class="offcanvas-header">
+                <img src="assets/img/avatar.jpg" class="img-fluid rounded-5" style="max-height: 50px;">
+                <h5 class="offcanvas-title text-white text-center" id="offcanvasDarkNavbarLabel">
+                    Bienvenido<br>{{ userData?.nombres?.split(' ')[0]}} {{ userData.apellidopaterno}} 
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav justify-content-end flex-grow-1">
+                    <!-- <li class="nav-item">
+                        <a class="nav-link text-white text-start text-capitalize btn btn-primary rounded-0 p-2"
+                            aria-current="page" routerLink="start" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-house-door-fill" style="font-size: 1rem;padding-right: 4px;"></i>
+                            Home
+                        </a>
+                    </li> -->
+
+                    <li *ngFor="let modulo of modulos" class="nav-item dropdown">
+                        <a class="nav-link text-white text-start text-capitalize text-wrap text-break btn btn-primary rounded-0 p-2 dropdown-toggle"
+                            [routerLink]="modulo.ruta"
+                            [class.dropdown-toggle]="modulo.submodulos && modulo.submodulos.length > 0"
+                            [attr.data-bs-dismiss]="!modulo.submodulos || modulo.submodulos.length <= 0 ? 'offcanvas' : null"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="{{ modulo.icono }}" style="font-size: 1rem;padding-right: 4px;"></i>
+                            {{ modulo.nombre }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark m-0 p-0 "
+                            *ngIf=" modulo.submodulos && modulo.submodulos.length > 0">
+                            <li *ngFor="let submodulo of modulo.submodulos">
+                                <div class="dropdown-item ms-3 p-0">
+                                    <a class="nav-link text-white text-start text-capitalize text-wrap text-break btn btn-primary rounded-0 p-2 dropdown-toggle fond"
+                                        [routerLink]="submodulo.ruta"
+                                        [class.dropdown-toggle]="submodulo.items && submodulo.items.length > 0"
+                                        [attr.data-bs-dismiss]="!submodulo.items || submodulo.items.length <= 0 ? 'offcanvas' : null"
+                                        href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                        (click)="$event.stopPropagation()" data-bs-dismiss="offcanvas">
+                                        <i class="{{ submodulo.icono }}"
+                                            style="font-size: 1rem;padding-right: 4px;"></i>
+                                        {{ submodulo.nombre }}
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-dark ms-2 p-0"
+                                        *ngIf="submodulo.items && submodulo.items.length > 0">
+                                        <li *ngFor="let item of submodulo.items">
+                                            <div>
+                                                <a class="dropdown-item text-wrap text-break pb-2" href="#"
+                                                    data-bs-dismiss="offcanvas" [routerLink]="item.ruta">
+                                                    <i class="{{ item.icono }}"
+                                                        style="font-size: 1rem; padding-right: 4px;"></i>
+                                                    {{ item.nombre }}
+                                                </a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                        <hr class="m-0 ">
+                    </li>
+
+
+                    <!-- <li class="nav-item">
+                        <a class="nav-link text-white text-start btn btn-primary rounded-0 p-2" aria-current="page"
+                            href="" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-person" style="font-size: 1rem;padding-right: 4px;"></i>
+                            Mi Perfil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white text-start btn btn-primary rounded-0 p-2" aria-current="page"
+                            href="" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-shield-lock" style="font-size: 1rem;padding-right: 4px;"></i>
+                            Cambiar Contraseña
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <hr>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white text-start btn btn-primary rounded-0 p-2" aria-current="page"
+                            routerLink="/main" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-house" style="font-size: 1rem;padding-right: 4px;"></i>
+                            Home
+                        </a>
+                    </li>-->
+                </ul>
+                <!-- <form class="d-flex mt-3" role="search">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-success" type="submit">Search</button>
+              </form> -->
+            </div>
+            <div class="sticky-bottom btn btn-danger p-2 mt-3">
+                <a class="nav-link text-center text-white" href="#">
+                    <i class="bi bi-box-arrow-right" style="font-size: 1rem;padding-right: 4px;"></i>
+                    CERRAR SESION
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

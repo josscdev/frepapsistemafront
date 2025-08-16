@@ -1,0 +1,34 @@
+.table-sm th {
+    padding: 0.2rem;
+}
+.floating-list {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    color: rgb(51, 51, 51);
+    font-size: 11pt;
+
+}
+
+
+
+.list-item:hover {
+    background-color: lightgray;
+}
+
+/* @media screen and (min-width: 100%) {
+    .prueba  {
+        max-width: 40%; 
+        font-size: 11px;
+        color: transparent;
+    }
+} */
+
+@media screen and (min-width: 70%) {
+    .prueba  {
+        max-width: 40%; 
+        font-size: 11px;
+        color: transparent;
+    }
+}

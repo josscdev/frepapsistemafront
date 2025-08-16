@@ -1,0 +1,51 @@
+.vertical-hr {
+    border-left: 1px solid #acacac;
+    /* Línea vertical */
+    height: 70px;
+    /* Altura de la línea */
+    width: 0;
+    /* No ocupa espacio horizontal */
+    margin: 0 auto;
+    /* Centrar la línea */
+}
+
+.btn-selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.table td,
+.table th {
+    padding: 0.5rem;
+    font-size: 71%;
+    font-weight: 700;
+}
+
+.text-bg-custom {
+    background-color: #55679C !important;
+    color: white !important;
+}
+
+.badge{
+    font-size: 1em;
+}
+
+.custom-badge {
+    background-color: #7C93C3 !important; /* Cambia el color de fondo */
+    color: #fff !important;             /* Cambia el color del texto */
+}
+
+.text-bg-calendario {
+    background-color: #559c59 !important;
+    color: white !important;
+}
+
+.bg-orange {
+    background-color: #f57c00 !important;
+    color: white;
+}
+
+.bg-gray {
+    background-color: rgb(108, 108, 108);
+    color: white;
+}

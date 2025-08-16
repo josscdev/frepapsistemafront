@@ -1,0 +1,48 @@
+<div class="col-12 px-3 mt-4">
+    <div class="card-body">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title text-uppercase fw-bold text-black mt-3">Bundles</h5>
+            </div>
+            <div class="card-body ">
+                <div class="table-responsive">
+ 
+                <table class="table caption-top table-hover table-striped table-bordered border-secondary text-center table-sm"  >
+                    <thead style="--bs-table-bg-state:#1F316F; --bs-table-color-type: white;"> 
+                        <tr>
+                            <th>ID</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        <tr *ngFor="let bundle of bundles">
+                            <td>{{ bundle.idbundle }}</td>
+                            <td>{{ bundle.nombrebundle }}</td>
+                            <td>
+                                <ng-container *ngIf="!editing || editingId !== bundle.idbundle">{{ bundle.estado === 1 ? 'Activo' : 'Inactivo' }}</ng-container>
+                                <select class="form-select" *ngIf="editing && editingId === bundle.idbundle" [(ngModel)]="bundle.estado">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </td>
+                            <td>
+                                <a *ngIf="!editing || editingId !== bundle.idbundle" (click)="enableEditingBundleStatus(bundle)">
+                                    <i class="bi bi-pencil-square me-3" style="color: #4f8bd9; font-size: 1.4rem;"></i>
+                                </a>
+                                <a *ngIf="editing && editingId === bundle.idbundle" (click)="saveBundleStatus(bundle)">
+                                    <i class="bi bi-check-square me-3" style="color: green; font-size: 1.4rem;"></i>
+                                </a>
+                                <a *ngIf="editing && editingId === bundle.idbundle" (click)="cancelEditingBundleStatus(bundle)">
+                                    <i class="bi bi-x-square me-3" style="color: #d9534f; font-size: 1.4rem;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>  
+            </div>
+        </div>
+    </div>
+</div>

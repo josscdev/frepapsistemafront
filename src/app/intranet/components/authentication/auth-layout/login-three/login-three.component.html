@@ -1,0 +1,33 @@
+<h5 class="card-title p-3">Selecciona Negocio y Cuenta</h5>
+<form [formGroup]="loginForm" (ngSubmit)="getLogin()">
+    <div class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text" id="basic-addon3"><i class="bi bi-briefcase"></i></span>
+            <select class="form-select" formControlName="business" (change)="ongetBusinessAccount($event)">
+                <option value="">Seleccionar Negocio</option>
+                <option *ngFor="let business of listBusiness" [value]="business.idnegocio">
+                    {{business.nombrenegocio}}</option>
+            </select>
+        </div>
+        <!-- <div class="form-text text-danger" id="basic-addon4" *ngIf="loginForm.get('business')?.hasError('required')">
+            Negocio es requerido
+        </div> -->
+    </div>
+    <div class="mb-4 pt-2">
+        <div class="input-group">
+            <span class="input-group-text" id="basic-addon3"><i class="bi bi-person-vcard"></i></span>
+            <select class="form-select" formControlName="businessAccount">
+                <option value="">Seleccionar Cuenta</option>
+                <option *ngFor="let account of listAccount" [value]="account.idcuenta">
+                    {{account.nombrecuenta}}</option>
+            </select>
+        </div>
+        <!-- <div class="form-text text-danger" id="basic-addon4" *ngIf="loginForm.get('businessAccount')?.hasError('required')">
+            Cuenta es requerido
+        </div> -->
+    </div>
+    <button type="submit" class="btn btn-primary m-3" [disabled]="!loginForm.valid">
+        Siguiente
+        <i class="bi bi-arrow-right-circle"></i>
+    </button>
+</form>

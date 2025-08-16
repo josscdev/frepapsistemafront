@@ -1,0 +1,92 @@
+<!-- <h2 >{{ data.titulo }}</h2> -->
+<div class="container text-center" style="max-width: 100%">
+    <div class="row align-items-center">
+      <div class="col text-start">
+        <h4 mat-dialog-title class="card-title text-uppercase text-black">
+          {{ data.titulo }}
+        </h4>
+      </div>
+      <br>
+      <br>
+  
+      <div class="col text-end">
+        <button
+          type="button"
+          (click)="cancelar()"
+          class="btn btn-light"
+          style="
+            --bs-btn-padding-y: 0.15rem;
+            --bs-btn-padding-x: 0.45rem;
+            --bs-btn-font-size: 1.3rem;
+          "
+        >
+          <i class="bi bi-x-lg" style="margin: 0.5px; padding: 0.5px"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="dialog-container">
+    <form [formGroup]="editForm" class="container" style="max-width: 95%">
+      <div class="card border-1 border-dark rounded-0 mt-2">
+          <div class="card-header  rounded-0 d-flex justify-content-between align-items-center"
+            style="background-color: #4e5d8f;">
+            <h6 class="card-title text-uppercase text-white fw-bold mt-1">Datos del Usuario Entel</h6>
+          </div>
+        <div class="card-body">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <label class="text-label">DNI</label>
+                <input class="form-control" formControlName="docusuario" />
+              </div>
+              <div class="col-md-4">
+                <label class="text-label">Usuario Red TDE</label>
+                <input formControlName="usuarioredtde" class="form-control" />
+              </div>
+              <div class="col-md-4">
+                <label>Usuario Portal</label>
+                <input formControlName="usuarioportal" class="form-control" />
+              </div>
+  
+              <div class="form-group">
+                <label>Correo Corporativo</label>
+                <input
+                  matInput
+                  formControlName="correocorp"
+                  class="form-control"
+                />
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <label>Celular</label>
+                  <input formControlName="celular" class="form-control" />
+                </div>
+                <!-- <div class="col-md-4">
+                  <label>Estado</label>
+                  <select matInput formControlName="estado" class="form-control">
+                    <option [value]="1">Activo</option>
+                    <option [value]="0">Inactivo</option>
+                  </select>
+                </div> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end pb-4 mt-2">
+          <button class="btn btn-success me-md-2" type="button" (click)="guardarCambios()"
+            >
+            <!-- cdkFocusInitial mat-dialog-close-->
+            <i class="bi bi-floppy2-fill" style="font-size: 1.1rem;"></i>
+            Guardar
+          </button>
+          <button class="btn btn-outline-danger" type="button" (click)="cancelar()">
+            <i class="bi bi-x-square-fill" style="font-size: 1.1rem;"></i>
+            Cerrar
+          </button>
+      </div>
+    </form>
+  </div>
+  
+  

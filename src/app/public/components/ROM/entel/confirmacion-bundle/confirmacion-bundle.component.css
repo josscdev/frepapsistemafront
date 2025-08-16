@@ -1,0 +1,45 @@
+signature-pad#sign_canvas.signature {
+    background-color: rgb(247, 247, 247);
+    width: 100%;
+
+}
+
+canvas.signature-pad-canvas {
+    border: none;
+    width: 100%;
+
+}
+
+
+.modal-xl {
+    max-width: 100vw;
+    /* Establece el ancho máximo al ancho total de la ventana */
+}
+
+.modal-dialog {
+    width: 100%;
+    /* Establece el ancho del modal al 100% del contenedor */
+    height: 100vh;
+    /* Establece la altura del modal al 100% de la ventana */
+    margin: 0;
+    /* Elimina los márgenes */
+    padding: 0;
+    /* Elimina el relleno */
+}
+
+.modal-content {
+    height: 100%;
+    /* Establece la altura del contenido del modal al 100% */
+}
+
+.modal-body {
+    height: calc(100% - 56px);
+    /* Resta la altura del encabezado y el pie de página del modal */
+    overflow-y: auto;
+    /* Agrega desplazamiento vertical si el contenido es demasiado largo */
+}
+
+.blur-text {
+    color: transparent;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}

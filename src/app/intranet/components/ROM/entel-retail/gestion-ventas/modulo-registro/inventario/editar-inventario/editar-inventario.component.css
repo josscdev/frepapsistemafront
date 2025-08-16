@@ -1,0 +1,16 @@
+.table td {
+    padding: 0.5rem;
+    font-size: 71%;
+    font-weight: 400;
+}
+
+.table th {
+    padding: 0.5rem;
+    font-size: 71%;
+    font-weight: 600;
+}
+
+.table thead {
+    background-color: #43494E;
+    color: #ECECEC;
+}

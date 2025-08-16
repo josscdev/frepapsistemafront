@@ -1,0 +1,127 @@
+<div class="col-12 px-3 mb-5">
+    <div class="container-fluid mt-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item fw-bold">
+                    <a class="text-decoration-none">
+                        Administracion Permisos
+                    </a>
+                </li>
+                <li class="breadcrumb-item fw-bold active" aria-current="page">Listar</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="card border-dark">
+        <div class="card-header">
+            <h4 class="card-title text-uppercase fw-bold text-black mt-3">Administracion Permisos</h4>
+        </div>
+        <div class="card-body">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3 mb-3 mb-sm-0">
+                            <label class="form-label fw-bold text-black">Empresa:</label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <img [src]="this.imgEmpresa" width="20rem">
+                                </span>
+                                <input type="text" class="form-control" placeholder="Nombre Empresa"
+                                    aria-label="Empresa" aria-describedby="basic-addon1" [(ngModel)]="nombreEmpresa">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="form-label fw-bold text-black">País:</label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <img [src]="this.imgPais" width="20rem">
+                                </span>
+                                <input type="text" class="form-control" placeholder="Nombre Pais" aria-label="País"
+                                    aria-describedby="basic-addon1" [(ngModel)]="nombrePais">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="idNegocio" class="form-label fw-bold text-black">Negocio:</label>
+                            <select class="form-select" id="idNegocio" [(ngModel)]="selectedNegocio"
+                                (change)="onNegocioChange()">
+                                <option value="0" selected>Todos</option>
+                                <option *ngFor="let negocio of negocios" [value]="negocio.idnegocio">
+                                    {{negocio.nombrenegocio}}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="idCuenta" class="form-label fw-bold text-black">Cuenta:</label>
+                            <select class="form-select" id="idCuenta" [(ngModel)]="selectedCuenta">
+                                <option value="0" selected>Todos</option>
+                                <option *ngFor="let cuenta of cuentas" [value]="cuenta.idcuenta">
+                                    {{ cuenta.nombrecuenta }}
+                                </option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <!-- <div class="col-sm-4 d-flex align-items-center mt-4">
+                            <button class="btn btn-primary me-3 prueba" type="button" (click)="getAllUsers()">
+                                <i class="bi bi-search"></i>
+                                <span class="d-none d-sm-inline ms-2">Buscar</span>
+                            </button>
+                        </div> -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-primary me-md-2" type="button" (click)="getAllUsers()">
+                                <i class="bi bi-search"></i>
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive-sm mt-4">
+                <table class="table table-dark caption-top table-hover table-bordered text-center table-sm rounded-2">
+                    <caption class="text-black fw-bold">
+                        <div class="row justify-content-md-end my-2">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Buscar"
+                                        [(ngModel)]="searchTerm" (keyup)="search()" aria-label="Username"
+                                        aria-describedby="basic-addon1">
+                                </div>
+                            </div>
+                        </div>
+                    </caption>
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">DNI</th>
+                            <th scope="col">NOMBRES</th>
+                            <th scope="col">EMPRESA</th>
+                            <th scope="col">NEGOCIO</th>
+                            <th scope="col">CUENTA</th>
+                            <th scope="col">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let users of filteredUsersList | slice:desde:hasta">
+                            <th scope="row">{{ users.docusuario }}</th>
+                            <th>{{users.nombrecompleto}}</th>
+                            <th>{{users.nombreempresa}}</th>
+                            <th>{{users.nombrenegocio}}</th>
+                            <th>{{users.nombrecuenta}}</th>
+                            <th class="text-center">
+                                <a routerLink="UsuarioPermisos" (click)="onRowClick(users)" class="text-warning">
+                                    <i class="bi bi-key-fill" style="font-size: 1.4rem"></i>
+                                </a>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="mt-3">
+                    <mat-paginator #paginator [length]="filteredUsersList.length" [pageSize]="pageSize"
+                        (page)="cambiarpagina($event)">
+                    </mat-paginator>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

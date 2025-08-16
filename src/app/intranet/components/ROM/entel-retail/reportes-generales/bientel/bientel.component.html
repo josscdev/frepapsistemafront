@@ -1,0 +1,49 @@
+<div class="col-12 px-3">
+  <div class="container-fluid mt-4">
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item fw-bold">
+          <a href="#" class="text-decoration-none">Reportes</a>
+        </li>
+        <li class="breadcrumb-item fw-bold active" aria-current="page">Entel TPF</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="card border-dark">
+    <div class="card-header">
+      <h4 class="card-title text-uppercase fw-bold text-black mt-3">Reportes</h4>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label for="reportSelect" class="form-label fw-bold">Selecciona un reporte:</label>
+        <select class="form-select" id="reportSelect" aria-label="Seleccionar reporte"
+          (change)="onReporteChange($event)">
+          <option value="" disabled selected>Elige un reporte</option>
+          <option *ngFor="let reporte of reportes" [value]="reporte.url">
+            {{ reporte.nombre }}
+          </option>
+        </select>
+      </div>
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="text-center" *ngIf="!embeddedUrl">
+            <p class="text-muted">Seleccione un reporte para visualizarlo.</p>
+          </div>
+          <div *ngIf="embeddedUrl">
+            <iframe [src]="embeddedUrl" width="100%" height="600px" frameborder="0" allowfullscreen></iframe>
+
+          </div>
+        </div>
+      </div>
+      <!-- <button class="btn btn-primary" (click)="descargarExcel()">Decargar Rol Diario</button> -->
+<!-- <a href="http://20.20.0.36/ReportServer/Pages/ReportViewer.aspx?/ROM/ENTEL/Usuarios&rs:Command=Render" target="_blank" rel="noopener noreferrer">VER REPORTE ROL DIARIO</a>
+      <iframe src="http://20.20.0.36/ReportServer/Pages/ReportViewer.aspx?/ROM/ENTEL/Usuarios&rs:Command=Render" width="100%" height="600px" frameborder="0"></iframe>
+<iframe [src]="sanitizer.bypassSecurityTrustResourceUrl('https://localhost:7169/api/Reports/redirigir-ssrs')" width="100%" height="600px" frameborder="0"></iframe> -->
+
+    </div>
+
+  </div>
+  <br>
+  <br>
+
+</div>

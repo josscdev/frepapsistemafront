@@ -1,0 +1,126 @@
+.vertical-hr {
+    border-left: 1px solid #acacac;
+    /* Línea vertical */
+    height: 70px;
+    /* Altura de la línea */
+    width: 0;
+    /* No ocupa espacio horizontal */
+    margin: 0 auto;
+    /* Centrar la línea */
+}
+
+.vertical-hr-cardtitle {
+    border-left: 1px solid #acacac;
+    /* Línea vertical */
+    height: 25px;
+    /* Altura de la línea */
+    width: 0;
+    /* No ocupa espacio horizontal */
+    margin: 0 auto;
+    /* Centrar la línea */
+}
+
+.table td,
+.table th {
+    padding: 0.5rem;
+    font-size: 71%;
+    font-weight: 700;
+}
+
+.table-header {
+    background-color: #1A4870 !important;
+}
+
+.form-control-sm {
+    padding: .5rem 1rem;
+    font-size: .7rem;
+}
+
+/* .mat-mdc-select-arrow svg {
+    fill: currentColor;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -80%);
+} */
+
+.contenedor-scroll {
+    overflow: auto;
+    /* Mantener la capacidad de desplazarse */
+    -ms-overflow-style: none;
+    /* Para IE y Edge */
+    scrollbar-width: none;
+    /* Para Firefox */
+}
+
+.contenedor-scroll::-webkit-scrollbar {
+    display: none;
+    /* Para Safari y Chrome */
+}
+
+.form-control {
+    font-weight: lighter;
+    border: 1px solid #9e9e9e !important;
+    border-radius: 4px;
+    padding: .2rem 0.5rem;
+    background-color: #fff;
+    height: 36px;
+}
+
+.form-control::placeholder {
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.btn-invalid {
+    color: #fff;
+    border-color: lightgray;
+    background-color: #acacac;
+}
+.btn-valid {
+    color: #0dcaf0; /* Bootstrap info color */
+    border-color: #0dcaf0;
+}
+
+
+
+
+ /* No ocupa espacio horizontal */
+
+  /* Estilo para ng-select inválido */
+  .invalid ng-select, .invalid {
+    border: 2px solid red !important;
+    animation: shake 0.3s ease-in-out;
+  }
+  
+  /* Animación de tilteo */
+  @keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    50% {
+      transform: translateX(5px);
+    }
+    75% {
+      transform: translateX(-5px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+  
+  /* Ajustar estilos de error */
+  .text-danger {
+    margin-top: 5px;
+  }
+  
+
+  .dialog-container {
+    max-height: 87vh;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  

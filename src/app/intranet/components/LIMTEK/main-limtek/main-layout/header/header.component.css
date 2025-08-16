@@ -1,0 +1,15 @@
+.btn-primary{
+    --bs-btn-active-bg: transparent;
+    margin: 0px;
+}
+.dropdown-menu-dark{
+    background-color: transparent;
+}
+
+.dropdown-menu{
+    background-color: transparent;
+    border: none;
+}
+.fond:hover{
+    background-color: transparent;
+}

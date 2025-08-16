@@ -1,0 +1,234 @@
+<div class="col-12 px-3">
+    <div class="container-fluid mt-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item fw-bold">
+                    <a class="text-decoration-none">
+                        Asignación de Turnos por PDV
+                    </a>
+                </li>
+                <li class="breadcrumb-item fw-bold active" aria-current="page">Asignación</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="card border-dark">
+        <div class="card-header"> 
+            <h4 class="card-title text-uppercase fw-bold text-black mt-3">Asignación de Turnos por PDV</h4>
+        </div>
+        <div class="card-body">
+            <div *ngIf="(perfil==='ADMIN')" class="row justify-content-md-start">
+                <div class="col-sm-5 mt-3">
+                    <label for="input3" class="form-label fw-bold text-black">Jefe:</label>
+                    <select class="form-select" id="input3" (change)="ongetJefe($event)">
+                        <option value="0" selected>Seleccionar Jefe</option>
+                        <option *ngFor="let item of listJefe" [value]="item.dnijefe">
+                            {{ item.nombrejefe }} {{ item.apellidopaternojefe }} {{ item.apellidomaternojefe }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div *ngIf="(perfil==='ADMIN' || perfil==='JV')" class="row justify-content-md-start">
+                <div class="col-sm-5 mt-3">
+                    <label for="input2" class="form-label fw-bold text-black">Supervisor:</label>
+                    <select class="form-select" id="input2" (change)="ongetSupervisor($event)">
+                        <option value="0" selected>Seleccionar Supervisor</option>
+                        <option *ngFor="let item of listSupervisor" [value]="item.dnisupervisor">
+                            {{ item.nombresupervisor }} {{ item.apellidopaternosupervisor }} {{ item.apellidomaternosupervisor }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="row justify-content-md-start mb-5">
+                <div class="col-sm-5 mt-3">
+                    <label for="input1" class="form-label fw-bold text-black">Punto de Venta:</label>
+                    <select class="form-select" id="input1" (change)="ongetPDV($event)">
+                        <option value="0" selected>Seleccionar PDV</option>
+                        <option *ngFor="let item of listSupervisorPDV" [value]="item.idpuntoventarol">
+                            {{ item.puntoventa }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-2 mt-4 pt-1" style="min-width: 150px;">
+                    <button class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+                        style="width: 100%;" type="button" [disabled]="verTurnos">
+                        Ver Turnos
+                    </button>
+                </div>
+            </div>
+
+
+            <div id="tablaTurnosDisponibles" class="table-responsive-lg mt-4">
+                <table class="table table-dark table-hover caption-top table-bordered text-center table-sm rounded-2">
+                    <caption class="text-black fw-bold" >Lista de Turnos disponibles</caption>
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Item</th>
+                            <th scope="col">Descripción</th>
+                            <th scope="col">H. Entrada</th>
+                            <th scope="col">H. Salida</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let turno of listTurnosDisponiblesPDV">
+                            <td scope="row">{{ turno.idturnos }}</td>
+                            <td>{{ turno.descripcion }}</td>
+                            <td>{{ turno.horarioentrada }}</td>
+                            <td>{{ turno.horariosalida }}</td>
+                            <td>
+                                <input class="form-check-input" type="checkbox" id="checkboxNoLabel" value=""
+                                    aria-label="...">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row justify-content-md-end mt-3">
+                <div class="col-sm-2 m-1" style="min-width: 150px;">
+                    <button class="btn btn-success" style="width: 100%;" type="button"
+                        (click)="asignarTurnos('tablaTurnosDisponibles')">
+                        <i class="bi bi-arrow-down" style="font-size: 1rem;"></i>
+                        Asignar
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive-lg mt-4">
+                <table class="table table-dark caption-top table-hover table-bordered text-center table-sm rounded-2">
+                    <caption class="text-black fw-bold">Lista de Turnos asignados</caption>
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Item</th>
+                            <th scope="col">Descripción</th>
+                            <th scope="col">H. Entrada</th>
+                            <th scope="col">H. Salida</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let turnoAsignados of listTurnosAsignadosPDV">
+                            <th scope="row">{{ turnoAsignados.idturnos }}</th>
+                            <td>{{ turnoAsignados.descripcion }}</td>
+                            <td>{{ turnoAsignados.horarioentrada }}</td>
+                            <td>{{ turnoAsignados.horariosalida }}</td>
+                            <td>
+                                <a (click)="deleteRowAsignados(turnoAsignados.idpdvturno)">
+                                    <i class="bi bi-trash-fill" style="color: #d9534f;font-size: 1.4rem;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 fw-bold" id="staticBackdropLabel">Turnos {{ nombresSupervisor }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="turnForm" (ngSubmit)="getTurnForm()">
+                    <div class="row justify-content-md-start m-2">
+                        <div class="col-sm-3 mt-1">
+                            <label for="input2" class="form-label">H. Entrada</label>
+                            <!-- <input type="time" id="input2" class="form-control" formControlName="hentry"
+                          (change)="formatTime($event)"> -->
+                            <select (click)="formatTime()" class="form-select" id="input2" formControlName="hentry">
+                                <option value="">00:00</option>
+                                <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 mt-1">
+                            <label for="input3" class="form-label">H. Salida</label>
+                            <!-- <input type="time" id="input3" class="form-control" formControlName="hexit"
+                         (change)="formatTime($event)"> -->
+                            <select (click)="formatTime()" class="form-select" id="input3" formControlName="hexit">
+                                <option value="">00:00</option>
+                                <option  *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 mt-1">
+                            <label for="input1" class="form-label">Descripción</label>
+                            <input type="text" id="input1" class="form-control" formControlName="description">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary m-3" [disabled]="!turnForm.valid">
+                        Guardar
+                    </button>
+                    <button type="button" class="btn btn-info m-3" (click)="limpiarFormulario()">
+                        Limpiar Campos
+                    </button>
+                </form>
+                <div class="table-responsive-sm mt-4">
+                    <table
+                        class="table table-dark caption-top table-hover table-bordered text-center table-sm rounded-2">
+                        
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Item</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">H. Entrada</th>
+                                <th scope="col">H. Salida</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let turno of listTurnosSupervisor">
+                                <th scope="row">{{ turno.idturnos }}</th>
+                                <td>{{ turno.descripcion }}</td>
+                                <td>
+                                    <ng-container *ngIf="!turno.editing">{{ turno.horarioentrada }}</ng-container>
+                                    <select class="form-select" *ngIf="turno.editing"
+                                        [(ngModel)]="turno.horarioentrada">
+                                        <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <ng-container *ngIf="!turno.editing">{{ turno.horariosalida }}</ng-container>
+                                    <select class="form-select" *ngIf="turno.editing"
+                                        [(ngModel)]="turno.horariosalida">
+                                        <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <a *ngIf="!turno.editing" (click)="enableEditing(turno)">
+                                        <i class="bi bi-pencil-square me-3"
+                                            style="color: #4f8bd9; font-size: 1.4rem;"></i>
+                                    </a>
+
+                                    <a *ngIf="turno.editing" (click)="saveChanges(turno)">
+                                        <i class="bi bi-check2-circle me-3"
+                                            style="color: #4fd976; font-size: 1.4rem;"></i>
+                                    </a>
+                                    <a *ngIf="turno.editing" (click)="cancelEditing(turno)">
+                                        <i class="bi bi-x-square me-3"
+                                            style="color: #d9534f; font-size: 1.4rem;"></i>
+                                    </a>
+                                    <a *ngIf="!turno.editing" (click)="deleteTurno(turno)">
+                                        <i class="bi bi-trash"
+                                            style="color: #d9534f; font-size: 1.4rem;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="closeModal()">
+                    Cerrar
+                </button>
+                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+            </div>
+        </div>
+    </div>
+</div>

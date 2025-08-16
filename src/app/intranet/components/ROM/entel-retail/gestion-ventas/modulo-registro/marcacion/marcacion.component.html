@@ -1,0 +1,73 @@
+<div class="col-12 px-3">
+    <div class="container-fluid mt-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item fw-bold">
+                    <a class="text-decoration-none">
+                        Marcación
+                    </a>
+                </li>
+                <li class="breadcrumb-item fw-bold active" aria-current="page">Marcaciones Promotores</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="card border-dark">
+        <div class="card-header">
+            <h4 class="card-title text-uppercase fw-bold text-black mt-3">Marcación Retail</h4>
+        </div>
+        <div class="card-body">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-uppercase fw-bold text-black mt-3">Ingresar Marcación</h5>
+                </div>
+                <div class="card-body">
+                    <form [formGroup]="marcacionForm">
+                        <div class="row pb-3">
+                            <div class="col-md-3">
+                                <label class="text-label">Documento</label>
+                                <input class="form-control" formControlName="docusuario" placeholder="Ingrese Documento"
+                                    maxlength="15" (blur)="getUserData()" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-label">Nombres Promotor</label>
+                                <input class="form-control" formControlName="nombrepromotor" placeholder="Nombres"
+                                    maxlength="100" />
+                            </div>
+                        </div>
+                        <div class="row pb-3">
+                            <div class="col-md-3">
+                                <label style="font-weight: lighter;">Fecha</label>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <!-- <mat-label>Fecha de inicio</mat-label> -->
+                                    <input matInput [matDatepicker]="datePicker" formControlName="fecha"
+                                        (focus)="datePicker.open()" readonly>
+                                    <!-- <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle> -->
+                                    <mat-datepicker #datePicker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-label">Hora</label>
+                                <ng-select id="selectHora" [items]="hourOptions" bindLabel="hora" bindValue="id"
+                                    placeholder="Seleccione una Hora" formControlName="hora">
+                                </ng-select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-label">Minuto</label>
+                                <ng-select id="selectMinuto" [items]="minuteOptions" bindLabel="minuto" bindValue="id"
+                                    placeholder="Seleccione un Minuto" formControlName="minuto">
+                                </ng-select>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start pb-4 mt-2">
+                            <button class="btn btn-success me-md-2" type="button" (click)="guardarMarcacion()">
+                                <!-- cdkFocusInitial mat-dialog-close-->
+                                <i class="bi bi-floppy2-fill" style="font-size: 1.1rem;"></i>
+                                Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

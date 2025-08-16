@@ -1,0 +1,226 @@
+<div class="col-12 px-3 mb-5">
+    <div class="container-fluid mt-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item fw-bold">
+                    <a class="text-decoration-none">
+                        Mantenimiento
+                    </a>
+                </li>
+                <li class="breadcrumb-item fw-bold active" aria-current="page">Formulario Ventas</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="card border-dark">
+        <div class="card-header">
+            <h4 class="card-title text-uppercase fw-bold text-black mt-3">Mantenimiento Formulario Ventas</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-4 mb-3 mb-sm-0">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title text-uppercase fw-bold text-black mt-3">Mantenimientos</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn"
+                                    [ngClass]="{'btn-dark': activeButton === 'modelos', 'btn-danger': activeButton !== 'modelos'}"
+                                    (click)="setActiveButton('modelos')" style="font-size: larger;" id="idmodelo">
+                                    <span><i class="bi bi-phone-fill" style="font-family: 2rem;"></i> MODELOS</span>&nbsp;
+                                    <span *ngIf="activeButton === 'modelos'"
+                                        class="badge bg-success">Seleccionado</span>
+                                </button>
+                                <button class="btn"
+                                    [ngClass]="{'btn-dark': activeButton === 'accesorios', 'btn-info': activeButton !== 'accesorios'}"
+                                    (click)="setActiveButton('accesorios')" style="font-size: larger;" id="idaccesorio">
+                                    <span><i class="bi bi-earbuds" style="font-family: 2rem;"></i> ACCESORIOS</span>&nbsp;
+                                    <span *ngIf="activeButton === 'accesorios'"
+                                        class="badge bg-success">Seleccionado</span>
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title text-uppercase mt-3" [ngClass]="titleColor">Listado {{tipo}}</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Contenedor para Formulario y Tabla -->
+                            <ng-container *ngIf="activeButton === 'modelos'">
+                                <app-modelos></app-modelos>
+                                <!-- <form [formGroup]="manegementForm" (ngSubmit)="getManegementForm('modelos')">
+                                    <div class="row justify-content-md-start m-2">
+                                        <div class="col-sm-6 mt-1">
+                                            <label for="input1" class="form-label">Descripción</label>
+                                            <input type="text" id="input1" class="form-control" maxlength="100"
+                                                formControlName="description" placeholder="Ingrese Descripción"
+                                                (input)="transformToUpperCase($event)">
+                                        </div>
+                                        <div class="col-sm-6 mt-2">
+                                            <button type="submit" class="btn btn-primary m-3"
+                                                [disabled]="!manegementForm.valid">Guardar</button>
+                                            <button type="button" class="btn btn-info m-3"
+                                                [disabled]="!manegementForm.valid" (click)="limpiarFormulario()">Limpiar
+                                                Campos</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="table-responsive-sm mt-4">
+                                    <table
+                                        class="table table-dark caption-top table-hover table-bordered text-center table-sm rounded-2">
+                                        <caption class="text-black fw-bold">
+                                            <div class="row justify-content-md-end my-2">
+                                                <div class="col-sm-4">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" placeholder="Buscar"
+                                                            [(ngModel)]="searchTermModelo" (keyup)="searchModelo()"
+                                                            aria-label="Username" aria-describedby="basic-addon1"
+                                                            maxlength="100">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </caption>
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">Item</th>
+                                                <th scope="col">Descripción</th>
+                                                <th scope="col">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let modelo of filteredModelosList.slice(desdeM, hastaM)">
+                                                <th scope="row">{{ modelo.intmodeloequipoid }}</th>
+                                                <td>
+                                                    <ng-container *ngIf="!modelo.editing">{{ modelo.strmodeloequipodesc
+                                                        }}</ng-container>
+                                                    <input type="text" id="inputE" class="form-control" maxlength="100"
+                                                        *ngIf="modelo.editing"
+                                                        [value]="modelo.strmodeloequipodesc | uppercase"
+                                                        (input)="onDescriptionChangeModelo($event, modelo)"
+                                                        placeholder="Ingrese Descripción">
+                                                </td>
+                                                <td>
+                                                    <a *ngIf="!modelo.editing" (click)="enableEditingModelo(modelo)">
+                                                        <i class="bi bi-pencil-square me-3"
+                                                            style="color: #4f8bd9; font-size: 1.4rem;"></i>
+                                                    </a>
+                                                    <a *ngIf="modelo.editing" (click)="saveChangesModelo(modelo)">
+                                                        <i class="bi bi-check2-circle me-3"
+                                                            style="color: #4fd976; font-size: 1.4rem;"></i>
+                                                    </a>
+                                                    <a *ngIf="modelo.editing" (click)="cancelEditingModelo(modelo)">
+                                                        <i class="bi bi-x-square me-3"
+                                                            style="color: #d9534f; font-size: 1.4rem;"></i>
+                                                    </a>&nbsp;
+                                                    <a (click)="eliminarModelo(modelo)">
+                                                        <i class="bi bi-trash"
+                                                            style="color: #d9534f; font-size: 1.4rem;"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="mt-5">
+                                        <mat-paginator [length]="filteredModelosList.length" [pageSize]="pageSizeModelo"
+                                            (page)="cambiarpaginaModelo($event)"></mat-paginator>
+                                    </div>
+                                </div> -->
+                            </ng-container>
+
+                            <ng-container *ngIf="activeButton === 'accesorios'">
+                                <app-accesorios></app-accesorios>
+                                <!-- <form [formGroup]="manegementForm" (ngSubmit)="getManegementForm('accesorios')">
+                                    <div class="row justify-content-md-start m-2">
+                                        <div class="col-sm-6 mt-1">
+                                            <label for="input1" class="form-label">Descripción</label>
+                                            <input type="text" id="input1" class="form-control" maxlength="100"
+                                                formControlName="description" placeholder="Ingrese Descripción"
+                                                (input)="transformToUpperCase($event)">
+                                        </div>
+                                        <div class="col-sm-6 mt-2">
+                                            <button type="submit" class="btn btn-primary m-3"
+                                                [disabled]="!manegementForm.valid">Guardar</button>
+                                            <button type="button" class="btn btn-info m-3"
+                                                [disabled]="!manegementForm.valid" (click)="limpiarFormulario()">Limpiar
+                                                Campos</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="table-responsive-sm mt-4">
+                                    <table
+                                        class="table table-dark caption-top table-hover table-bordered text-center table-sm rounded-2">
+                                        <caption class="text-black fw-bold">
+                                            <div class="row justify-content-md-end my-2">
+                                                <div class="col-sm-4">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" placeholder="Buscar"
+                                                            [(ngModel)]="searchTermAccesorio"
+                                                            (keyup)="searchAccesorio()" aria-label="Username"
+                                                            aria-describedby="basic-addon1" maxlength="100">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </caption>
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">Item</th>
+                                                <th scope="col">Descripción</th>
+                                                <th scope="col">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let accesorio of filteredAccesoriosList.slice(desdeA, hastaA)">
+                                                <th scope="row">{{ accesorio.idaccesorio }}</th>
+                                                <td>
+                                                    <ng-container *ngIf="!accesorio.editing">{{ accesorio.descripcion
+                                                        }}</ng-container>
+                                                    <input type="text" id="inputF" class="form-control" maxlength="100"
+                                                        *ngIf="accesorio.editing"
+                                                        [value]="accesorio.descripcion | uppercase"
+                                                        (input)="onDescriptionChangeAccesorio($event, accesorio)"
+                                                        placeholder="Ingrese Descripción">
+                                                </td>
+                                                <td>
+                                                    <a *ngIf="!accesorio.editing"
+                                                        (click)="enableEditingAccesorio(accesorio)">
+                                                        <i class="bi bi-pencil-square me-3"
+                                                            style="color: #4f8bd9; font-size: 1.4rem;"></i>
+                                                    </a>
+                                                    <a *ngIf="accesorio.editing"
+                                                        (click)="saveChangesAccesorio(accesorio)">
+                                                        <i class="bi bi-check2-circle me-3"
+                                                            style="color: #4fd976; font-size: 1.4rem;"></i>
+                                                    </a>
+                                                    <a *ngIf="accesorio.editing"
+                                                        (click)="cancelEditingAccesorio(accesorio)">
+                                                        <i class="bi bi-x-square me-3"
+                                                            style="color: #d9534f; font-size: 1.4rem;"></i>
+                                                    </a>&nbsp;
+                                                    <a (click)="eliminarAccesorio(accesorio)">
+                                                        <i class="bi bi-trash"
+                                                            style="color: #d9534f; font-size: 1.4rem;"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="mt-5">
+                                        <mat-paginator [length]="filteredAccesoriosList.length"
+                                            [pageSize]="pageSizeAccesorio"
+                                            (page)="cambiarpaginaAccesorio($event)"></mat-paginator>
+                                    </div>
+                                </div> -->
+                            </ng-container>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
