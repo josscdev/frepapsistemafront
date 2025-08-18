@@ -5,8 +5,8 @@
 export const environment = {
   production: false,
 
-  //endpointIntranet: 'https://localhost:7169/api/',
-  endpointIntranet: 'https://intranet.grupotawa.com/RomBIBack/api/'
+  endpointIntranet: 'https://localhost:7169/api/',
+  //endpointIntranet: 'https://intranet.grupotawa.com/RomBIBack/api/'
 
 };
 

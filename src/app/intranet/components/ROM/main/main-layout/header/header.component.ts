@@ -27,7 +27,7 @@ export class HeaderComponent {
 
     this.getObjectPermissions();
     this.getUserData();
-    this.getMarcacion();
+    //this.getMarcacion();
 
   }
 

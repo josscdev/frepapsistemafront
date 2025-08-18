@@ -8,7 +8,7 @@
 
         </button>
         <a class="navbar-brand pe-0">
-            <img src="assets/img/Rom/ROM_sobre azul2.png" class="img-fluid" style="max-height: 35px;margin-left: 30px;">
+            <img src="assets/img/frepap/start/frepap_blanco.png" class="img-fluid" style="max-height: 50px;margin-left: 30px;">
         </a>
         <a class="navbar-brand mt-2 btn btn-primary ps-0 text-wrap text-break" [routerLink]="['/main/start']">
             <i class="bi bi-house-door-fill "></i>
@@ -27,49 +27,15 @@
             </div>
             <li class="dropdown sectAsistenciaPleca" style="display: none;"><strong>|</strong></li>
           </div> -->
-          <div class="ms-auto d-flex align-items-center" style="color: white;">
-            <div style="text-align: center;">
-              <!-- Mostrar loader mientras isLoading es true -->
-              <ng-container *ngIf="isLoading; else contentLoaded">
-                <!-- Loader pequeño -->
-                <div class="spinner-border text-light spinner-border-sm" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </ng-container>
           
-              <!-- Mostrar contenido cuando isLoading es false -->
-              <ng-template #contentLoaded>
-                <ng-container *ngIf="asistencia; else noHorario">
-                  <!-- Mostrar la fecha de ingreso -->
-                  <label id="dteFechaSl" style="display: inline-block;text-transform: lowercase;text-transform: capitalize;">
-                    <i class="bi bi-calendar-week"></i> Fecha: {{ asistencia.dteFechaIngreso || 'Fecha' }}</label>
-                  <strong> | </strong>
-                  
-                  <!-- Mostrar la hora de ingreso -->
-                  <label id="dteFeHoraMarcacion" style="display: inline-block; text-transform: lowercase;text-transform: capitalize;">Entrada: {{ asistencia.horaIngreso || 'No Registró entrada' }}</label>
-                  <strong> - </strong>
-                  
-                  <!-- Mostrar la hora de salida -->
-                  <label id="dteFeHoraSalida" style="display: inline-block; margin-left: 2px;text-transform: lowercase;text-transform: capitalize;">
-                   Salida: {{ asistencia.horaSalida || 'No Registró salida' }}
-                  </label>
-                </ng-container>
-                
-                <!-- Mostrar si no hay horario disponible -->
-                <ng-template #noHorario>
-                  <label style="display: inline-block">No tiene horario disponible</label>
-                </ng-template>
-              </ng-template>
-            </div>
-          </div>
           
           
         
-        <div class="offcanvas offcanvas-start p-3" style="background-color: #00002e;" tabindex="-1"
+        <div class="offcanvas offcanvas-start bg-primary p-3" tabindex="-1"
             id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
             <div class="offcanvas-header">
-                <img src="assets/img/avatar.jpg" class="img-fluid rounded-5" style="max-height: 50px;">
-                <h5 class="offcanvas-title text-white text-center" id="offcanvasDarkNavbarLabel">
+                <img src="assets/img/frepap/start/user.png" class="img-fluid rounded-5" style="max-height: 50px;">
+                <h5 class="offcanvas-title text-white text-center" style="padding-left: 10px;" id="offcanvasDarkNavbarLabel">
                     Bienvenido<br>{{ userData?.nombres?.split(' ')[0]}} {{ userData.apellidopaterno}} 
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
@@ -158,7 +124,7 @@
                   <button class="btn btn-success" type="submit">Search</button>
               </form> -->
             </div>
-            <div class="sticky-bottom btn btn-danger p-2 mt-3">
+            <div class="sticky-bottom btn btn-dark p-2 mt-3">
                 <a class="nav-link text-center text-white" href="#">
                     <i class="bi bi-box-arrow-right" style="font-size: 1rem;padding-right: 4px;"></i>
                     CERRAR SESION

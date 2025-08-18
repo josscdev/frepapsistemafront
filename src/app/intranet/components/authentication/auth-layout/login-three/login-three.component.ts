@@ -79,10 +79,10 @@ export class LoginThreeComponent {
         }
         console.log('requestPdv', requestPdv);
 
-        this.authService.getIdPdv(requestPdv).subscribe(resPdv => {
-          console.log('GETIDPDV', resPdv);
-          localStorage.setItem('idpdv', resPdv.idpdv)
-        })
+        // this.authService.getIdPdv(requestPdv).subscribe(resPdv => {
+        //   console.log('GETIDPDV', resPdv);
+        //   localStorage.setItem('idpdv', resPdv.idpdv)
+        // })
 
         const requestRuta = {
           idemppaisnegcue: Number(localStorage.getItem('idemppaisnegcue')) || 0,
