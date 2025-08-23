@@ -21,21 +21,21 @@ export const routes: Routes = [
         path: 'main',//PRINCIPAL DE INTRANET ROM
         loadChildren: () => import('./intranet/components/ROM/main/main.routes').then(m => m.routes)
     },
-    {
-        path: 'mainTawa',//PRINCIPAL DE INTRANET TAWA
-        loadChildren: () => import('./intranet/components/TAWA/main-tawa/main.routes').then(m => m.routes)
-    },
-    {
-        path: 'mainLimtek',//PRINCIPAL DE INTRANET LIMTEK
-        loadChildren: () => import('./intranet/components/LIMTEK/main-limtek/main.routes').then(m => m.routes)
-    },
-    {
-        path: 'public/Rom',//RUTA PUBLICA ROM
-        loadChildren: () => import('./public/components/ROM/rom.routes').then(m => m.routes)
-    },
-    {
-        path: 'public', component: NotFoundPublicComponent,
-    },
+    // {
+    //     path: 'mainTawa',//PRINCIPAL DE INTRANET TAWA
+    //     loadChildren: () => import('./intranet/components/TAWA/main-tawa/main.routes').then(m => m.routes)
+    // },
+    // {
+    //     path: 'mainLimtek',//PRINCIPAL DE INTRANET LIMTEK
+    //     loadChildren: () => import('./intranet/components/LIMTEK/main-limtek/main.routes').then(m => m.routes)
+    // },
+    // {
+    //     path: 'public/Rom',//RUTA PUBLICA ROM
+    //     loadChildren: () => import('./public/components/ROM/rom.routes').then(m => m.routes)
+    // },
+    // {
+    //     path: 'public', component: NotFoundPublicComponent,
+    // },
     {
         path: 'unauthorized', component: UnauthorizedComponent,
     },

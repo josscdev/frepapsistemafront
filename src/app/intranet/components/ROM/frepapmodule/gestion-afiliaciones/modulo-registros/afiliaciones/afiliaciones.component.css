@@ -1,0 +1,2 @@
+/* Solo para suavizar el modal mostrado con *ngIf */
+.modal.fade.show { display:block; }

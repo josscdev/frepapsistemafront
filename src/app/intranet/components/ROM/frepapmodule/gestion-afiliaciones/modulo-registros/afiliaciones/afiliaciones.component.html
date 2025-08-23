@@ -1,0 +1,185 @@
+<div class="container py-3">
+  <!-- Filtros -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Filtros</h5>
+      <div class="row g-2 align-items-center">
+        <div class="col-sm-3">
+          <select class="form-select" [(ngModel)]="fRegion" (change)="onRegionChange()">
+            <option value="">Región</option>
+            <option *ngFor="let r of regiones" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+        <div class="col-sm-3">
+          <select class="form-select" [(ngModel)]="fProvincia" (change)="onProvinciaChange()">
+            <option value="">Provincia</option>
+            <option *ngFor="let p of provincias" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+        <div class="col-sm-3">
+          <select class="form-select" [(ngModel)]="fDistrito">
+            <option value="">Distrito</option>
+            <option *ngFor="let d of distritos" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+
+        <div class="col-sm-3 text-sm-end">
+          <button class="btn btn-primary me-2" (click)=" null">Buscar</button>
+          <button class="btn btn-success" (click)="registrar()">Registrar</button>
+        </div>
+
+        <div class="col-12 col-sm-4 ms-auto">
+          <input class="form-control" placeholder="Buscar..." [(ngModel)]="fQ">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>N° Afili.</th>
+              <th>Nombres</th>
+              <th>Ap. Paterno</th>
+              <th>Ap. Materno</th>
+              <th>Fecha Afiliación</th>
+              <th>Edad</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of listaFiltrada">
+              <td>{{ a.nroAfili || '—' }}</td>
+              <td>{{ a.nombres }}</td>
+              <td>{{ a.apPaterno }}</td>
+              <td>{{ a.apMaterno || '—' }}</td>
+              <td>{{ a.fechaAfiliacion || '—' }}</td>
+              <td>{{ a.edad || '—' }}</td>
+              <td>
+                <span class="badge" [class.bg-success]="a.estado==='ACTIVO'" [class.bg-secondary]="a.estado!=='ACTIVO'">
+                  {{ a.estado || '—' }}
+                </span>
+              </td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(a)">Edit</button>
+                <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminar(a)">Elim.</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="ver(a)">Ver</button>
+              </td>
+            </tr>
+            <tr *ngIf="listaFiltrada.length === 0">
+              <td colspan="8" class="text-center text-muted py-4">Sin resultados</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Bootstrap (simple con *ngIf) -->
+  <div class="modal fade show" tabindex="-1" style="display:block; background:#00000066" *ngIf="showModal">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ readOnly ? 'Ver ficha' : (editId ? 'Editar afiliado' : 'Registrar afiliado') }}</h5>
+          <button type="button" class="btn-close" (click)="cerrar()"></button>
+        </div>
+
+        <form (ngSubmit)="guardar()">
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-sm-3">
+                <label class="form-label">N° Ficha</label>
+                <input class="form-control" [(ngModel)]="model.nroAfili" name="nroAfili" [disabled]="readOnly">
+              </div>
+              <div class="col-sm-3">
+                <label class="form-label">Fecha Afiliación</label>
+                <input type="date" class="form-control" [(ngModel)]="model.fechaAfiliacion" name="fechaAfiliacion" [disabled]="readOnly">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Nombres *</label>
+                <input class="form-control" [(ngModel)]="model.nombres" name="nombres" required [disabled]="readOnly">
+              </div>
+
+              <div class="col-sm-4">
+                <label class="form-label">Ap. Paterno *</label>
+                <input class="form-control" [(ngModel)]="model.apPaterno" name="apPaterno" required [disabled]="readOnly">
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label">Ap. Materno</label>
+                <input class="form-control" [(ngModel)]="model.apMaterno" name="apMaterno" [disabled]="readOnly">
+              </div>
+
+              <div class="col-sm-2">
+                <label class="form-label">Tipo Doc.</label>
+                <select class="form-select" [(ngModel)]="model.tipoDocumento" name="tipoDocumento" [disabled]="readOnly">
+                  <option *ngFor="let t of tiposDoc" [value]="t">{{ t }}</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <label class="form-label">N° Doc.</label>
+                <input class="form-control" [(ngModel)]="model.nroDocumento" name="nroDocumento" [disabled]="readOnly">
+              </div>
+
+              <div class="col-sm-3">
+                <label class="form-label">Fecha Nacimiento</label>
+                <input type="date" class="form-control" [(ngModel)]="model.fechaNacimiento" name="fechaNacimiento" [disabled]="readOnly">
+              </div>
+              <div class="col-sm-1">
+                <label class="form-label">Edad</label>
+                <input class="form-control" [value]="model.edad || ''" disabled>
+              </div>
+
+              <div class="col-sm-3">
+                <label class="form-label">Estado</label>
+                <select class="form-select" [(ngModel)]="model.estado" name="estado" [disabled]="readOnly">
+                  <option value="ACTIVO">ACTIVO</option>
+                  <option value="INACTIVO">INACTIVO</option>
+                </select>
+              </div>
+
+              <div class="col-sm-3">
+                <label class="form-label">Región</label>
+                <select class="form-select" [(ngModel)]="model.region" name="region" [disabled]="readOnly">
+                  <option value="">—</option>
+                  <option *ngFor="let r of regiones" [value]="r">{{ r }}</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label class="form-label">Provincia</label>
+                <input class="form-control" [(ngModel)]="model.provincia" name="provincia" [disabled]="readOnly">
+              </div>
+              <div class="col-sm-3">
+                <label class="form-label">Distrito</label>
+                <input class="form-control" [(ngModel)]="model.distrito" name="distrito" [disabled]="readOnly">
+              </div>
+
+              <div class="col-sm-4">
+                <label class="form-label">Teléfono</label>
+                <input class="form-control" [(ngModel)]="model.telefono" name="telefono" [disabled]="readOnly">
+              </div>
+              <div class="col-sm-8">
+                <label class="form-label">Correo</label>
+                <input type="email" class="form-control" [(ngModel)]="model.correo" name="correo" [disabled]="readOnly">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Observación</label>
+                <textarea class="form-control" rows="2" [(ngModel)]="model.observacion" name="observacion" [disabled]="readOnly"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" (click)="cerrar()">Cerrar</button>
+            <button class="btn btn-primary" type="submit" [disabled]="readOnly">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

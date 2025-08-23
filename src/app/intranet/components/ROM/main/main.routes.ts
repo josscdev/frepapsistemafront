@@ -18,31 +18,32 @@ export const routes: Routes = [
             {
                 path: 'start',
                 component: MainStartComponent,
-            },
+            }, 
+         
             {
-                path: 'EntelRetail',
+                path: 'Frepap',
                 canActivate:[routesGuard],
                 loadChildren: () =>
-                    import('./../entel-retail/entel-retail.routes').then((m) => m.routes),
-            },
-            {
-                path: 'EntelTpf',
-                canActivate:[routesGuard],
-                loadChildren: () =>
-                    import('./../entel-tpf/entel-tpf.routes').then((m) => m.routes),
-            },
-            {
-                path: 'WinRetail',
-                canActivate:[routesGuard],
-                loadChildren: () =>
-                    import('./../win-retail/win-retail.routes').then((m) => m.routes),
-            },
-            {
-                path: 'Seguridad',
-                canActivate:[routesGuard],
-                loadChildren: () =>
-                    import('./../seguridad/seguridad.routes').then((m) => m.routes),
-            },
+                    import('./../frepapmodule/frepapmodule.routes').then((m) => m.routes),
+            }
+            // {
+            //     path: 'EntelTpf',
+            //     canActivate:[routesGuard],
+            //     loadChildren: () =>
+            //         import('./../entel-tpf/entel-tpf.routes').then((m) => m.routes),
+            // },
+            // {
+            //     path: 'WinRetail',
+            //     canActivate:[routesGuard],
+            //     loadChildren: () =>
+            //         import('./../win-retail/win-retail.routes').then((m) => m.routes),
+            // },
+            // {
+            //     path: 'Seguridad',
+            //     canActivate:[routesGuard],
+            //     loadChildren: () =>
+            //         import('./../seguridad/seguridad.routes').then((m) => m.routes),
+            // },
         ],
     },
 ];
