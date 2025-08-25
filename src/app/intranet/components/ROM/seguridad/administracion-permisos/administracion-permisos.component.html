@@ -13,14 +13,14 @@
     </div>
     <div class="card border-dark">
         <div class="card-header">
-            <h4 class="card-title text-uppercase fw-bold text-black mt-3">Administracion Permisos</h4>
+            <h6 class="card-title text-uppercase mt-3">Administracion Permisos</h6>
         </div>
         <div class="card-body">
             <div class="card">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-3 mb-3 mb-sm-0" *ngIf="this.perfil === 'ADMIN'">
-                            <label class="form-label fw-bold text-black">Empresa:</label>
+                            <label class="form-label text-black">Empresa:</label>
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="basic-addon1">
                                     <img [src]="this.imgEmpresa" width="20rem">
@@ -30,7 +30,7 @@
                             </div>
                         </div>
                         <div class="col-sm-3" *ngIf="this.perfil === 'ADMIN'">
-                            <label class="form-label fw-bold text-black">País:</label>
+                            <label class="form-label text-black">País:</label>
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="basic-addon1">
                                     <img [src]="this.imgPais" width="20rem">
@@ -40,7 +40,7 @@
                             </div>
                         </div>
                         <div class="col-sm-3">
-                            <label for="idNegocio" class="form-label fw-bold text-black">Negocio:</label>
+                            <label for="idNegocio" class="form-label text-black">Negocio:</label>
                             <select class="form-select" id="idNegocio" [(ngModel)]="selectedNegocio"
                                 (change)="onNegocioChange()">
                                 <option value="0" selected>Todos</option>
@@ -50,7 +50,7 @@
                             </select>
                         </div>
                         <div class="col-sm-3">
-                            <label for="idCuenta" class="form-label fw-bold text-black">Cuenta:</label>
+                            <label for="idCuenta" class="form-label text-black">Cuenta:</label>
                             <select class="form-select" id="idCuenta" [(ngModel)]="selectedCuenta">
                                 <option value="0" selected>Todos</option>
                                 <option *ngFor="let cuenta of cuentas" [value]="cuenta.idcuenta">
@@ -78,17 +78,17 @@
                             </button>
                         </div>
                     </div>
-                    <hr>
-                    <div class="row">
+                    <!-- <hr> -->
+                    <div class="row" *ngIf="this.perfil === 'NOADMIN'">
                         <div class="col-sm-12 mb-3 mb-sm-0">
                             <div class="fs-5 fw-bold">Carga Masiva de Usuarios:</div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" *ngIf="this.perfil === 'NOADMIN'">
                         <div class="col-sm-12 mt-4">
                             <div class="d-flex flex-wrap align-items-center gap-2">
                                 <!-- SELECT para ADMIN -->
-                                <select class="form-select me-3 select-cuenta" *ngIf="this.perfil !== 'ADMIN'"
+                                <select class="form-select me-3 select-cuenta"
                                     [(ngModel)]="cargaCuentaSeleccionada" (change)="onCuentaChange()">
                                     <option value="0" selected>Seleccionar Cuenta</option>
                                     <option *ngFor="let cuenta of cuentasLista" [value]="cuenta.idemppaisnegcue">
@@ -97,7 +97,7 @@
                                 </select>
 
                                 <!-- SELECT para SOCIO -->
-                                <select class="form-select me-3 select-cuenta" *ngIf="this.perfil === 'ADMIN'"
+                                <select class="form-select me-3 select-cuenta" 
                                     [(ngModel)]="cargaCuentaSeleccionada" (change)="onCuentaChange()">
                                     <option value="0" selected>Seleccionar Cuenta</option>
                                     <option *ngFor="let cuenta of cuentasListaSocios" [value]="cuenta.idemppaisnegcue">

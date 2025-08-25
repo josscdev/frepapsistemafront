@@ -25,7 +25,7 @@ export const routes: Routes = [
                 canActivate:[routesGuard],
                 loadChildren: () =>
                     import('./../frepapmodule/frepapmodule.routes').then((m) => m.routes),
-            }
+            },
             // {
             //     path: 'EntelTpf',
             //     canActivate:[routesGuard],
@@ -38,12 +38,12 @@ export const routes: Routes = [
             //     loadChildren: () =>
             //         import('./../win-retail/win-retail.routes').then((m) => m.routes),
             // },
-            // {
-            //     path: 'Seguridad',
-            //     canActivate:[routesGuard],
-            //     loadChildren: () =>
-            //         import('./../seguridad/seguridad.routes').then((m) => m.routes),
-            // },
+            {
+                path: 'Seguridad',
+                canActivate:[routesGuard],
+                loadChildren: () =>
+                    import('./../seguridad/seguridad.routes').then((m) => m.routes),
+            },
         ],
     },
 ];
