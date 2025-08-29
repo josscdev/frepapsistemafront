@@ -89,7 +89,7 @@ export class UsuarioPermisosComponent {
           console.log('Empresa encontrada:', empresaEncontrada.nombreempresa);
           this.nombreEmpresa = empresaEncontrada.nombreempresa;
           if (this.idempresa === 1) {
-            this.imgEmpresa = 'assets/img/Rom/logo_rom.svg';
+            this.imgEmpresa = 'assets/img/frepap/frep.jpg';
           } else if (this.idempresa === 2) {
             this.imgEmpresa = 'assets/img/Tawa/logo_tawa1.svg';
           } else if (this.idempresa === 3) {

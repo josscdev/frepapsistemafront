@@ -27,7 +27,7 @@ export class AuthLayoutComponent implements OnInit{
       case 2:
         return 'assets/img/Tawa/logo_tawa.png';
       case 1:
-        return 'assets/img/Rom/logo_rom.png';
+        return 'assets/img/frepap/frep.jpg';
       case 3:
         return 'assets/img/Limtek/logo_limtek.png';
       default:

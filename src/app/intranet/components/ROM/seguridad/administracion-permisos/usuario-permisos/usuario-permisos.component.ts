@@ -92,7 +92,7 @@ export class UsuarioPermisosComponent implements OnInit {
           console.log('Empresa encontrada:', empresaEncontrada.nombreempresa);
           this.nombreEmpresa = empresaEncontrada.nombreempresa;
           if (this.idempresa === 1){
-            this.imgEmpresa = 'assets/img/Rom/logo_rom.svg';
+            this.imgEmpresa = 'assets/img/frepap/frep.jpg';
           }
         } else {
           console.log('Empresa no encontrada en la respuesta.');

@@ -147,7 +147,7 @@ export class AdministracionPermisosComponent implements OnInit {
           console.log('Empresa ROM encontrada:', empresaEncontrada.nombreempresa);
           this.nombreEmpresa = empresaEncontrada.nombreempresa;
           if (this.idempresa === 1) {
-            this.imgEmpresa = 'assets/img/Rom/logo_rom.svg';
+            this.imgEmpresa = 'assets/img/frepap/frep.jpg';
           }
         } else {
           console.log('Empresa ROM no encontrada en la respuesta.');
