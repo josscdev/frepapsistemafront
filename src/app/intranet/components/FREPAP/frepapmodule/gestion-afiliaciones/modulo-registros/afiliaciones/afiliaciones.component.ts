@@ -1,31 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FiltroAfiliacion, ListarAfiliacion } from './models/afiliacion';
+import { AfiliacionesService } from '../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
 
 type Id = string;
 type Doc = 'DNI' | 'CE' | 'PAS';
-
-interface Afiliado {
-  id: Id;
-  nroAfili?: string;
-  fechaAfiliacion?: string; // yyyy-mm-dd
-  nombres: string;
-  apPaterno: string;
-  apMaterno?: string;
-  tipoDocumento: Doc;
-  nroDocumento: string;
-  fechaNacimiento?: string;
-  edad?: number;
-  estado?: 'ACTIVO' | 'INACTIVO';
-
-  region?: string;
-  provincia?: string;
-  distrito?: string;
-
-  correo?: string;
-  telefono?: string;
-  observacion?: string;
-}
 
 @Component({
   selector: 'app-afiliaciones',
@@ -36,147 +16,189 @@ interface Afiliado {
 })
 
 
-export class AfiliacionesComponent {
+export class AfiliacionesComponent implements OnInit {
 
   
-  // --- Catálogos simples ---
-  tiposDoc: Doc[] = ['DNI','CE','PAS'];
-  ubigeo: Record<string, Record<string, string[]>> = {
-    'Lima': {
-      'Lima': ['Miraflores','San Isidro','Villa El Salvador','Comas'],
-      'Huaral': ['Chancay','Aucallama']
-    },
-    'Cusco': {
-      'Cusco': ['Cusco','San Sebastián'],
-      'Urubamba': ['Urubamba','Ollantaytambo']
-    }
-  };
-  regiones = Object.keys(this.ubigeo);
-  provincias: string[] = [];
-  distritos: string[] = [];
-
-  // --- Filtros ---
+  // filtros UI
   fRegion = '';
   fProvincia = '';
   fDistrito = '';
   fQ = '';
 
-  // --- Datos en memoria ---
-  afiliados: Afiliado[] = [
-    {
-      id: crypto.randomUUID(),
-      nroAfili: 'A-0001',
-      fechaAfiliacion: '2025-08-01',
-      nombres: 'Juan',
-      apPaterno: 'Pérez',
-      apMaterno: 'Gómez',
-      tipoDocumento: 'DNI',
-      nroDocumento: '12345678',
-      region: 'Lima',
-      provincia: 'Lima',
-      distrito: 'Miraflores',
-      estado: 'ACTIVO',
-      correo: 'juan@correo.com'
-    }
-  ];
+  // catálogos derivados de la data
+  regiones: string[] = [];
+  provincias: string[] = [];
+  distritos: string[] = [];
 
-  // --- Modal / edición ---
+  // datos
+  lista: ListarAfiliacion[] = [];
+  listaFiltrada: ListarAfiliacion[] = [];
+
+  // puedes setear esto según tu sesión
+  perfil: 'ADMIN' | 'USUARIO' = 'ADMIN';
+  usuario: string = 'admin';
+
+  // modal (placeholders, si ya tienes lógica reemplaza)
   showModal = false;
   readOnly = false;
-  editId: Id | null = null;
-  model: Afiliado = this.nuevo();
+  editId: number | null = null;
+  model: any = {};
+  tiposDoc = ['DNI', 'CE', 'PAS'];
 
-  // --- Helpers ---
-  get listaFiltrada(): Afiliado[] {
-    return this.afiliados
-      .filter(a => !this.fRegion || a.region === this.fRegion)
-      .filter(a => !this.fProvincia || a.provincia === this.fProvincia)
-      .filter(a => !this.fDistrito || a.distrito === this.fDistrito)
-      .filter(a => {
-        const q = this.fQ.toLowerCase().trim();
-        if (!q) return true;
-        return [a.nombres, a.apPaterno, a.apMaterno, a.nroDocumento, a.nroAfili]
-          .filter(Boolean)
-          .some(v => String(v).toLowerCase().includes(q));
-      });
+  constructor(private svc: AfiliacionesService) {}
+
+  ngOnInit(): void {
+    this.buscar(); // carga inicial
   }
 
-  // --- Acciones de filtros (encadenado) ---
-  onRegionChange() {
-    this.provincias = this.fRegion ? Object.keys(this.ubigeo[this.fRegion]) : [];
-    this.fProvincia = ''; this.fDistrito = '';
-    this.distritos = [];
-  }
-  onProvinciaChange() {
-    this.distritos = (this.fRegion && this.fProvincia)
-      ? this.ubigeo[this.fRegion][this.fProvincia]
-      : [];
-    this.fDistrito = '';
-  }
-
-  // --- CRUD básico en memoria ---
-  registrar() {
-    this.readOnly = false;
-    this.editId = null;
-    this.model = this.nuevo();
-    this.showModal = true;
-  }
-
-  editar(a: Afiliado) {
-    this.readOnly = false;
-    this.editId = a.id;
-    this.model = JSON.parse(JSON.stringify(a)); // copia simple
-    this.showModal = true;
-  }
-
-  ver(a: Afiliado) {
-    this.editar(a);
-    this.readOnly = true;
-  }
-
-  eliminar(a: Afiliado) {
-    if (!confirm('¿Eliminar el registro?')) return;
-    this.afiliados = this.afiliados.filter(x => x.id !== a.id);
-  }
-
-  guardar() {
-    // edad simple si hay fecha
-    if (this.model.fechaNacimiento) {
-      this.model.edad = this.calcularEdad(this.model.fechaNacimiento);
-    }
-    if (this.editId) {
-      this.afiliados = this.afiliados.map(x => x.id === this.editId ? { ...this.model, id: this.editId! } : x);
-    } else {
-      this.afiliados = [{ ...this.model, id: crypto.randomUUID() }, ...this.afiliados];
-    }
-    this.cerrar();
-  }
-
-  cerrar() {
-    this.showModal = false;
-    this.readOnly = false;
-    this.editId = null;
-    this.model = this.nuevo();
-  }
-
-  // --- Utilidades ---
-  private nuevo(): Afiliado {
-    return {
-      id: '',
-      tipoDocumento: 'DNI',
-      estado: 'ACTIVO',
-      nombres: '',
-      apPaterno: '',
-      nroDocumento: ''
+  // Llama al API
+  buscar(): void {
+    const filtro: FiltroAfiliacion = {
+      region: this.nullIfEmpty(this.fRegion),
+      provincia: this.nullIfEmpty(this.fProvincia),
+      distrito: this.nullIfEmpty(this.fDistrito),
+      perfil: this.perfil,
+      usuario: this.usuario
     };
+
+    this.svc.listarAfiliaciones(filtro).subscribe({
+      next: (data) => {
+        this.lista = data ?? [];
+        this.rebuildUbigeoCatalogs();
+        this.applyFilter();
+      },
+      error: (err) => {
+        console.error('Error al listar afiliaciones:', err);
+        this.lista = [];
+        this.listaFiltrada = [];
+        this.regiones = [];
+        this.provincias = [];
+        this.distritos = [];
+      }
+    });
   }
 
-  private calcularEdad(iso: string): number {
-    const d = new Date(iso);
-    const t = new Date();
-    let e = t.getFullYear() - d.getFullYear();
-    const m = t.getMonth() - d.getMonth();
-    if (m < 0 || (m === 0 && t.getDate() < d.getDate())) e--;
-    return e;
+  // Filtro mientras escribe
+  applyFilter(): void {
+    const q = (this.fQ || '').trim().toLowerCase();
+
+    // Filtrado por texto + por selectores (región/provincia/distrito ya aplican al pedir al backend,
+    // pero igual reafirmamos por si cambias el texto sin volver a invocar)
+    this.listaFiltrada = this.lista.filter(a => {
+      const matchesText =
+        q.length === 0 ||
+        [
+          a.idafiliacion?.toString() ?? '',
+          a.numficha ?? '',
+          a.docafiliado ?? '',
+          a.nombres ?? '',
+          a.apellidopaterno ?? '',
+          a.apellidomaterno ?? '',
+          a.estado_text ?? '',
+          a.region ?? '',
+          a.provincia ?? '',
+          a.distrito ?? '',
+          a.usuariocreacion ?? ''
+        ].some(v => v.toLowerCase().includes(q));
+
+      const cod = (a.codubicacion ?? '').trim();
+      const r = cod.substring(0, 2);
+      const p = cod.substring(2, 4);
+      const d = cod.substring(4, 6);
+
+      const matchesUbigeo =
+        (this.fRegion === '' || r === this.fRegion) &&
+        (this.fProvincia === '' || p === this.fProvincia) &&
+        (this.fDistrito === '' || d === this.fDistrito);
+
+      return matchesText && matchesUbigeo;
+    });
   }
+
+  // Cambios de selects
+  onRegionChange(): void {
+    this.fProvincia = '';
+    this.fDistrito = '';
+    this.rebuildProvincias();
+    this.distritos = [];
+    this.buscar(); // vuelve a pedir con el nuevo filtro
+  }
+
+  onProvinciaChange(): void {
+    this.fDistrito = '';
+    this.rebuildDistritos();
+    this.buscar();
+  }
+
+  // Construye catálogos (RR, PP, DD) desde la data cargada
+  private rebuildUbigeoCatalogs(): void {
+    const setR = new Set<string>();
+    const setP = new Set<string>();
+    const setD = new Set<string>();
+
+    for (const a of this.lista) {
+      const cod = (a.codubicacion ?? '').trim();
+      if (cod.length >= 6) {
+        setR.add(cod.substring(0, 2));
+        if (!this.fRegion || cod.substring(0, 2) === this.fRegion) {
+          setP.add(cod.substring(2, 4));
+          if (!this.fProvincia || cod.substring(2, 4) === this.fProvincia) {
+            setD.add(cod.substring(4, 6));
+          }
+        }
+      }
+    }
+
+    this.regiones = Array.from(setR).sort();
+    // Si ya hay seleccionadas, rearmar dependientes
+    this.rebuildProvincias(setP);
+    this.rebuildDistritos(setD);
+  }
+
+  private rebuildProvincias(prebuilt?: Set<string>): void {
+    if (prebuilt) {
+      this.provincias = Array.from(prebuilt).sort();
+      return;
+    }
+    const set = new Set<string>();
+    for (const a of this.lista) {
+      const cod = (a.codubicacion ?? '').trim();
+      if (cod.length >= 6 && cod.substring(0, 2) === this.fRegion) {
+        set.add(cod.substring(2, 4));
+      }
+    }
+    this.provincias = Array.from(set).sort();
+  }
+
+  private rebuildDistritos(prebuilt?: Set<string>): void {
+    if (prebuilt) {
+      this.distritos = Array.from(prebuilt).sort();
+      return;
+    }
+    const set = new Set<string>();
+    for (const a of this.lista) {
+      const cod = (a.codubicacion ?? '').trim();
+      if (cod.length >= 6 &&
+          cod.substring(0, 2) === this.fRegion &&
+          cod.substring(2, 4) === this.fProvincia) {
+        set.add(cod.substring(4, 6));
+      }
+    }
+    this.distritos = Array.from(set).sort();
+  }
+
+  // Utils
+  nullIfEmpty(v?: string | null): string | null {
+    return v && v.trim() !== '' ? v.trim() : null;
+  }
+
+  // Stubs de acciones (completa con tu lógica)
+  registrar(): void { this.showModal = true; this.readOnly = false; this.editId = null; this.model = {}; }
+  editar(a: ListarAfiliacion): void { this.showModal = true; this.readOnly = false; this.editId = a.idafiliacion; this.model = { ...a }; }
+  eliminar(a: ListarAfiliacion): void { console.log('eliminar', a); }
+  ver(a: ListarAfiliacion): void { this.showModal = true; this.readOnly = true; this.model = { ...a }; }
+  cerrar(): void { this.showModal = false; }
+  guardar(): void { /* TODO: persistir */ this.cerrar(); }
+
+  trackById(_i: number, a: ListarAfiliacion) { return a.idafiliacion; }
 }
