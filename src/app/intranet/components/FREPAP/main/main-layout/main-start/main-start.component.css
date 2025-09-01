@@ -12,7 +12,7 @@
     width: 90%;
     height: auto;
     display: inline-block;
-    opacity: 0.6; /* Valor de opacidad, 0 es completamente transparente, 1 es completamente opaco */
+    opacity: 0.8; /* Valor de opacidad, 0 es completamente transparente, 1 es completamente opaco */
 }
 
 @media screen and (min-width: 768px) {
