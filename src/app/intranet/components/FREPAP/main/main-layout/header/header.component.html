@@ -1,21 +1,21 @@
-<nav class="navbar navbar-dark bg-primary" style="padding-top: 10px;padding-bottom: 10px;">
+<nav class="navbar bg-light" style="padding-top: 10px;padding-bottom: 10px;">
 
     <div class="d-flex align-items-center">
         <button class="navbar-toggler me-0" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation"
             style="margin-left: 30px;">
-            <i class="navbar-toggler-icon" style="color: rgb(255, 255, 255);"></i>
+            <i class="navbar-toggler-icon"></i>
 
         </button>
     <a class="navbar-brand pe-0">
-    <img src="assets/img/frepap/frep_sinfondo.png"
+    <img src="assets/img/frepap/start/Frepap_web_logo.png"
          class="img-fluid"
          style="max-height:50px;
                 margin-left:30px;
                 filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);">
 </a>
 
-        <a class="navbar-brand mt-2 btn btn-primary ps-0 text-wrap text-break" [routerLink]="['/main/start']">
+        <a class="navbar-brand mt-2 btn btn-light ps-0 text-wrap text-break" [routerLink]="['/main/start']">
             <i class="bi bi-house-door-fill "></i>
             Home
         </a> 
@@ -39,7 +39,7 @@
         <div class="offcanvas offcanvas-start bg-primary p-3" tabindex="-1"
             id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
             <div class="offcanvas-header">
-                <img src="assets/img/frepap/start/user.png" class="img-fluid rounded-5" style="max-height: 50px;">
+                <img src="assets/img/frepap/start/user.png" class="img-fluid" style="max-height: 50px;">
                 <h5 class="offcanvas-title text-white text-center" style="padding-left: 10px;" id="offcanvasDarkNavbarLabel">
                     Bienvenido<br>{{ userData?.nombres?.split(' ')[0]}} {{ userData.apellidopaterno}} 
                 </h5>
@@ -130,7 +130,7 @@
               </form> -->
             </div>
             <div class="sticky-bottom btn btn-dark p-2 mt-3">
-                <a class="nav-link text-center text-white" href="#">
+                <a class="nav-link text-center" href="#">
                     <i class="bi bi-box-arrow-right" style="font-size: 1rem;padding-right: 4px;"></i>
                     CERRAR SESION
                 </a>

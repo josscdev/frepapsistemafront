@@ -19,7 +19,7 @@ export const routes: Routes = [
     },
     {
         path: 'main',//PRINCIPAL DE INTRANET ROM
-        loadChildren: () => import('./intranet/components/ROM/main/main.routes').then(m => m.routes)
+        loadChildren: () => import('./intranet/components/FREPAP/main/main.routes').then(m => m.routes)
     },
     // {
     //     path: 'mainTawa',//PRINCIPAL DE INTRANET TAWA
