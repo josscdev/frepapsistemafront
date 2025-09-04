@@ -29,3 +29,22 @@ export interface ListarAfiliacion {
     usuarioanulacion: string | null;
     fechaanulacion: string | null;        // ISO string
 }
+
+export interface ListarOpcionUbigeo {
+    codubicacion: string;
+    rr: string;
+    pp: string;
+    dd: string;
+    region: string;
+    subregion: string;
+    localidad: string;
+}
+
+export interface OpcionSelect {
+    codigo: string;   // RR | PP | DD (2 dígitos)
+    nombre: string;   // texto a mostrar (Región/Subregión/Localidad)
+  }
+  
+  export type RegionOption   = OpcionSelect;
+  export type ProvinciaOption = OpcionSelect;
+  export type DistritoOption  = OpcionSelect;

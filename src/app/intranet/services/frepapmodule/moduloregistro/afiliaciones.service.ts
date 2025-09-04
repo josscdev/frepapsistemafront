@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { FiltroAfiliacion, ListarAfiliacion } from '../../../components/FREPAP/frepapmodule/gestion-afiliaciones/modulo-registros/afiliaciones/models/afiliacion';
+import { FiltroAfiliacion, ListarAfiliacion, ListarOpcionUbigeo } from '../../../components/FREPAP/frepapmodule/gestion-afiliaciones/modulo-registros/afiliaciones/models/afiliacion';
 import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable({
@@ -37,5 +37,9 @@ export class AfiliacionesService {
   private handleError(error: HttpErrorResponse) {
     const msg = error.error?.message ?? error.message ?? 'Error de comunicación con el servidor';
     return throwError(() => new Error(msg));
+  }
+
+  listarUbigeo(idemppaisnegcue: number | null, pais: number | null): Observable<ListarOpcionUbigeo[]> {
+    return this.http.post<ListarOpcionUbigeo[]>(`${this.apiUrl}Afiliaciones/GetListarUbigeos`, { idemppaisnegcue, pais });
   }
 }

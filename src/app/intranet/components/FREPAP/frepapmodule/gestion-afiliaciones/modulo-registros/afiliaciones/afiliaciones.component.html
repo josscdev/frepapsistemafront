@@ -5,21 +5,21 @@
       <h5 class="card-title mb-3">Filtros</h5>
       <div class="row g-2 align-items-center">
         <div class="col-sm-3">
-          <select class="form-select" [(ngModel)]="fRegion" (change)="onRegionChange()">
-            <option value="">Región (RR)</option>
-            <option *ngFor="let r of regiones" [value]="r">{{ r }}</option>
+          <select class="form-select" [(ngModel)]="fRegion" (ngModelChange)="onRegionChange()">
+            <option [ngValue]="null">Todos (RR)</option>
+            <option *ngFor="let r of regiones" [ngValue]="r.codigo">{{ r.nombre }} ({{ r.codigo }})</option>
           </select>
         </div>
         <div class="col-sm-3">
-          <select class="form-select" [(ngModel)]="fProvincia" (change)="onProvinciaChange()">
-            <option value="">Provincia (PP)</option>
-            <option *ngFor="let p of provincias" [value]="p">{{ p }}</option>
+          <select class="form-select" [(ngModel)]="fProvincia" (ngModelChange)="onProvinciaChange()" [disabled]="!fRegion">
+            <option [ngValue]="null">Todos (PP)</option>
+            <option *ngFor="let p of provincias" [ngValue]="p.codigo">{{ p.nombre }} ({{ p.codigo }})</option>
           </select>
         </div>
         <div class="col-sm-3">
-          <select class="form-select" [(ngModel)]="fDistrito" (change)="buscar()">
-            <option value="">Distrito (DD)</option>
-            <option *ngFor="let d of distritos" [value]="d">{{ d }}</option>
+          <select class="form-select" [(ngModel)]="fDistrito" [disabled]="!fProvincia">
+            <option [ngValue]="null">Todos (DD)</option>
+            <option *ngFor="let d of distritos" [ngValue]="d.codigo">{{ d.nombre }} ({{ d.codigo }})</option>
           </select>
         </div>
 
@@ -44,37 +44,51 @@
             <tr>
               <th>ID</th>
               <th>N° Ficha</th>
+              <th>N° Doc.</th>
               <th>Nombres</th>
               <th>Ap. Paterno</th>
               <th>Ap. Materno</th>
               <th>Fecha Afiliación</th>
               <th>Edad</th>
+              <th>Ubigeo</th>
+              <th>Region</th>
+              <th>Provincia</th>
+              <th>Distrito</th>
+              <th>Usuario Creación</th>
+              <th>Fecha Creación</th>
               <th>Estado</th>
-              <th class="text-end">Acciones</th>
+              <th class="text-end" style="width: 150px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let a of listaFiltrada; trackBy: trackById">
               <td>{{ a.idafiliacion }}</td>
               <td>{{ a.numficha || '—' }}</td>
+              <td>{{ a.docafiliado }}</td>
               <td>{{ a.nombres }}</td>
               <td>{{ a.apellidopaterno }}</td>
               <td>{{ a.apellidomaterno || '—' }}</td>
               <td>{{ a.fechaafiliacion | date:'yyyy-MM-dd' }}</td>
               <td>{{ a.edadafiliado || '—' }}</td>
+              <td>{{ a.codubicacion }}</td>
+              <td>{{ a.region }}</td>
+              <td>{{ a.provincia }}</td>
+              <td>{{ a.distrito }}</td>
+              <td>{{ a.usuariocreacion }}</td>
+              <td>{{ a.fechacreacion | date:'yyyy-MM-dd' }}</td>
               <td>
                 <span class="badge" [class.bg-success]="a.estado===1" [class.bg-secondary]="a.estado!==1">
                   {{ a.estado_text || '—' }}
                 </span>
               </td>
-              <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(a)">Edit</button>
-                <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminar(a)">Elim.</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="ver(a)">Ver</button>
+              <td class="text-end" style="width: 150px;">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(a)"><i class="bi bi-pencil-square"></i></button>
+                <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminar(a)"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="ver(a)"><i class="bi bi-eye"></i></button>
               </td>
             </tr>
             <tr *ngIf="listaFiltrada.length === 0">
-              <td colspan="9" class="text-center text-muted py-4">Sin resultados</td>
+              <td colspan="16" class="text-center text-muted py-4">Sin resultados</td>
             </tr>
           </tbody>
         </table>

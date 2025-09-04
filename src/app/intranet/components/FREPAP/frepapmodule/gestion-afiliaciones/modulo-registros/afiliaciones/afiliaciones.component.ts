@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FiltroAfiliacion, ListarAfiliacion } from './models/afiliacion';
+import { DistritoOption, FiltroAfiliacion, ListarAfiliacion, ListarOpcionUbigeo, ProvinciaOption, RegionOption } from './models/afiliacion';
 import { AfiliacionesService } from '../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
 
 type Id = string;
@@ -10,7 +10,7 @@ type Doc = 'DNI' | 'CE' | 'PAS';
 @Component({
   selector: 'app-afiliaciones',
   standalone: true,
-  imports: [FormsModule,CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './afiliaciones.component.html',
   styleUrl: './afiliaciones.component.css'
 })
@@ -18,17 +18,21 @@ type Doc = 'DNI' | 'CE' | 'PAS';
 
 export class AfiliacionesComponent implements OnInit {
 
-  
+
   // filtros UI
-  fRegion = '';
-  fProvincia = '';
-  fDistrito = '';
+  fRegion: string | null = null;    // RR
+  fProvincia: string | null = null; // PP
+  fDistrito: string | null = null;  // DD
   fQ = '';
 
   // catálogos derivados de la data
-  regiones: string[] = [];
-  provincias: string[] = [];
-  distritos: string[] = [];
+  regiones: RegionOption[] = [];
+  provincias: ProvinciaOption[] = [];
+  distritos: DistritoOption[] = [];
+
+  // dataset completo de la función única (si la usas)
+  ubigeoData: ListarOpcionUbigeo[] = [];
+
 
   // datos
   lista: ListarAfiliacion[] = [];
@@ -37,6 +41,8 @@ export class AfiliacionesComponent implements OnInit {
   // puedes setear esto según tu sesión
   perfil: 'ADMIN' | 'USUARIO' = 'ADMIN';
   usuario: string = 'admin';
+  idemppaisnegcue = 1;
+  pais = 1;
 
   // modal (placeholders, si ya tienes lógica reemplaza)
   showModal = false;
@@ -45,26 +51,47 @@ export class AfiliacionesComponent implements OnInit {
   model: any = {};
   tiposDoc = ['DNI', 'CE', 'PAS'];
 
-  constructor(private svc: AfiliacionesService) {}
+  constructor(private svc: AfiliacionesService) { }
 
   ngOnInit(): void {
     this.buscar(); // carga inicial
+    this.listarUbigeo();
+  }
+
+  // Llama al API
+  listarUbigeo(): void {
+    this.svc.listarUbigeo(this.idemppaisnegcue, this.pais).subscribe(data => {
+      this.ubigeoData = data;
+
+      // construir regiones únicas
+      this.regiones = Array.from(
+        new Map(data.map(x => [x.rr, x.region])).entries()
+      ).map(([codigo, nombre]) => ({ codigo, nombre }));
+
+      // inicia sin selección (null => “Todos”)
+      this.fRegion = null;
+      this.fProvincia = null;
+      this.fDistrito = null;
+
+      // con región null no hay provincias/distritos filtradas todavía
+      this.provincias = [];
+      this.distritos = [];
+    });
   }
 
   // Llama al API
   buscar(): void {
     const filtro: FiltroAfiliacion = {
-      region: this.nullIfEmpty(this.fRegion),
-      provincia: this.nullIfEmpty(this.fProvincia),
-      distrito: this.nullIfEmpty(this.fDistrito),
-      perfil: this.perfil,
-      usuario: this.usuario
+      region: this.fRegion,       // null => Todos (RR)
+      provincia: this.fProvincia, // null => Todos (PP)
+      distrito: this.fDistrito,   // null => Todos (DD)
+      perfil: this.perfil, // si es ADMIN, muestra todo, si es otro perfil, muestra solo su data segun this.usuario
+      usuario: this.usuario,
     };
 
     this.svc.listarAfiliaciones(filtro).subscribe({
       next: (data) => {
         this.lista = data ?? [];
-        this.rebuildUbigeoCatalogs();
         this.applyFilter();
       },
       error: (err) => {
@@ -78,12 +105,9 @@ export class AfiliacionesComponent implements OnInit {
     });
   }
 
-  // Filtro mientras escribe
+  // Si filtras en front además, usa null-checks:
   applyFilter(): void {
     const q = (this.fQ || '').trim().toLowerCase();
-
-    // Filtrado por texto + por selectores (región/provincia/distrito ya aplican al pedir al backend,
-    // pero igual reafirmamos por si cambias el texto sin volver a invocar)
     this.listaFiltrada = this.lista.filter(a => {
       const matchesText =
         q.length === 0 ||
@@ -107,84 +131,46 @@ export class AfiliacionesComponent implements OnInit {
       const d = cod.substring(4, 6);
 
       const matchesUbigeo =
-        (this.fRegion === '' || r === this.fRegion) &&
-        (this.fProvincia === '' || p === this.fProvincia) &&
-        (this.fDistrito === '' || d === this.fDistrito);
+        (this.fRegion == null || r === this.fRegion) &&
+        (this.fProvincia == null || p === this.fProvincia) &&
+        (this.fDistrito == null || d === this.fDistrito);
 
       return matchesText && matchesUbigeo;
     });
   }
 
-  // Cambios de selects
   onRegionChange(): void {
-    this.fProvincia = '';
-    this.fDistrito = '';
-    this.rebuildProvincias();
+    // reset dependientes
+    this.fProvincia = null;
+    this.fDistrito = null;
+
+    // rebuild provincias según RR
+    this.provincias = this.buildProvincias(this.fRegion);
+
+    // **vaciar** lista de distritos
     this.distritos = [];
-    this.buscar(); // vuelve a pedir con el nuevo filtro
   }
 
   onProvinciaChange(): void {
-    this.fDistrito = '';
-    this.rebuildDistritos();
-    this.buscar();
+    // reset distrito
+    this.fDistrito = null;
+
+    // rebuild distritos según RR+PP
+    this.distritos = this.buildDistritos(this.fRegion, this.fProvincia);
   }
 
-  // Construye catálogos (RR, PP, DD) desde la data cargada
-  private rebuildUbigeoCatalogs(): void {
-    const setR = new Set<string>();
-    const setP = new Set<string>();
-    const setD = new Set<string>();
-
-    for (const a of this.lista) {
-      const cod = (a.codubicacion ?? '').trim();
-      if (cod.length >= 6) {
-        setR.add(cod.substring(0, 2));
-        if (!this.fRegion || cod.substring(0, 2) === this.fRegion) {
-          setP.add(cod.substring(2, 4));
-          if (!this.fProvincia || cod.substring(2, 4) === this.fProvincia) {
-            setD.add(cod.substring(4, 6));
-          }
-        }
-      }
-    }
-
-    this.regiones = Array.from(setR).sort();
-    // Si ya hay seleccionadas, rearmar dependientes
-    this.rebuildProvincias(setP);
-    this.rebuildDistritos(setD);
+  // helpers
+  private buildProvincias(rr: string | null) {
+    if (!rr) return [];
+    const m = new Map<string, string>();
+    for (const x of this.ubigeoData) if (x.rr === rr) if (!m.has(x.pp)) m.set(x.pp, x.subregion);
+    return Array.from(m, ([codigo, nombre]) => ({ codigo, nombre }));
   }
-
-  private rebuildProvincias(prebuilt?: Set<string>): void {
-    if (prebuilt) {
-      this.provincias = Array.from(prebuilt).sort();
-      return;
-    }
-    const set = new Set<string>();
-    for (const a of this.lista) {
-      const cod = (a.codubicacion ?? '').trim();
-      if (cod.length >= 6 && cod.substring(0, 2) === this.fRegion) {
-        set.add(cod.substring(2, 4));
-      }
-    }
-    this.provincias = Array.from(set).sort();
-  }
-
-  private rebuildDistritos(prebuilt?: Set<string>): void {
-    if (prebuilt) {
-      this.distritos = Array.from(prebuilt).sort();
-      return;
-    }
-    const set = new Set<string>();
-    for (const a of this.lista) {
-      const cod = (a.codubicacion ?? '').trim();
-      if (cod.length >= 6 &&
-          cod.substring(0, 2) === this.fRegion &&
-          cod.substring(2, 4) === this.fProvincia) {
-        set.add(cod.substring(4, 6));
-      }
-    }
-    this.distritos = Array.from(set).sort();
+  private buildDistritos(rr: string | null, pp: string | null) {
+    if (!rr || !pp) return [];
+    const m = new Map<string, string>();
+    for (const x of this.ubigeoData) if (x.rr === rr && x.pp === pp) if (!m.has(x.dd)) m.set(x.dd, x.localidad);
+    return Array.from(m, ([codigo, nombre]) => ({ codigo, nombre }));
   }
 
   // Utils
