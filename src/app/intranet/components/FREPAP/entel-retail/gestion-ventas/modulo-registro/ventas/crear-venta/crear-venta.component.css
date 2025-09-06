@@ -36,14 +36,6 @@
     font-size: .7rem;
 }
 
-/* .mat-mdc-select-arrow svg {
-    fill: currentColor;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -80%);
-} */
-
 .contenedor-scroll {
     overflow: auto;
     /* Mantener la capacidad de desplazarse */

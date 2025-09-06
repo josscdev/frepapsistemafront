@@ -72,8 +72,8 @@
               <td>{{ a.edadafiliado || '—' }}</td>
               <td>{{ a.codubicacion }}</td>
               <td>{{ a.region }}</td>
-              <td>{{ a.provincia }}</td>
-              <td>{{ a.distrito }}</td>
+              <td>{{ a.subregion }}</td>
+              <td>{{ a.localidad }}</td>
               <td>{{ a.usuariocreacion }}</td>
               <td>{{ a.fechacreacion | date:'yyyy-MM-dd' }}</td>
               <td>
@@ -84,7 +84,8 @@
               <td class="text-end" style="width: 150px;">
                 <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(a)"><i class="bi bi-pencil-square"></i></button>
                 <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminar(a)"><i class="bi bi-trash"></i></button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="ver(a)"><i class="bi bi-eye"></i></button>
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="ver(a)"><i class="bi bi-eye"></i></button>
+                <button class="btn btn-sm btn-outline-info me-1" (click)="imprimir(a)"><i class="bi bi-printer"></i></button>
               </td>
             </tr>
             <tr *ngIf="listaFiltrada.length === 0">

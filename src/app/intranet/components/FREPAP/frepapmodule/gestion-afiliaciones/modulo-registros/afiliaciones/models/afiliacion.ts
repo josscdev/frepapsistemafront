@@ -9,25 +9,40 @@ export interface FiltroAfiliacion {
 
 export interface ListarAfiliacion {
     idafiliacion: number;
-    numficha: string | null;
-    docafiliado: string | null;
-    nombres: string | null;
-    apellidopaterno: string | null;
-    apellidomaterno: string | null;
-    fechaafiliacion: string | null;       // ISO string desde el API
-    edadafiliado: number;
+    numficha: string;
+    docafiliado: string;
+    nombres: string;
+    apellidopaterno: string;
+    apellidomaterno: string;
+    fechanacimiento: string | Date | null;
+    estadocivil: string;
+    sexo: string;
+    lugarnacimiento: string;
+    codubicacion: string;
+    region: string;
+    subregion: string;
+    localidad: string;
+    avenida: string;
+    numero: string;
+    urbanizacion: string;
+    celular: string;
+    correo: string;
+    observacionficha: string;
+    fotoimg: string;              // ruta o nombre de archivo
+    fechaafiliacion: string | null;
+    firmaimg: string;
+    huellaimg: string;
+    fichaafiliacionpdf: string;
     estado: number;
-    estado_text: string | null;
-    codubicacion: string | null;
-    region: string | null;
-    provincia: string | null;
-    distrito: string | null;
-    usuariocreacion: string | null;
-    fechacreacion: string | null;         // ISO string
-    usuariomodificacion: string | null;
-    fechamodificacion: string | null;     // ISO string
-    usuarioanulacion: string | null;
-    fechaanulacion: string | null;        // ISO string
+    estado_text: string;
+    usuariocreacion: string;
+    fechacreacion: string | null;
+    usuariomodificacion: string;
+    fechamodificacion: string | null;
+    edadafiliado: number;
+    hojadevidapdf: string;
+    usuarioanulacion: string;
+    fechaanulacion: string | null;
 }
 
 export interface ListarOpcionUbigeo {
@@ -43,8 +58,9 @@ export interface ListarOpcionUbigeo {
 export interface OpcionSelect {
     codigo: string;   // RR | PP | DD (2 dígitos)
     nombre: string;   // texto a mostrar (Región/Subregión/Localidad)
-  }
-  
-  export type RegionOption   = OpcionSelect;
-  export type ProvinciaOption = OpcionSelect;
-  export type DistritoOption  = OpcionSelect;
+}
+
+export type RegionOption = OpcionSelect;
+export type ProvinciaOption = OpcionSelect;
+export type DistritoOption = OpcionSelect;
+

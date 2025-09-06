@@ -1,0 +1,293 @@
+<h2 mat-dialog-title>Registrar Afiliado</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardarAfiliacion()">
+    <mat-dialog-content class="dialog-container">
+        <!-- Fila 1 -->
+        <div class="row">
+            <div class="col-12 mb-2"><strong style="font-weight: 500;">DATOS FICHA</strong></div>
+            <hr>
+            <div class="col-sm-3">
+                <label style="font-weight: lighter;">N° Ficha</label>
+                <input type="text" class="form-control" placeholder="Ingrese N° Ficha" formControlName="numficha"
+                    maxlength="30">
+            </div>
+
+            <div class="col-sm-3">
+                <label style="font-weight: lighter;">Fecha Afiliación</label>
+                <mat-form-field appearance="outline" class="w-100">
+                    <input matInput [matDatepicker]="fecAfi" formControlName="fechaafiliacion" (focus)="fecAfi.open()"
+                        [max]="today" readonly>
+                    <mat-datepicker #fecAfi></mat-datepicker>
+                </mat-form-field>
+            </div>
+
+            <div class="col-sm-6">
+                <label style="font-weight: lighter;">Nombres <span style="color:red;">(*)</span></label>
+                <input class="form-control" placeholder="Ingrese Nombres" formControlName="nombres" maxlength="150"
+                    [ngClass]="{'invalid': f['nombres'].invalid && f['nombres'].touched}">
+                <div *ngIf="f['nombres'].hasError('required') && f['nombres'].touched" class="text-danger m-1"
+                    style="font-size: .7rem;">Este campo es obligatorio.</div>
+            </div>
+        </div>
+
+        <!-- Fila 2 -->
+        <div class="row">
+            <div class="col-sm-4 mb-3">
+                <label style="font-weight: lighter;">Ap. Paterno <span style="color:red;">(*)</span></label>
+                <input class="form-control" placeholder="Apellido Paterno" formControlName="apellidopaterno"
+                    maxlength="80"
+                    [ngClass]="{'invalid': f['apellidopaterno'].invalid && f['apellidopaterno'].touched}">
+                <div *ngIf="f['apellidopaterno'].hasError('required') && f['apellidopaterno'].touched"
+                    class="text-danger m-1" style="font-size: .7rem;">Este campo es obligatorio.</div>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+                <label style="font-weight: lighter;">Ap. Materno</label>
+                <input class="form-control" placeholder="Apellido Materno" formControlName="apellidomaterno"
+                    maxlength="80">
+            </div>
+
+            <div class="col-sm-4 mb-3">
+                <label for="tipodocumento" style="font-weight: lighter;">Tipo Documento <span
+                        style="color:red;">(*)</span></label>
+                <ng-select id="tipodocumento" [items]="tipoDocumentoList" bindLabel="nombre" bindValue="id"
+                    placeholder="Seleccione un Tipo Documento" formControlName="idtipodocumento"
+                    [ngClass]="{'invalid': f['idtipodocumento'].invalid && f['idtipodocumento'].touched}">
+                </ng-select>
+                <div *ngIf="f['idtipodocumento'].invalid && f['idtipodocumento'].touched" class="text-danger m-1"
+                    style="font-size: .7rem; font-style: italic;">
+                    Este campo es obligatorio.
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila 3 -->
+        <div class="row">
+            <div class="col-sm-4">
+                <label style="font-weight: lighter;">N° Documento</label>
+                <input class="form-control" placeholder="Ingrese N° Documento" formControlName="docafiliado"
+                    maxlength="20">
+            </div>
+
+            <div class="col-sm-4">
+                <label style="font-weight: lighter;">Fecha Nacimiento</label>
+                <mat-form-field appearance="outline" class="w-100">
+                    <input matInput [matDatepicker]="fecNac" formControlName="fechanacimiento" (focus)="fecNac.open()"
+                        [max]="today" readonly>
+                    <mat-datepicker #fecNac></mat-datepicker>
+                </mat-form-field>
+            </div>
+
+            <div class="col-sm-4">
+                <label style="font-weight: lighter;">Edad</label>
+                <input class="form-control" formControlName="edadafiliado" readonly>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Fila 4: RR / PP / DD -->
+        <div class="row">
+            <div class="col-sm-4 mb-3">
+                <label style="font-weight: lighter;">Región (RR)</label>
+                <ng-select [items]="regiones" bindLabel="display" bindValue="id" placeholder="Seleccione región"
+                    formControlName="rr" appendTo="body">
+                </ng-select>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+                <label style="font-weight: lighter;">Provincia (PP)</label>
+                <ng-select [items]="provincias" bindLabel="display" bindValue="id" placeholder="Seleccione provincia"
+                    formControlName="pp" [disabled]="!form.get('rr')?.value" appendTo="body">
+                </ng-select>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+                <label style="font-weight: lighter;">Distrito (DD)</label>
+                <ng-select [items]="distritos" bindLabel="display" bindValue="id" placeholder="Seleccione distrito"
+                    formControlName="dd" [disabled]="!form.get('pp')?.value" appendTo="body">
+                </ng-select>
+            </div>
+        </div>
+
+        <!-- 🆕 Fila 5: Dirección -->
+        <div class="row">
+            <div class="col-sm-4 mb-3">
+                <label style="font-weight: lighter;">Avenida</label>
+                <input class="form-control" placeholder="Ingrese Avenida" formControlName="avenida" maxlength="100">
+            </div>
+
+            <div class="col-sm-2 mb-3">
+                <label style="font-weight: lighter;">Número</label>
+                <input class="form-control" placeholder="N°" formControlName="numero" maxlength="10">
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <label style="font-weight: lighter;">Urbanización</label>
+                <input class="form-control" placeholder="Ingrese Urbanización" formControlName="urbanizacion"
+                    maxlength="100">
+            </div>
+        </div>
+
+        <!-- Fila 5 -->
+        <div class="row">
+            <div class="col-sm-4 mb-3">
+                <label style="font-weight: lighter;">Teléfono</label>
+                <input class="form-control" placeholder="Teléfono" formControlName="telefono" maxlength="20">
+            </div>
+
+            <div class="col-sm-8 mb-3">
+                <label style="font-weight: lighter;">Correo Cliente <span style="color:red;">(*)</span></label>
+                <input type="email" class="form-control" placeholder="Ingrese Correo" formControlName="correo"
+                    maxlength="100" [ngClass]="{'invalid': f['correo'].invalid && f['correo'].touched}">
+                <div *ngIf="f['correo'].hasError('email') && !f['correo'].hasError('required') && f['correo'].touched"
+                    class="text-danger m-1" style="font-size: .7rem;">El correo no es válido.</div>
+                <div *ngIf="f['correo'].hasError('required') && f['correo'].touched" class="text-danger m-1"
+                    style="font-size: .7rem;">El correo es obligatorio.</div>
+            </div>
+        </div>
+
+        <!-- 🔹 ARCHIVOS -->
+        <div class="row">
+            <div class="col-12 mb-2"><strong style="font-weight: 500;">ARCHIVOS</strong></div>
+            <hr>
+
+            <!-- Foto -->
+            <div class="col-sm-3 mb-3">
+                <label class="upload-label">Foto</label>
+                <div class="upload-box">
+                    <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp"
+                        (change)="onFileSelect('foto', $event)" hidden #fotoInput>
+                    <button type="button" class="btn-upload" (click)="fotoInput.click()">Seleccionar</button>
+
+                    <div class="file-meta" *ngIf="form.get('foto')?.value as f">
+                        <span class="file-name">{{ f.name }}</span>
+                        <div class="file-actions">
+                            <button type="button" class="link" (click)="previewImage('foto')">ver</button>
+                            <button type="button" class="link danger" (click)="removeFile('foto')">quitar</button>
+                        </div>
+                    </div>
+                    <div class="file-hint">PNG/JPG/WEBP · máx 200KB</div>
+                </div>
+            </div>
+
+            <!-- Ficha afiliación (PDF) -->
+            <div class="col-sm-3 mb-3">
+                <label class="upload-label">Subir Ficha Afil.</label>
+                <div class="upload-box">
+                    <input type="file" accept="application/pdf" (change)="onFileSelect('fichaafiliacionfile', $event)"
+                        hidden #fichaInput>
+                    <button type="button" class="btn-upload" (click)="fichaInput.click()">Seleccionar</button>
+
+                    <div class="file-meta" *ngIf="form.get('fichaafiliacionfile')?.value as f">
+                        <span class="file-name">{{ f.name }}</span>
+                        <div class="file-actions">
+                            <button type="button" class="link" (click)="previewImage('foto')" *ngIf="false">ver</button>
+                            <button type="button" class="link danger"
+                                (click)="removeFile('fichaafiliacionfile')">quitar</button>
+                        </div>
+                    </div>
+                    <div class="file-hint">PDF · máx 2MB</div>
+                </div>
+            </div>
+
+            <!-- Hoja de Vida (PDF) -->
+            <div class="col-sm-3 mb-3">
+                <label class="upload-label">Hoja de Vida</label>
+                <div class="upload-box">
+                    <input type="file" accept="application/pdf" (change)="onFileSelect('hojadevida', $event)" hidden
+                        #hvInput>
+                    <button type="button" class="btn-upload" (click)="hvInput.click()">Seleccionar</button>
+
+                    <div class="file-meta" *ngIf="form.get('hojadevida')?.value as f">
+                        <span class="file-name">{{ f.name }}</span>
+                        <div class="file-actions">
+                            <button type="button" class="link danger" (click)="removeFile('hojadevida')">quitar</button>
+                        </div>
+                    </div>
+                    <div class="file-hint">PDF · máx 2MB</div>
+                </div>
+            </div>
+
+            <!-- Copia Documento (PDF) -->
+            <div class="col-sm-3 mb-3">
+                <label class="upload-label">Copia Documento</label>
+                <div class="upload-box">
+                    <input type="file" accept="application/pdf" (change)="onFileSelect('copiadocumento', $event)" hidden
+                        #docInput>
+                    <button type="button" class="btn-upload" (click)="docInput.click()">Seleccionar</button>
+
+                    <div class="file-meta" *ngIf="form.get('copiadocumento')?.value as f">
+                        <span class="file-name">{{ f.name }}</span>
+                        <div class="file-actions">
+                            <button type="button" class="link danger"
+                                (click)="removeFile('copiadocumento')">quitar</button>
+                        </div>
+                    </div>
+                    <div class="file-hint">PDF · máx 2MB</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Observación -->
+        <div class="row">
+            <div class="col-sm-3 mb-3">
+                <label style="font-weight: lighter;">Estado <span style="color:red;">(*)</span></label>
+                <ng-select [items]="[{id:'ACTIVO',nombre:'ACTIVO'},{id:'INACTIVO',nombre:'INACTIVO'}]"
+                    bindLabel="nombre" bindValue="id" formControlName="estado_text">
+                </ng-select>
+            </div>
+            <div class="col-9 mb-2">
+                <label style="font-weight: lighter;">Observación</label>
+                <textarea class="form-control" rows="2" placeholder="Observación" formControlName="observacion"
+                    maxlength="300"></textarea>
+            </div>
+        </div>
+
+        <!-- 🔹 TRAZABILIDAD -->
+        <div class="row">
+            <div class="col-12 mb-2"><strong style="font-weight: 500;">TRAZABILIDAD</strong></div>
+            <hr>
+
+            <div class="col-sm-6 mb-3">
+                <label style="font-weight: lighter;">Usuario Creación</label>
+                <input class="form-control" formControlName="usuario_creacion" placeholder="—" readonly>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label style="font-weight: lighter;">Fecha Creación</label>
+                <input class="form-control" formControlName="fecha_creacion" placeholder="—" readonly>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <label style="font-weight: lighter;">Usuario Modificación</label>
+                <input class="form-control" formControlName="usuario_modificacion" placeholder="—" readonly>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label style="font-weight: lighter;">Fecha Modificación</label>
+                <input class="form-control" formControlName="fecha_modificacion" placeholder="—" readonly>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <label style="font-weight: lighter;">Usuario Anulación</label>
+                <input class="form-control" formControlName="usuario_anulacion" placeholder="—" readonly>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label style="font-weight: lighter;">Fecha Anulación</label>
+                <input class="form-control" formControlName="fecha_anulacion" placeholder="—" readonly>
+            </div>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer">
+        <button mat-flat-button color="primary" type="submit" [disabled]="isBlockSave || isButtonDisabled"
+            [ngClass]="{ 'btn-success': !isBlockSave, 'btn-invalid': isBlockSave }">
+            <i class="bi bi-floppy2-fill"></i>
+            Guardar
+        </button>
+
+        <button mat-stroked-button color="warn" type="button" (click)="onNoClick()">
+            <i class="bi bi-x-square-fill"></i>
+            Cerrar
+        </button>
+    </mat-dialog-actions>
+</form>
