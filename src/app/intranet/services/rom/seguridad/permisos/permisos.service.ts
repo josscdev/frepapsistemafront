@@ -5,7 +5,7 @@ import { Observable, map } from 'rxjs';
 import { AllUsersRequest, AllUsersResponse } from '../../../../models/rom/seguridad/allusers';
 import { PermissionRequest } from '../../../../models/Auth/permissionsRequest';
 import { Module, PermisosModulosRequest } from '../../../../models/rom/seguridad/modulospermisos';
-import { ListaValidarUsuarios, RespuestaUsuario, RespuestaUsuarioXDocumento, RespuestaValidarUsuarios } from '../../../../components/ROM/seguridad/administracion-permisos/models/usuario';
+import { ListaValidarUsuarios, RespuestaUsuario, RespuestaUsuarioXDocumento, RespuestaValidarUsuarios } from '../../../../components/FREPAP/seguridad/administracion-permisos/models/usuario';
 
 @Injectable({
   providedIn: 'root'
