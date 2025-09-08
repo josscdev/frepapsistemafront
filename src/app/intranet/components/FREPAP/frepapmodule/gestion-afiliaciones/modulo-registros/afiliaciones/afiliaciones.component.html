@@ -5,31 +5,31 @@
       <h5 class="card-title mb-3">Filtros</h5>
       <div class="row g-2 align-items-center">
         <div class="col-sm-3">
-          <select class="form-select" [(ngModel)]="fRegion" (change)="onRegionChange()">
-            <option value="">Región</option>
-            <option *ngFor="let r of regiones" [value]="r">{{ r }}</option>
+          <select class="form-select" [(ngModel)]="fRegion" (ngModelChange)="onRegionChange()">
+            <option [ngValue]="null">Todos (RR)</option>
+            <option *ngFor="let r of regiones" [ngValue]="r.codigo">{{ r.nombre }} ({{ r.codigo }})</option>
           </select>
         </div>
         <div class="col-sm-3">
-          <select class="form-select" [(ngModel)]="fProvincia" (change)="onProvinciaChange()">
-            <option value="">Provincia</option>
-            <option *ngFor="let p of provincias" [value]="p">{{ p }}</option>
+          <select class="form-select" [(ngModel)]="fProvincia" (ngModelChange)="onProvinciaChange()" [disabled]="!fRegion">
+            <option [ngValue]="null">Todos (PP)</option>
+            <option *ngFor="let p of provincias" [ngValue]="p.codigo">{{ p.nombre }} ({{ p.codigo }})</option>
           </select>
         </div>
         <div class="col-sm-3">
-          <select class="form-select" [(ngModel)]="fDistrito">
-            <option value="">Distrito</option>
-            <option *ngFor="let d of distritos" [value]="d">{{ d }}</option>
+          <select class="form-select" [(ngModel)]="fDistrito" [disabled]="!fProvincia">
+            <option [ngValue]="null">Todos (DD)</option>
+            <option *ngFor="let d of distritos" [ngValue]="d.codigo">{{ d.nombre }} ({{ d.codigo }})</option>
           </select>
         </div>
 
         <div class="col-sm-3 text-sm-end">
-          <button class="btn btn-primary me-2" (click)=" null">Buscar</button>
+          <button class="btn btn-primary me-2" (click)="buscar()">Buscar</button>
           <button class="btn btn-success" (click)="registrar()">Registrar</button>
         </div>
 
         <div class="col-12 col-sm-4 ms-auto">
-          <input class="form-control" placeholder="Buscar..." [(ngModel)]="fQ">
+          <input class="form-control" placeholder="Buscar..." [(ngModel)]="fQ" (ngModelChange)="applyFilter()">
         </div>
       </div>
     </div>
@@ -42,37 +42,54 @@
         <table class="table align-middle">
           <thead>
             <tr>
-              <th>N° Afili.</th>
+              <th>ID</th>
+              <th>N° Ficha</th>
+              <th>N° Doc.</th>
               <th>Nombres</th>
               <th>Ap. Paterno</th>
               <th>Ap. Materno</th>
               <th>Fecha Afiliación</th>
               <th>Edad</th>
+              <th>Ubigeo</th>
+              <th>Region</th>
+              <th>Provincia</th>
+              <th>Distrito</th>
+              <th>Usuario Creación</th>
+              <th>Fecha Creación</th>
               <th>Estado</th>
-              <th class="text-end">Acciones</th>
+              <th class="text-end" style="width: 150px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let a of listaFiltrada">
-              <td>{{ a.nroAfili || '—' }}</td>
+            <tr *ngFor="let a of listaFiltrada; trackBy: trackById">
+              <td>{{ a.idafiliacion }}</td>
+              <td>{{ a.numficha || '—' }}</td>
+              <td>{{ a.docafiliado }}</td>
               <td>{{ a.nombres }}</td>
-              <td>{{ a.apPaterno }}</td>
-              <td>{{ a.apMaterno || '—' }}</td>
-              <td>{{ a.fechaAfiliacion || '—' }}</td>
-              <td>{{ a.edad || '—' }}</td>
+              <td>{{ a.apellidopaterno }}</td>
+              <td>{{ a.apellidomaterno || '—' }}</td>
+              <td>{{ a.fechaafiliacion | date:'yyyy-MM-dd' }}</td>
+              <td>{{ a.edadafiliado || '—' }}</td>
+              <td>{{ a.codubicacion }}</td>
+              <td>{{ a.region }}</td>
+              <td>{{ a.subregion }}</td>
+              <td>{{ a.localidad }}</td>
+              <td>{{ a.usuariocreacion }}</td>
+              <td>{{ a.fechacreacion | date:'yyyy-MM-dd' }}</td>
               <td>
-                <span class="badge" [class.bg-success]="a.estado==='ACTIVO'" [class.bg-secondary]="a.estado!=='ACTIVO'">
-                  {{ a.estado || '—' }}
+                <span class="badge" [class.bg-success]="a.estado===1" [class.bg-secondary]="a.estado!==1">
+                  {{ a.estado_text || '—' }}
                 </span>
               </td>
-              <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(a)">Edit</button>
-                <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminar(a)">Elim.</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="ver(a)">Ver</button>
+              <td class="text-end" style="width: 150px;">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(a)"><i class="bi bi-pencil-square"></i></button>
+                <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminar(a)"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="ver(a)"><i class="bi bi-eye"></i></button>
+                <button class="btn btn-sm btn-outline-info me-1" (click)="imprimir(a)"><i class="bi bi-printer"></i></button>
               </td>
             </tr>
             <tr *ngIf="listaFiltrada.length === 0">
-              <td colspan="8" class="text-center text-muted py-4">Sin resultados</td>
+              <td colspan="16" class="text-center text-muted py-4">Sin resultados</td>
             </tr>
           </tbody>
         </table>
@@ -94,11 +111,11 @@
             <div class="row g-3">
               <div class="col-sm-3">
                 <label class="form-label">N° Ficha</label>
-                <input class="form-control" [(ngModel)]="model.nroAfili" name="nroAfili" [disabled]="readOnly">
+                <input class="form-control" [(ngModel)]="model.numficha" name="numficha" [disabled]="readOnly">
               </div>
               <div class="col-sm-3">
                 <label class="form-label">Fecha Afiliación</label>
-                <input type="date" class="form-control" [(ngModel)]="model.fechaAfiliacion" name="fechaAfiliacion" [disabled]="readOnly">
+                <input type="date" class="form-control" [(ngModel)]="model.fechaafiliacion" name="fechaafiliacion" [disabled]="readOnly">
               </div>
               <div class="col-sm-6">
                 <label class="form-label">Nombres *</label>
@@ -107,55 +124,55 @@
 
               <div class="col-sm-4">
                 <label class="form-label">Ap. Paterno *</label>
-                <input class="form-control" [(ngModel)]="model.apPaterno" name="apPaterno" required [disabled]="readOnly">
+                <input class="form-control" [(ngModel)]="model.apellidopaterno" name="apellidopaterno" required [disabled]="readOnly">
               </div>
               <div class="col-sm-4">
                 <label class="form-label">Ap. Materno</label>
-                <input class="form-control" [(ngModel)]="model.apMaterno" name="apMaterno" [disabled]="readOnly">
+                <input class="form-control" [(ngModel)]="model.apellidomaterno" name="apellidomaterno" [disabled]="readOnly">
               </div>
 
               <div class="col-sm-2">
                 <label class="form-label">Tipo Doc.</label>
-                <select class="form-select" [(ngModel)]="model.tipoDocumento" name="tipoDocumento" [disabled]="readOnly">
+                <select class="form-select" [(ngModel)]="model.tipodocumento" name="tipodocumento" [disabled]="readOnly">
                   <option *ngFor="let t of tiposDoc" [value]="t">{{ t }}</option>
                 </select>
               </div>
               <div class="col-sm-2">
                 <label class="form-label">N° Doc.</label>
-                <input class="form-control" [(ngModel)]="model.nroDocumento" name="nroDocumento" [disabled]="readOnly">
+                <input class="form-control" [(ngModel)]="model.docafiliado" name="docafiliado" [disabled]="readOnly">
               </div>
 
               <div class="col-sm-3">
                 <label class="form-label">Fecha Nacimiento</label>
-                <input type="date" class="form-control" [(ngModel)]="model.fechaNacimiento" name="fechaNacimiento" [disabled]="readOnly">
+                <input type="date" class="form-control" [(ngModel)]="model.fechanacimiento" name="fechanacimiento" [disabled]="readOnly">
               </div>
               <div class="col-sm-1">
                 <label class="form-label">Edad</label>
-                <input class="form-control" [value]="model.edad || ''" disabled>
+                <input class="form-control" [value]="model.edadafiliado || ''" disabled>
               </div>
 
               <div class="col-sm-3">
                 <label class="form-label">Estado</label>
-                <select class="form-select" [(ngModel)]="model.estado" name="estado" [disabled]="readOnly">
+                <select class="form-select" [(ngModel)]="model.estado_text" name="estado_text" [disabled]="readOnly">
                   <option value="ACTIVO">ACTIVO</option>
                   <option value="INACTIVO">INACTIVO</option>
                 </select>
               </div>
 
               <div class="col-sm-3">
-                <label class="form-label">Región</label>
-                <select class="form-select" [(ngModel)]="model.region" name="region" [disabled]="readOnly">
+                <label class="form-label">Región (RR)</label>
+                <select class="form-select" [(ngModel)]="model.rr" name="rr" [disabled]="readOnly">
                   <option value="">—</option>
                   <option *ngFor="let r of regiones" [value]="r">{{ r }}</option>
                 </select>
               </div>
               <div class="col-sm-3">
-                <label class="form-label">Provincia</label>
-                <input class="form-control" [(ngModel)]="model.provincia" name="provincia" [disabled]="readOnly">
+                <label class="form-label">Provincia (PP)</label>
+                <input class="form-control" [(ngModel)]="model.pp" name="pp" [disabled]="readOnly">
               </div>
               <div class="col-sm-3">
-                <label class="form-label">Distrito</label>
-                <input class="form-control" [(ngModel)]="model.distrito" name="distrito" [disabled]="readOnly">
+                <label class="form-label">Distrito (DD)</label>
+                <input class="form-control" [(ngModel)]="model.dd" name="dd" [disabled]="readOnly">
               </div>
 
               <div class="col-sm-4">

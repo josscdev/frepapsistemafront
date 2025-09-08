@@ -1,0 +1,66 @@
+// models/afiliaciones.models.ts
+export interface FiltroAfiliacion {
+    region?: string | null;
+    provincia?: string | null;
+    distrito?: string | null;
+    perfil?: 'ADMIN' | 'USUARIO' | string | null;
+    usuario?: string | null;
+}
+
+export interface ListarAfiliacion {
+    idafiliacion: number;
+    numficha: string;
+    docafiliado: string;
+    nombres: string;
+    apellidopaterno: string;
+    apellidomaterno: string;
+    fechanacimiento: string | Date | null;
+    estadocivil: string;
+    sexo: string;
+    lugarnacimiento: string;
+    codubicacion: string;
+    region: string;
+    subregion: string;
+    localidad: string;
+    avenida: string;
+    numero: string;
+    urbanizacion: string;
+    celular: string;
+    correo: string;
+    observacionficha: string;
+    fotoimg: string;              // ruta o nombre de archivo
+    fechaafiliacion: string | null;
+    firmaimg: string;
+    huellaimg: string;
+    fichaafiliacionpdf: string;
+    estado: number;
+    estado_text: string;
+    usuariocreacion: string;
+    fechacreacion: string | null;
+    usuariomodificacion: string;
+    fechamodificacion: string | null;
+    edadafiliado: number;
+    hojadevidapdf: string;
+    usuarioanulacion: string;
+    fechaanulacion: string | null;
+}
+
+export interface ListarOpcionUbigeo {
+    codubicacion: string;
+    rr: string;
+    pp: string;
+    dd: string;
+    region: string;
+    subregion: string;
+    localidad: string;
+}
+
+export interface OpcionSelect {
+    codigo: string;   // RR | PP | DD (2 dígitos)
+    nombre: string;   // texto a mostrar (Región/Subregión/Localidad)
+}
+
+export type RegionOption = OpcionSelect;
+export type ProvinciaOption = OpcionSelect;
+export type DistritoOption = OpcionSelect;
+
