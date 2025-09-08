@@ -64,3 +64,41 @@ export type RegionOption = OpcionSelect;
 export type ProvinciaOption = OpcionSelect;
 export type DistritoOption = OpcionSelect;
 
+
+export interface AfiliacionCreateDto {
+  numficha: string | null;
+  fechaafiliacion: string | null;        // YYYY-MM-DD
+  nombres: string;
+  apellidopaterno: string;
+  apellidomaterno: string | null;
+
+  idtipodocumento: string;               // DNI/CE/PAS (o el id real)
+  docafiliado: string | null;
+
+  fechanacimiento: string | null;        // YYYY-MM-DD
+  edadafiliado: number;
+
+  rr: string | null;                     // "RR"
+  pp: string | null;                     // "RRPP"
+  dd: string | null;                     // "RRPPDD"
+  ubigeo: string | null;                 // prioriza dd > pp > rr
+
+  avenida: string | null;
+  numero: string | null;
+  urbanizacion: string | null;
+
+  telefono: string | null;
+  correo: string;
+
+  estado_text: 'ACTIVO' | 'INACTIVO';
+  estado: number;                        // 1 activo, 0 inactivo
+  observacion: string | null;
+
+  archivosMeta: {
+    foto?: { name: string; size: number; type: string };
+    fichaafiliacionfile?: { name: string; size: number; type: string };
+    hojadevida?: { name: string; size: number; type: string };
+    copiadocumento?: { name: string; size: number; type: string };
+  };
+}
+

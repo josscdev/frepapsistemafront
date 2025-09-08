@@ -9,6 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { AfiliacionesService } from '../../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
+import { AfiliacionCreateDto } from '../models/afiliacion';
 
 type Opcion = { id: string; nombre: string; code: string; display: string };
 type UbigeoItem = {
@@ -55,6 +57,8 @@ const MY_DATE_FORMATS = {
 export class RegistrarAfiliacionComponent {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<RegistrarAfiliacionComponent>);
+    private afiliacionesSrv = inject(AfiliacionesService);
+
   constructor(@Inject(MAT_DIALOG_DATA) public data: { ubigeos: UbigeoItem[] }) { }
 
   form!: FormGroup;
@@ -146,6 +150,86 @@ export class RegistrarAfiliacionComponent {
       this.form.get('edadafiliado')?.setValue(edad, { emitEvent: false });
     });
   }
+
+
+  private buildPayloadFromForm(): AfiliacionCreateDto {
+    const v = this.form.getRawValue();
+
+    const rr: string | null = v.rr || null;
+    const pp: string | null = v.pp || null;
+    const dd: string | null = v.dd || null;
+
+    const payload: AfiliacionCreateDto = {
+      numficha: v.numficha?.toString()?.trim() || null,
+      fechaafiliacion: this.formatDateYYYYMMDD(v.fechaafiliacion),
+
+      nombres: (v.nombres || '').toString().trim(),
+      apellidopaterno: (v.apellidopaterno || '').toString().trim(),
+      apellidomaterno: v.apellidomaterno?.toString()?.trim() || null,
+
+      idtipodocumento: v.idtipodocumento,
+      docafiliado: v.docafiliado?.toString()?.trim() || null,
+
+      fechanacimiento: this.formatDateYYYYMMDD(v.fechanacimiento),
+      edadafiliado: Number(v.edadafiliado ?? 0),
+
+      rr, pp, dd,
+      ubigeo: dd || pp || rr || null, // prioriza el más específico
+
+      avenida: v.avenida?.toString()?.trim() || null,
+      numero: v.numero?.toString()?.trim() || null,
+      urbanizacion: v.urbanizacion?.toString()?.trim() || null,
+
+      telefono: v.telefono?.toString()?.trim() || null,
+      correo: (v.correo || '').toString().trim(),
+
+      estado_text: v.estado_text,
+      estado: v.estado_text === 'ACTIVO' ? 1 : 0,
+      observacion: v.observacion?.toString()?.trim() || null,
+
+      archivosMeta: {
+        foto: this.safeFileMeta(v.foto),
+        fichaafiliacionfile: this.safeFileMeta(v.fichaafiliacionfile),
+        hojadevida: this.safeFileMeta(v.hojadevida),
+        copiadocumento: this.safeFileMeta(v.copiadocumento),
+      }
+    };
+
+    return payload;
+  }
+
+  async guardarAfiliacion(): Promise<void> {
+    this.isBlockSave = true;
+
+    if (this.form.invalid) {
+      this.markAllAsTouched();
+      this.isBlockSave = false;
+      return;
+    }
+
+    try {
+      const model = this.buildPayloadFromForm();
+      const raw = this.form.getRawValue();
+
+      const resp = await this.afiliacionesSrv.registrarAfiliacion(model, {
+        foto: raw.foto,
+        fichaafiliacionfile: raw.fichaafiliacionfile,
+        hojadevida: raw.hojadevida,
+        copiadocumento: raw.copiadocumento
+      });
+      console.log('OK', resp);
+
+      // éxito: cierra y devuelve respuesta del back (o el modelo)
+      this.dialogRef.close(resp ?? model);
+
+    } catch (err:any) {
+      console.error('Error al registrar afiliación:', err);
+      alert(err?.error?.message || 'Hubo un error al registrar. Intente nuevamente.');
+      this.isBlockSave = false;
+      return;
+    }
+  }
+
 
   // ===== Ubigeos =====
   private setupUbigeos(list: UbigeoItem[]) {
@@ -265,41 +349,6 @@ export class RegistrarAfiliacionComponent {
     this.dialogRef.close();
   }
 
-  async guardarAfiliacion(): Promise<void> {
-    this.isBlockSave = true;
-
-    if (this.form.invalid) {
-      this.markAllAsTouched();
-      this.isBlockSave = false;
-      return;
-    }
-
-    try {
-      // 🔹 Construir FormData
-      const fd = new FormData();
-
-      Object.entries(this.form.getRawValue()).forEach(([key, value]) => {
-        if (value instanceof File) {
-          fd.append(key, value); // los archivos
-        } else if (value !== null && value !== undefined) {
-          fd.append(key, String(value)); // valores simples
-        }
-      });
-
-      // 🔹 Llamada a tu servicio .NET (ejemplo con HttpClient)
-      // ajusta la URL a tu API real
-      //await this.http.post('/api/afiliaciones/registrar', fd).toPromise();
-
-      // 🔹 Cerrar diálogo devolviendo el payload (opcional)
-      this.dialogRef.close(this.form.getRawValue());
-
-    } catch (err) {
-      console.error('Error al registrar afiliación:', err);
-      alert('Hubo un error al registrar. Intente nuevamente.');
-      this.isBlockSave = false;
-    }
-  }
-
   // ===== Utils =====
   get f() { return this.form.controls; }
 
@@ -314,4 +363,18 @@ export class RegistrarAfiliacionComponent {
     if (m < 0 || (m === 0 && hoy.getDate() < birth.getDate())) e--;
     return Math.max(0, e);
   }
+
+
+  private formatDateYYYYMMDD(d: Date | null): string | null {
+    if (!d) return null;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private safeFileMeta(f?: File | null) {
+    return f ? { name: f.name, size: f.size, type: f.type } : undefined;
+  }
+  
 }

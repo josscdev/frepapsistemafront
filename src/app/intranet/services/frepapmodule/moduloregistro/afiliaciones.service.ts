@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { FiltroAfiliacion, ListarAfiliacion, ListarOpcionUbigeo } from '../../../components/FREPAP/frepapmodule/gestion-afiliaciones/modulo-registros/afiliaciones/models/afiliacion';
-import { catchError, Observable, throwError } from 'rxjs';
+import { AfiliacionCreateDto, FiltroAfiliacion, ListarAfiliacion, ListarOpcionUbigeo } from '../../../components/FREPAP/frepapmodule/gestion-afiliaciones/modulo-registros/afiliaciones/models/afiliacion';
+import { catchError, firstValueFrom, Observable, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -42,4 +42,23 @@ export class AfiliacionesService {
   listarUbigeo(idemppaisnegcue: number | null, pais: number | null): Observable<ListarOpcionUbigeo[]> {
     return this.http.post<ListarOpcionUbigeo[]>(`${this.apiUrl}Afiliaciones/GetListarUbigeos`, { idemppaisnegcue, pais });
   }
+
+
+async registrarAfiliacion(
+  model: AfiliacionCreateDto,
+  files: { foto?: File; fichaafiliacionfile?: File; hojadevida?: File; copiadocumento?: File }
+): Promise<any> {
+  const fd = new FormData();
+
+  Object.entries(model).forEach(([k, v]) => v != null && fd.append(k, String(v)));
+  if (files.foto) fd.append('foto', files.foto);
+  if (files.fichaafiliacionfile) fd.append('fichaafiliacionfile', files.fichaafiliacionfile);
+  if (files.hojadevida) fd.append('hojadevida', files.hojadevida);
+  if (files.copiadocumento) fd.append('copiadocumento', files.copiadocumento);
+
+  // Ajusta la ruta según tu controller: [Route("api/[controller]")]
+  const url = `${this.apiUrl}Afiliaciones/registrarafiliacion`;
+
+  return await firstValueFrom(this.http.post(url, fd));
+}
 }
