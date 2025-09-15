@@ -1,22 +1,30 @@
-<div class="container py-3">
+<div class="d-flex justify-content-center my-3" *ngIf="loadingUbigeo">
+  <mat-spinner diameter="40"></mat-spinner>
+</div>
+
+<div class="container-fluid py-3" *ngIf="!loadingUbigeo">
   <!-- Filtros -->
   <div class="card mb-3">
     <div class="card-body">
       <h5 class="card-title mb-3">Filtros</h5>
       <div class="row g-2 align-items-center">
         <div class="col-sm-3">
+          <label style="font-weight: lighter;">Region (RR)</label>
           <select class="form-select" [(ngModel)]="fRegion" (ngModelChange)="onRegionChange()">
             <option [ngValue]="null">Todos (RR)</option>
             <option *ngFor="let r of regiones" [ngValue]="r.codigo">{{ r.nombre }} ({{ r.codigo }})</option>
           </select>
         </div>
         <div class="col-sm-3">
-          <select class="form-select" [(ngModel)]="fProvincia" (ngModelChange)="onProvinciaChange()" [disabled]="!fRegion">
+          <label style="font-weight: lighter;">Provincia (PP)</label>
+          <select class="form-select" [(ngModel)]="fProvincia" (ngModelChange)="onProvinciaChange()"
+            [disabled]="!fRegion">
             <option [ngValue]="null">Todos (PP)</option>
             <option *ngFor="let p of provincias" [ngValue]="p.codigo">{{ p.nombre }} ({{ p.codigo }})</option>
           </select>
         </div>
         <div class="col-sm-3">
+          <label style="font-weight: lighter;">Distrito (DD)</label>
           <select class="form-select" [(ngModel)]="fDistrito" [disabled]="!fProvincia">
             <option [ngValue]="null">Todos (DD)</option>
             <option *ngFor="let d of distritos" [ngValue]="d.codigo">{{ d.nombre }} ({{ d.codigo }})</option>
@@ -28,7 +36,10 @@
           <button class="btn btn-success" (click)="registrar()">Registrar</button>
         </div>
 
-        <div class="col-12 col-sm-4 ms-auto">
+        <div class="col-12 col-sm-6 ms-auto d-flex align-items-center">
+          <button class="btn btn-outline-info me-2" (click)="exportarExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Excel
+          </button>
           <input class="form-control" placeholder="Buscar..." [(ngModel)]="fQ" (ngModelChange)="applyFilter()">
         </div>
       </div>
@@ -43,21 +54,21 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>N° Ficha</th>
-              <th>N° Doc.</th>
+              <th># Ficha</th>
+              <th># Doc.</th>
               <th>Nombres</th>
               <th>Ap. Paterno</th>
               <th>Ap. Materno</th>
-              <th>Fecha Afiliación</th>
+              <th>Fec. Afiliación</th>
               <th>Edad</th>
               <th>Ubigeo</th>
               <th>Region</th>
               <th>Provincia</th>
               <th>Distrito</th>
-              <th>Usuario Creación</th>
-              <th>Fecha Creación</th>
+              <th>Usu. Creación</th>
+              <th>Fec. Creación</th>
               <th>Estado</th>
-              <th class="text-end" style="width: 150px;">Acciones</th>
+              <th class="text-end" style="min-width: 150px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -68,24 +79,36 @@
               <td>{{ a.nombres }}</td>
               <td>{{ a.apellidopaterno }}</td>
               <td>{{ a.apellidomaterno || '—' }}</td>
-              <td>{{ a.fechaafiliacion | date:'yyyy-MM-dd' }}</td>
+              <td>{{ a.fechaafiliacion | date:'dd/MM/yyyy' }}</td>
               <td>{{ a.edadafiliado || '—' }}</td>
               <td>{{ a.codubicacion }}</td>
               <td>{{ a.region }}</td>
               <td>{{ a.subregion }}</td>
               <td>{{ a.localidad }}</td>
               <td>{{ a.usuariocreacion }}</td>
-              <td>{{ a.fechacreacion | date:'yyyy-MM-dd' }}</td>
+              <td>{{ a.fechacreacion | date:'dd/MM/yyyy' }}</td>
               <td>
                 <span class="badge" [class.bg-success]="a.estado===1" [class.bg-secondary]="a.estado!==1">
                   {{ a.estado_text || '—' }}
                 </span>
               </td>
-              <td class="text-end" style="width: 150px;">
-                <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(a)"><i class="bi bi-pencil-square"></i></button>
-                <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminar(a)"><i class="bi bi-trash"></i></button>
-                <button class="btn btn-sm btn-outline-secondary me-1" (click)="ver(a)"><i class="bi bi-eye"></i></button>
-                <button class="btn btn-sm btn-outline-info me-1" (click)="imprimir(a)"><i class="bi bi-printer"></i></button>
+              <td class="text-end" style="min-width: 150px;">
+                <div class="btn-group" role="group">
+                  <button class="btn btn-sm btn-primary" (click)="editar(a)" title="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" [disabled]="a.estado !== 1" (click)="eliminar(a.idafiliacion)"
+                    title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-warning" (click)="ver(a)" title="Ver">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="btn btn-sm btn-info" [disabled]="a.estado !== 1"
+                    (click)="imprimir(a)" title="Imprimir">
+                    <i class="bi bi-printer"></i>
+                  </button>
+                </div>
               </td>
             </tr>
             <tr *ngIf="listaFiltrada.length === 0">
@@ -94,6 +117,11 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Paginador -->
+      <mat-paginator [length]="lista.length" [pageSize]="pageSize" [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons (page)="onPageChange($event)">
+      </mat-paginator>
     </div>
   </div>
 
@@ -102,7 +130,8 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">{{ readOnly ? 'Ver ficha' : (editId ? 'Editar afiliado' : 'Registrar afiliado') }}</h5>
+          <h5 class="modal-title">{{ readOnly ? 'Ver ficha' : (editId ? 'Editar afiliado' : 'Registrar afiliado') }}
+          </h5>
           <button type="button" class="btn-close" (click)="cerrar()"></button>
         </div>
 
@@ -115,7 +144,8 @@
               </div>
               <div class="col-sm-3">
                 <label class="form-label">Fecha Afiliación</label>
-                <input type="date" class="form-control" [(ngModel)]="model.fechaafiliacion" name="fechaafiliacion" [disabled]="readOnly">
+                <input type="date" class="form-control" [(ngModel)]="model.fechaafiliacion" name="fechaafiliacion"
+                  [disabled]="readOnly">
               </div>
               <div class="col-sm-6">
                 <label class="form-label">Nombres *</label>
@@ -124,16 +154,19 @@
 
               <div class="col-sm-4">
                 <label class="form-label">Ap. Paterno *</label>
-                <input class="form-control" [(ngModel)]="model.apellidopaterno" name="apellidopaterno" required [disabled]="readOnly">
+                <input class="form-control" [(ngModel)]="model.apellidopaterno" name="apellidopaterno" required
+                  [disabled]="readOnly">
               </div>
               <div class="col-sm-4">
                 <label class="form-label">Ap. Materno</label>
-                <input class="form-control" [(ngModel)]="model.apellidomaterno" name="apellidomaterno" [disabled]="readOnly">
+                <input class="form-control" [(ngModel)]="model.apellidomaterno" name="apellidomaterno"
+                  [disabled]="readOnly">
               </div>
 
               <div class="col-sm-2">
                 <label class="form-label">Tipo Doc.</label>
-                <select class="form-select" [(ngModel)]="model.tipodocumento" name="tipodocumento" [disabled]="readOnly">
+                <select class="form-select" [(ngModel)]="model.tipodocumento" name="tipodocumento"
+                  [disabled]="readOnly">
                   <option *ngFor="let t of tiposDoc" [value]="t">{{ t }}</option>
                 </select>
               </div>
@@ -144,7 +177,8 @@
 
               <div class="col-sm-3">
                 <label class="form-label">Fecha Nacimiento</label>
-                <input type="date" class="form-control" [(ngModel)]="model.fechanacimiento" name="fechanacimiento" [disabled]="readOnly">
+                <input type="date" class="form-control" [(ngModel)]="model.fechanacimiento" name="fechanacimiento"
+                  [disabled]="readOnly">
               </div>
               <div class="col-sm-1">
                 <label class="form-label">Edad</label>
@@ -186,7 +220,8 @@
 
               <div class="col-12">
                 <label class="form-label">Observación</label>
-                <textarea class="form-control" rows="2" [(ngModel)]="model.observacion" name="observacion" [disabled]="readOnly"></textarea>
+                <textarea class="form-control" rows="2" [(ngModel)]="model.observacion" name="observacion"
+                  [disabled]="readOnly"></textarea>
               </div>
             </div>
           </div>

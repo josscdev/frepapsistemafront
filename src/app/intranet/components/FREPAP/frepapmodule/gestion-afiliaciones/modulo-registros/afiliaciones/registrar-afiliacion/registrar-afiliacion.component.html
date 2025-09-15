@@ -4,16 +4,16 @@
     <mat-dialog-content class="dialog-container">
         <!-- Fila 1 -->
         <div class="row">
-            <div class="col-12 mb-2"><strong style="font-weight: 500;">DATOS FICHA</strong></div>
+            <div class="col-12 mb-2"><strong style="font-weight: 500;">DATOS PERSONALES</strong></div>
             <hr>
             <div class="col-sm-3">
-                <label style="font-weight: lighter;">N° Ficha</label>
+                <label style="font-weight: lighter;">N° Ficha <span style="color:red;">(*)</span></label>
                 <input type="text" class="form-control" placeholder="Ingrese N° Ficha" formControlName="numficha"
-                    maxlength="30">
+                    maxlength="30" (input)="transformToUpperCase($event, 'numficha')">
             </div>
 
             <div class="col-sm-3">
-                <label style="font-weight: lighter;">Fecha Afiliación</label>
+                <label style="font-weight: lighter;">Fecha Afiliación <span style="color:red;">(*)</span></label>
                 <mat-form-field appearance="outline" class="w-100">
                     <input matInput [matDatepicker]="fecAfi" formControlName="fechaafiliacion" (focus)="fecAfi.open()"
                         [max]="today" readonly>
@@ -24,7 +24,7 @@
             <div class="col-sm-6">
                 <label style="font-weight: lighter;">Nombres <span style="color:red;">(*)</span></label>
                 <input class="form-control" placeholder="Ingrese Nombres" formControlName="nombres" maxlength="150"
-                    [ngClass]="{'invalid': f['nombres'].invalid && f['nombres'].touched}">
+                    [ngClass]="{'invalid': f['nombres'].invalid && f['nombres'].touched}" (input)="transformToUpperCase($event, 'nombres')">
                 <div *ngIf="f['nombres'].hasError('required') && f['nombres'].touched" class="text-danger m-1"
                     style="font-size: .7rem;">Este campo es obligatorio.</div>
             </div>
@@ -35,23 +35,27 @@
             <div class="col-sm-4 mb-3">
                 <label style="font-weight: lighter;">Ap. Paterno <span style="color:red;">(*)</span></label>
                 <input class="form-control" placeholder="Apellido Paterno" formControlName="apellidopaterno"
-                    maxlength="80"
+                    maxlength="80" (input)="transformToUpperCase($event, 'apellidopaterno')"
                     [ngClass]="{'invalid': f['apellidopaterno'].invalid && f['apellidopaterno'].touched}">
                 <div *ngIf="f['apellidopaterno'].hasError('required') && f['apellidopaterno'].touched"
                     class="text-danger m-1" style="font-size: .7rem;">Este campo es obligatorio.</div>
             </div>
 
             <div class="col-sm-4 mb-3">
-                <label style="font-weight: lighter;">Ap. Materno</label>
+                <label style="font-weight: lighter;">Ap. Materno <span style="color:red;">(*)</span></label>
                 <input class="form-control" placeholder="Apellido Materno" formControlName="apellidomaterno"
-                    maxlength="80">
+                    maxlength="80" (input)="transformToUpperCase($event, 'apellidomaterno')"
+                    [ngClass]="{'invalid': f['apellidomaterno'].invalid && f['apellidomaterno'].touched}">
+                <div *ngIf="f['apellidomaterno'].hasError('required') && f['apellidomaterno'].touched"
+                    class="text-danger m-1" style="font-size: .7rem;">Este campo es obligatorio.</div>
             </div>
 
             <div class="col-sm-4 mb-3">
                 <label for="tipodocumento" style="font-weight: lighter;">Tipo Documento <span
                         style="color:red;">(*)</span></label>
-                <ng-select id="tipodocumento" [items]="tipoDocumentoList" bindLabel="nombre" bindValue="id"
-                    placeholder="Seleccione un Tipo Documento" formControlName="idtipodocumento"
+                <ng-select id="tipodocumento" [items]="tiposDocumento" bindLabel="nombretipodocumento"
+                    bindValue="idtipodocumento" placeholder="Seleccione Tipo Documento"
+                    formControlName="idtipodocumento"
                     [ngClass]="{'invalid': f['idtipodocumento'].invalid && f['idtipodocumento'].touched}">
                 </ng-select>
                 <div *ngIf="f['idtipodocumento'].invalid && f['idtipodocumento'].touched" class="text-danger m-1"
@@ -64,9 +68,11 @@
         <!-- Fila 3 -->
         <div class="row">
             <div class="col-sm-4">
-                <label style="font-weight: lighter;">N° Documento</label>
+                <label style="font-weight: lighter;">N° Documento <span style="color:red;">(*)</span></label>
                 <input class="form-control" placeholder="Ingrese N° Documento" formControlName="docafiliado"
-                    maxlength="20">
+                    maxlength="15" (input)="transformToUpperCase($event, 'docafiliado')" [ngClass]="{'invalid': f['docafiliado'].invalid && f['docafiliado'].touched}">
+                <div *ngIf="f['docafiliado'].hasError('required') && f['docafiliado'].touched" class="text-danger m-1"
+                    style="font-size: .7rem;">Este campo es obligatorio.</div>
             </div>
 
             <div class="col-sm-4">
@@ -78,16 +84,38 @@
                 </mat-form-field>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <label style="font-weight: lighter;">Edad</label>
                 <input class="form-control" formControlName="edadafiliado" readonly>
             </div>
-        </div>
 
-        <hr>
+            <div class="col-sm-2">
+                <label style="font-weight: lighter;">Sexo</label>
+                <ng-select [items]="sexosList" bindLabel="id" bindValue="id" placeholder="Seleccione"
+                    formControlName="sexo">
+                </ng-select>
+            </div>
+
+            <div class="col-sm-4">
+                <label style="font-weight: lighter;">Estado Civil</label>
+                <ng-select [items]="estadosCiviles" bindLabel="nombreestadocivil" bindValue="idestadocivil"
+                    placeholder="Seleccione estado civil" formControlName="idestadocivil">
+                </ng-select>
+            </div>
+
+            <div class="col-sm-8 mb-3">
+                <label style="font-weight: lighter;">Lugar de Nacimiento</label>
+                <input class="form-control" placeholder="Ingrese Lugar de Nacimiento" formControlName="lugarnacimiento"
+                    maxlength="150" (input)="transformToUpperCase($event, 'lugarnacimiento')">
+            </div>
+
+            
+        </div>
 
         <!-- Fila 4: RR / PP / DD -->
         <div class="row">
+            <div class="col-12 mb-2"><strong style="font-weight: 500;">DOMICILIO ACTUAL</strong></div>
+            <hr>
             <div class="col-sm-4 mb-3">
                 <label style="font-weight: lighter;">Región (RR)</label>
                 <ng-select [items]="regiones" bindLabel="display" bindValue="id" placeholder="Seleccione región"
@@ -114,18 +142,18 @@
         <div class="row">
             <div class="col-sm-4 mb-3">
                 <label style="font-weight: lighter;">Avenida</label>
-                <input class="form-control" placeholder="Ingrese Avenida" formControlName="avenida" maxlength="100">
+                <input class="form-control" placeholder="Ingrese Avenida" formControlName="avenida" maxlength="100" (input)="transformToUpperCase($event, 'avenida')">
             </div>
 
             <div class="col-sm-2 mb-3">
                 <label style="font-weight: lighter;">Número</label>
-                <input class="form-control" placeholder="N°" formControlName="numero" maxlength="10">
+                <input class="form-control" placeholder="N°" formControlName="numero" maxlength="10" (input)="transformToUpperCase($event, 'numero')">
             </div>
 
             <div class="col-sm-6 mb-3">
                 <label style="font-weight: lighter;">Urbanización</label>
                 <input class="form-control" placeholder="Ingrese Urbanización" formControlName="urbanizacion"
-                    maxlength="100">
+                    maxlength="100" (input)="transformToUpperCase($event, 'urbanizacion')">
             </div>
         </div>
 
@@ -137,13 +165,9 @@
             </div>
 
             <div class="col-sm-8 mb-3">
-                <label style="font-weight: lighter;">Correo Cliente <span style="color:red;">(*)</span></label>
-                <input type="email" class="form-control" placeholder="Ingrese Correo" formControlName="correo"
-                    maxlength="100" [ngClass]="{'invalid': f['correo'].invalid && f['correo'].touched}">
-                <div *ngIf="f['correo'].hasError('email') && !f['correo'].hasError('required') && f['correo'].touched"
-                    class="text-danger m-1" style="font-size: .7rem;">El correo no es válido.</div>
-                <div *ngIf="f['correo'].hasError('required') && f['correo'].touched" class="text-danger m-1"
-                    style="font-size: .7rem;">El correo es obligatorio.</div>
+                <label style="font-weight: lighter;">Correo Cliente</label>
+                <input type="text" class="form-control" placeholder="Ingrese Correo" formControlName="correo"
+                    maxlength="100" (input)="transformToUpperCase($event, 'correo')">
             </div>
         </div>
 
@@ -154,7 +178,7 @@
 
             <!-- Foto -->
             <div class="col-sm-3 mb-3">
-                <label class="upload-label">Foto</label>
+                <label class="upload-label">Foto </label>
                 <div class="upload-box">
                     <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp"
                         (change)="onFileSelect('foto', $event)" hidden #fotoInput>
@@ -232,15 +256,15 @@
         <!-- Observación -->
         <div class="row">
             <div class="col-sm-3 mb-3">
-                <label style="font-weight: lighter;">Estado <span style="color:red;">(*)</span></label>
+                <label style="font-weight: lighter;">Estado</label>
                 <ng-select [items]="[{id:'ACTIVO',nombre:'ACTIVO'},{id:'INACTIVO',nombre:'INACTIVO'}]"
-                    bindLabel="nombre" bindValue="id" formControlName="estado_text">
+                    bindLabel="nombre" bindValue="id" formControlName="estado_text" readonly>
                 </ng-select>
             </div>
             <div class="col-9 mb-2">
                 <label style="font-weight: lighter;">Observación</label>
                 <textarea class="form-control" rows="2" placeholder="Observación" formControlName="observacion"
-                    maxlength="300"></textarea>
+                    maxlength="300" (input)="transformToUpperCase($event, 'observacion')"></textarea>
             </div>
         </div>
 
@@ -279,8 +303,9 @@
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="dialog-footer">
-        <button mat-flat-button color="primary" type="submit" [disabled]="isBlockSave || isButtonDisabled"
-            [ngClass]="{ 'btn-success': !isBlockSave, 'btn-invalid': isBlockSave }">
+        <button mat-flat-button color="primary" type="submit"
+            [disabled]="form.invalid || isBlockSave || isButtonDisabled"
+            [ngClass]="{ 'btn-success': !form.invalid && !isBlockSave, 'btn-invalid': form.invalid || isBlockSave }">
             <i class="bi bi-floppy2-fill"></i>
             Guardar
         </button>

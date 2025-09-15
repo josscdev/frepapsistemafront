@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DistritoOption, FiltroAfiliacion, ListarAfiliacion, ListarOpcionUbigeo, ProvinciaOption, RegionOption } from './models/afiliacion';
+import { DistritoOption, FiltroAfiliacion, FiltroAfiliacionDesactivar, ListarAfiliacion, ListarOpcionUbigeo, ProvinciaOption, RegionOption } from './models/afiliacion';
 import { AfiliacionesService } from '../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
 import { RegistrarAfiliacionComponent } from './registrar-afiliacion/registrar-afiliacion.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,11 +11,16 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
+import * as XLSX from 'xlsx';
+import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-afiliaciones',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, MatPaginator, MatProgressSpinner],
   templateUrl: './afiliaciones.component.html',
   styleUrl: './afiliaciones.component.css'
 })
@@ -44,10 +49,11 @@ export class AfiliacionesComponent implements OnInit {
   listaFiltrada: ListarAfiliacion[] = [];
 
   // puedes setear esto según tu sesión
-  perfil: 'ADMIN' | 'USUARIO' = 'ADMIN';
-  usuario: string = 'admin';
-  idemppaisnegcue = 1;
-  pais = 1;
+  perfil: string = '';
+  usuario: string = '';
+  idemppaisnegcue: number = 0;
+  pais: number = 0;
+  menuString: any;
 
   // modal (placeholders, si ya tienes lógica reemplaza)
   showModal = false;
@@ -56,35 +62,198 @@ export class AfiliacionesComponent implements OnInit {
   model: any = {};
   tiposDoc = ['DNI', 'CE', 'PAS'];
 
-  constructor(private svc: AfiliacionesService, private dialog: MatDialog) { }
+  // Imagen del banner superior (opcional). Coloca aquí tu base64 si lo tienes.
+  private BANNER_BASE64: string | null = null; // 'data:image/png;base64,iVBORw0K...'
+
+  // Paginacion
+  pageSize = 10; // cantidad por página
+  pageIndex = 0;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  constructor(private svc: AfiliacionesService, private dialog: MatDialog, private router: Router) {
+    this.menuString = (localStorage.getItem('menu') || '');
+    this.usuario = (localStorage.getItem('user') || '');
+    this.perfil = localStorage.getItem('perfil') || '';
+    this.idemppaisnegcue = Number(localStorage.getItem('idemppaisnegcue')) || 0;
+    this.pais = Number(localStorage.getItem('idpais')) || 0;
+
+    let menu;
+    if (this.menuString) {
+      menu = JSON.parse(this.menuString);
+      //console.log('menuu',menu);
+      // Obtener la URL completa
+      const url = this.router.url;
+      console.log(url); // Imprime la URL completa
+
+      let partes = url.split("/");
+      // Quitamos la primera parte que es vacía y la parte "main"
+      let nuevaUrl = partes.slice(2).join("/");
+      console.log('nuevaurl', nuevaUrl);
+
+      this.perfil = this.checkUrl(menu, nuevaUrl);
+      // localStorage.setItem('PerfilVentas', this.perfil);
+      console.log('Perfil es?', this.perfil);
+
+    } else {
+      // Manejar el caso en el que no hay menú en el localStorage
+      menu = '';
+    }
+  }
 
   ngOnInit(): void {
     this.buscar(); // carga inicial
     this.listarUbigeo();
+
+    this.actualizarLista();
 
     this.convertUrlToBase64('assets/img/frepap/frep_sinfondo.png').then(base64 => {
       this.BANNER_BASE64 = base64;
     });
   }
 
+  actualizarLista(): void {
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    this.listaFiltrada = this.lista.slice(start, end);
+  }
+
+  onPageChange(event: any): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.actualizarLista();
+  }
+
+  trackById(index: number, item: any): number {
+    return item.idafiliacion;
+  }
+
+  checkUrl(menu: any, requestedPath: string): string {
+    //console.log('DEBE ENTRAR checkAuthorization');
+    //console.log('menu', menu);
+    console.log('requestedPath', requestedPath);
+
+    if (!menu || !Array.isArray(menu)) {
+      return 'No hay menu'; // No hay menú o no es un array válido
+    }
+
+    // Recorrer los módulos en el menú
+    for (const modulo of menu) {
+      // Verificar si la ruta del módulo coincide
+      if (modulo.rutamodulo && modulo.rutamodulo === requestedPath) {
+        console.log('nombreperfilmodulo', modulo.nombreperfilmodulo);
+        console.log('modulo.rutamodulo', modulo.rutamodulo);
+
+        return modulo.nombreperfilmodulo; // La ruta solicitada está presente en el menú
+      }
+
+
+      //console.log('modulo.submodules', modulo.submodules);
+      // Si hay submódulos, recorrerlos
+      if (modulo.submodules && Array.isArray(modulo.submodules)) {
+        for (const submodulo of modulo.submodules) {
+          // Verificar si la ruta del submódulo coincide
+          if (submodulo.rutasubmodulo && submodulo.rutasubmodulo === requestedPath) {
+            console.log('nombreperfilsubmodulo', submodulo.nombreperfilsubmodulo);
+            console.log('submodulo.rutasubmodulo', submodulo.rutasubmodulo);
+
+            return submodulo.nombreperfilsubmodulo; // La ruta solicitada está presente en el menú
+          }
+
+          // Si hay ítems, recorrerlos
+          if (submodulo.items && Array.isArray(submodulo.items)) {
+            for (const item of submodulo.items) {
+              // Verificar si la ruta del ítem coincide
+              if (item.rutaitemmodulo && item.rutaitemmodulo === requestedPath) {
+                console.log('nombreperfilitemmodulo', item.nombreperfilitemmodulo);
+                console.log('item.rutaitemmodulo', item.rutaitemmodulo);
+
+                return item.nombreperfilitemmodulo; // La ruta solicitada está presente en el menú
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return 'No esta en el menú'; // La ruta solicitada no está en el menú
+  }
+
+  // Exportar en excel
+  exportarExcel(): void {
+    // 🔹 Mapea los datos de la tabla con los encabezados visibles
+    const data = this.lista.map((item: ListarAfiliacion) => ({
+      'FICHA': item.numficha,
+      'TIPO DOC': item.abreviatura,
+      '# DOC.': item.docafiliado,
+      'NOMBRES': item.nombres,
+      'APELLIDO PATERNO': item.apellidopaterno,
+      'APELLIDO MATERNO': item.apellidomaterno,
+      'FECHA NACIMIENTO': this.fecha(item.fechanacimiento),
+      'EDAD': item.edadafiliado,
+      'ESTADO CIVIL': item.nombreestadocivil,
+      'SEXO': item.sexo,
+      'LUGAR NACIMIENTO': item.lugarnacimiento,
+      'UBIGEO': item.codubicacion,
+      'REGION': item.region,
+      'PROVINCIA': item.subregion,
+      'DISTRITO': item.localidad,
+      'AVENIDA': item.avenida,
+      'NUMERO': item.numero,
+      'URBANIZACION': item.urbanizacion,
+      'CELULAR': item.celular,
+      'CORREO': item.correo,
+      'OBSERVACION FICHA': item.observacionficha,
+      'FECHA AFILIACION': this.fecha(item.fechaafiliacion),
+      'ESTADO': item.estado_text,
+      'USUARIO CREACION': item.usuariocreacion,
+      'FECHA CREACION': this.fecha(item.fechacreacion),
+      'USUARIO MODIFICACION': item.usuariomodificacion,
+      'FECHA MODIFICACION': this.fecha(item.fechamodificacion),
+      'USUARIO ANULACION': item.usuarioanulacion,
+      'FECHA ANULACION': this.fecha(item.fechaanulacion),
+    }));
+
+    // 🔹 Crea la hoja de Excel a partir de los datos
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+
+    // 🔹 Crea un libro de Excel y añade la hoja
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Afiliados');
+
+    // 🔹 Genera el archivo y lo descarga automáticamente
+    const fileName = `afiliados_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  }
+
   // Llama al API
+  loadingUbigeo = false;
+
   listarUbigeo(): void {
-    this.svc.listarUbigeo(this.idemppaisnegcue, this.pais).subscribe(data => {
-      this.ubigeoData = data;
+    this.loadingUbigeo = true;
+    this.svc.listarUbigeo(this.idemppaisnegcue, this.pais).subscribe({
+      next: data => {
+        this.ubigeoData = data;
 
-      // construir regiones únicas
-      this.regiones = Array.from(
-        new Map(data.map(x => [x.rr, x.region])).entries()
-      ).map(([codigo, nombre]) => ({ codigo, nombre }));
+        // construir regiones únicas
+        this.regiones = Array.from(
+          new Map(data.map(x => [x.rr, x.region])).entries()
+        ).map(([codigo, nombre]) => ({ codigo, nombre }));
 
-      // inicia sin selección (null => “Todos”)
-      this.fRegion = null;
-      this.fProvincia = null;
-      this.fDistrito = null;
+        // inicia sin selección
+        this.fRegion = null;
+        this.fProvincia = null;
+        this.fDistrito = null;
 
-      // con región null no hay provincias/distritos filtradas todavía
-      this.provincias = [];
-      this.distritos = [];
+        this.provincias = [];
+        this.distritos = [];
+      },
+      error: err => {
+        console.error(err);
+      },
+      complete: () => {
+        this.loadingUbigeo = false; // 🔹 detener spinner
+      }
     });
   }
 
@@ -101,6 +270,7 @@ export class AfiliacionesComponent implements OnInit {
     this.svc.listarAfiliaciones(filtro).subscribe({
       next: (data) => {
         this.lista = data ?? [];
+        console.log(this.lista);
         this.applyFilter();
       },
       error: (err) => {
@@ -190,7 +360,7 @@ export class AfiliacionesComponent implements OnInit {
   // Stubs de acciones (completa con tu lógica)
   // registrar(): void { this.showModal = true; this.readOnly = false; this.editId = null; this.model = {}; }
   editar(a: ListarAfiliacion): void { this.showModal = true; this.readOnly = false; this.editId = a.idafiliacion; this.model = { ...a }; }
-  eliminar(a: ListarAfiliacion): void { console.log('eliminar', a); }
+
   ver(a: ListarAfiliacion): void { this.showModal = true; this.readOnly = true; this.model = { ...a }; }
   cerrar(): void { this.showModal = false; }
   guardar(): void { /* TODO: persistir */ this.cerrar(); }
@@ -211,13 +381,11 @@ export class AfiliacionesComponent implements OnInit {
     }).afterClosed().subscribe(res => {
       if (res) {
         console.log('Afiliación registrada:', res);
+        this.buscar();
         // refrescar lista / notificar éxito
       }
     });
   }
-
-  // Imagen del banner superior (opcional). Coloca aquí tu base64 si lo tienes.
-  private BANNER_BASE64: string | null = null; // 'data:image/png;base64,iVBORw0K...'
 
   async convertUrlToBase64(url: string): Promise<string> {
     const response = await fetch(url);
@@ -238,34 +406,36 @@ export class AfiliacionesComponent implements OnInit {
     return `${String(t.getDate()).padStart(2, '0')}/${String(t.getMonth() + 1).padStart(2, '0')}/${t.getFullYear()}`;
   }
 
-  imprimir(a: ListarAfiliacion) {
+  async imprimir(a: ListarAfiliacion) {
     // Mapea aquí tus campos reales
+    console.log('Imprimir', a);
+
     const M = {
       numficha: this.safe(a.numficha),
-      apPaterno: this.safe((a as any).apellidopaterno ?? (a as any).apellidoPaterno),
-      apMaterno: this.safe((a as any).apellidomaterno ?? (a as any).apellidoMaterno),
-      nombres: this.safe((a as any).nombres ?? (a as any).nombre),
-      dni: this.safe((a as any).dni ?? (a as any).docusuario),
-      fecNac: this.fecha((a as any).fechaNacimiento),
-      estado: this.safe((a as any).estadoCivil),
+      apPaterno: this.safe((a as any).apellidopaterno),
+      apMaterno: this.safe((a as any).apellidomaterno),
+      nombres: this.safe((a as any).nombres),
+      dni: this.safe((a as any).docafiliado),
+      fecNac: this.fecha((a as any).fechanacimiento),
+      estado: this.safe((a as any).nombreestadocivil),
       sexo: this.safe((a as any).sexo),
-      lugarNac: this.safe((a as any).lugarNacimiento),
-      region: this.safe((a as any).departamento ?? (a as any).region),
-      provincia: this.safe((a as any).provincia),
-      distrito: this.safe((a as any).distrito),
-      avenida: this.safe((a as any).direccionVia ?? (a as any).avenida ?? (a as any).calle),
+      lugarNac: this.safe((a as any).lugarnacimiento),
+      region: this.safe((a as any).region),
+      subregion: this.safe((a as any).subregion),
+      localidad: this.safe((a as any).localidad),
+      avenida: this.safe((a as any).avenida),
       numero: this.safe((a as any).numero),
-      urb: this.safe((a as any).urbanizacion ?? (a as any).sector),
-      telefono: this.safe((a as any).telefono ?? (a as any).celular),
-      correo: this.safe((a as any).correo ?? (a as any).email),
+      urb: this.safe((a as any).urbanizacion),
+      telefono: this.safe((a as any).celular),
+      correo: this.safe((a as any).correo),
       fechaAfi: this.fecha(a.fechaafiliacion),
-      fotoBase64: (a as any).fotoBase64 as string | undefined
+      fotoBase64: a.fotoimg || await this.convertUrlToBase64('assets/img/frepap/pdfafiliado/fotoimg.png')
     };
 
     // etiqueta arriba + caja uniforme
     const label = (t: string) => ({ text: t.toUpperCase(), bold: true, fontSize: 9, margin: [2, 0, 0, 3] });
     const box = (t: string, h = 24) => ({
-      table: { widths: ['*'], body: [[{ text: t, margin: [8, 6, 8, 6], fontSize: 10, height: h }]] },
+      table: { widths: ['*'], body: [[{ text: t, margin: [8, 3, 8, 3], fontSize: 10, height: h }]] },
       layout: {
         hLineColor: () => '#000', vLineColor: () => '#000',
         hLineWidth: () => 1, vLineWidth: () => 1
@@ -309,9 +479,32 @@ export class AfiliacionesComponent implements OnInit {
         {
           width: 100,
           stack: [
-            { text: `FICHA N° ${M.numficha || '..........'}`, alignment: 'left', margin: [0, 0, 0, 10], bold: true },
-            { canvas: [{ type: 'rect', x: 0, y: 0, w: 90, h: 110, r: 12, lineWidth: 1 }], width: 90, height: 110 },
-            M.fotoBase64 ? { image: M.fotoBase64, width: 116, height: 136, margin: [2, 2, 0, 0] } : { text: '' }
+            {
+              text: `FICHA N° ${M.numficha || '..........'}`,
+              alignment: 'left',
+              margin: [0, 0, 0, 10],
+              bold: true
+            },
+            {
+              table: {
+                widths: [90],
+                heights: [110],
+                body: [[
+                  {
+                    image: M.fotoBase64 || null,
+                    fit: [90, 110], // ajusta al tamaño del recuadro
+                    alignment: 'center',
+                    margin: [0, 0, 0, 0]
+                  }
+                ]]
+              },
+              layout: {
+                hLineWidth: () => 1,
+                vLineWidth: () => 1,
+                hLineColor: () => '#000',
+                vLineColor: () => '#000',
+              }
+            }
           ]
         }
       ]
@@ -346,47 +539,18 @@ export class AfiliacionesComponent implements OnInit {
         { text: 'DOMICILIO ACTUAL', bold: true, margin: [0, 6, 0, 6] },
 
         // REGION / PROVINCIA / DISTRITO
-        row(['Región', 'Provincia', 'Distrito'], [M.region, M.provincia, M.distrito], [170, 170, 170], 26),
+        row(['Región', 'Provincia', 'Distrito'], [M.region, M.subregion, M.localidad], [170, 170, 170], 26),
 
         // AVENIDA / NÚMERO
-        row(['Avenida', 'Número'], [M.avenida, M.numero], ['*', 120], 26),
+        row(['Avenida/Calle/Jirón', 'Número'], [M.avenida, M.numero], ['*', 120], 26),
 
         // URBANIZACIÓN / TELÉFONO
-        row(['Urbanización', 'Teléfono'], [M.urb, M.telefono], ['*', 160], 26),
+        row(['Urbanización/Sector/Caserío', 'Teléfono'], [M.urb, M.telefono], ['*', 160], 26),
 
         // CORREO
         row(['Correo Electrónico'], [M.correo], ['*'], 26),
 
         { text: ' ', margin: [0, 8, 0, 0] },
-        // --- Firma + Huella (bloque estable, no se parte) ---
-        // --- Firma + Huella (ajustado para caber en la misma página) ---
-        // {
-        //   unbreakable: true,
-        //   margin: [0, 20, 0, 0],  // menos margen arriba
-        //   table: {
-        //     widths: ['*', 100],   // más compacto
-        //     body: [
-        //       [
-        //         {
-        //           canvas: [
-        //             { type: 'line', x1: 0, y1: 0, x2: 160, y2: 0, lineWidth: 1 }
-        //           ]
-        //         },
-        //         {
-        //           canvas: [
-        //             { type: 'rect', x: 0, y: 0, w: 70, h: 70, r: 8, lineWidth: 1 }
-        //           ],
-        //           alignment: 'center'
-        //         }
-        //       ],
-        //       [
-        //         { text: 'FIRMA DEL AFILIADO', alignment: 'center', margin: [0, 6, 0, 0], fontSize: 8 },
-        //         { text: 'HUELLA DIGITAL', alignment: 'center', margin: [0, 6, 0, 0], fontSize: 8 }
-        //       ]
-        //     ]
-        //   },
-        //   layout: 'noBorders'
-        // },
       ],
 
       footer: () => ({
@@ -431,5 +595,58 @@ export class AfiliacionesComponent implements OnInit {
     pdfMake.createPdf(doc).open(); // o .download('FichaAfiliacion.pdf')
   }
 
-  trackById(_i: number, a: ListarAfiliacion) { return a.idafiliacion; }
+  eliminar(idafiliacion: number) {
+    const request: FiltroAfiliacionDesactivar = {
+      idafiliacion: idafiliacion,
+      usuarioanulacion: this.usuario
+    };
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción desactivará la afiliación.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, desactivar',
+      cancelButtonText: 'No, cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Solo si el usuario confirma
+        this.svc.postDesactivarAfiliacion(request).subscribe({
+          next: (res) => {
+            if (res.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Desactivado',
+                text: res.message
+              });
+              this.buscar();
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: res.message || 'No se pudo desactivar la afiliación'
+              });
+            }
+          },
+          error: (err) => {
+            console.error(err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error en el servidor',
+              text: 'Ocurrió un problema al procesar la solicitud.'
+            });
+          }
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        // Usuario canceló
+        Swal.fire({
+          icon: 'info',
+          title: 'Cancelado',
+          text: 'La afiliación no fue desactivada.'
+        });
+      }
+    });
+  }
+
+
 }

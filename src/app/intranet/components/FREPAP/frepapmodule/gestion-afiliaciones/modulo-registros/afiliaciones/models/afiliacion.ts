@@ -10,12 +10,16 @@ export interface FiltroAfiliacion {
 export interface ListarAfiliacion {
     idafiliacion: number;
     numficha: string;
+    idtipodocumento: number;
+    nombretipodocumento: string;
+    abreviatura: string;
     docafiliado: string;
     nombres: string;
     apellidopaterno: string;
     apellidomaterno: string;
     fechanacimiento: string | Date | null;
-    estadocivil: string;
+    idestadocivil: number;
+    nombreestadocivil: string;
     sexo: string;
     lugarnacimiento: string;
     codubicacion: string;
@@ -77,6 +81,9 @@ export interface AfiliacionCreateDto {
 
   fechanacimiento: string | null;        // YYYY-MM-DD
   edadafiliado: number;
+  sexo: string;
+  idestadocivil: number;
+  lugarnacimiento: string;
 
   rr: string | null;                     // "RR"
   pp: string | null;                     // "RRPP"
@@ -101,4 +108,30 @@ export interface AfiliacionCreateDto {
     copiadocumento?: { name: string; size: number; type: string };
   };
 }
+
+export interface ListarEstadoCivil {
+  idestadocivil: number;
+  nombreestadocivil: string;
+  idemppaisnegcue: number;
+  estado: number;
+}
+
+export interface ListarTipoDocumento {
+  idtipodocumento: number;
+  nombretipodocumento: string;
+  abreviatura: string;
+  idemppaisnegcue: number;
+  estado: number;
+}
+
+export interface FiltroAfiliacionDesactivar {
+  idafiliacion: number;
+  usuarioanulacion: string;
+}
+
+export interface RespuestaAfiliacionDesactivar {
+  success: boolean;
+  message: string;
+}
+
 

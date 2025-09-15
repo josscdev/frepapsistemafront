@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, HostListener, inject, Inject, Optional } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, NgControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -10,7 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { AfiliacionesService } from '../../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
-import { AfiliacionCreateDto } from '../models/afiliacion';
+import { AfiliacionCreateDto, ListarEstadoCivil, ListarTipoDocumento } from '../models/afiliacion';
+import Swal from 'sweetalert2';
 
 type Opcion = { id: string; nombre: string; code: string; display: string };
 type UbigeoItem = {
@@ -57,9 +58,7 @@ const MY_DATE_FORMATS = {
 export class RegistrarAfiliacionComponent {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<RegistrarAfiliacionComponent>);
-    private afiliacionesSrv = inject(AfiliacionesService);
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { ubigeos: UbigeoItem[] }) { }
+  private afiliacionesSrv = inject(AfiliacionesService);
 
   form!: FormGroup;
 
@@ -83,19 +82,39 @@ export class RegistrarAfiliacionComponent {
   private byRR = new Map<string, UbigeoItem[]>();        // RR -> items
   private byRRPP = new Map<string, UbigeoItem[]>();      // RRPP -> items
 
+  // Listar Estados Civiles
+  estadosCiviles: ListarEstadoCivil[] = [];
+
+  // Listar Tipos Documentos
+  tiposDocumento: ListarTipoDocumento[] = [];
+
+  idemppaisnegcue: number = 0;
+
+  sexosList: Opcion[] = [];
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { ubigeos: UbigeoItem[] }) {
+    this.idemppaisnegcue = Number(localStorage.getItem('idemppaisnegcue')) || 0;
+    this.getListarEstadosCiviles();
+    this.getListarTipoDocumentos();
+    this.getListarSexos();
+  }
+
   ngOnInit(): void {
     this.form = this.fb.group({
-      numficha: [''],
-      fechaafiliacion: [null],
+      numficha: ['', Validators.required],
+      fechaafiliacion: [this.today, Validators.required],
       nombres: ['', Validators.required],
       apellidopaterno: ['', Validators.required],
-      apellidomaterno: [''],
+      apellidomaterno: ['', Validators.required],
 
       idtipodocumento: [null, Validators.required],
-      docafiliado: [''],
+      docafiliado: ['', Validators.required],
 
       fechanacimiento: [null],
       edadafiliado: [0],
+      sexo: [null],
+      idestadocivil: [null],
+      lugarnacimiento: [''],
 
       // RR/PP/DD solo guardamos códigos
       rr: [null],      // "RR"
@@ -115,7 +134,7 @@ export class RegistrarAfiliacionComponent {
       estado_text: ['ACTIVO', Validators.required],
 
       telefono: [''],
-      correo: ['', [Validators.required, Validators.email]],
+      correo: [''],
       observacion: [''],
 
       // 🔎 Trazabilidad (solo visual, no se guardan)
@@ -125,6 +144,10 @@ export class RegistrarAfiliacionComponent {
       fecha_modificacion: [{ value: '', disabled: true }],
       usuario_anulacion: [{ value: '', disabled: true }],
       fecha_anulacion: [{ value: '', disabled: true }],
+    });
+
+    this.form.get('sexo')?.valueChanges.subscribe((sexo: string | null) => {
+      this.form.patchValue({ sexo: sexo }, { emitEvent: false });
     });
 
     console.log(this.data?.ubigeos);
@@ -151,6 +174,65 @@ export class RegistrarAfiliacionComponent {
     });
   }
 
+  getListarSexos() {
+    this.sexosList = [
+      {
+        id: 'M',
+        nombre: 'Masculino',
+        code: 'M',
+        display: 'Masculino'
+      },
+      {
+        id: 'F',
+        nombre: 'Femenino',
+        code: 'F',
+        display: 'Femenino'
+      }
+    ]
+  }
+
+  transformToUpperCase(event: Event, campo: string): void {
+    const input = event.target as HTMLInputElement;
+    const start = input.selectionStart || 0;
+    const end = input.selectionEnd || 0;
+
+    const valor = input.value.toUpperCase();
+    input.value = valor;
+    input.setSelectionRange(start, end);
+
+    this.form.get(campo)?.setValue(valor, { emitEvent: false });
+  }
+
+  getListarTipoDocumentos() {
+    this.afiliacionesSrv.listarTipoDocumentos(this.idemppaisnegcue).subscribe({
+      next: (data: ListarTipoDocumento[]) => {
+        data = data.map((item: ListarTipoDocumento) => {
+          return {
+            idtipodocumento: item.idtipodocumento,
+            nombretipodocumento: '(' + item.abreviatura + ') ' + item.nombretipodocumento,
+            abreviatura: item.abreviatura,
+            idemppaisnegcue: item.idemppaisnegcue,
+            estado: item.estado
+          }
+        })
+        this.tiposDocumento = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar tipos de documento', err);
+      }
+    });
+  }
+
+  getListarEstadosCiviles() {
+    this.afiliacionesSrv.listarEstadosCiviles(this.idemppaisnegcue).subscribe({
+      next: (data) => {
+        this.estadosCiviles = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar estados civiles', err);
+      }
+    });
+  }
 
   private buildPayloadFromForm(): AfiliacionCreateDto {
     const v = this.form.getRawValue();
@@ -172,6 +254,9 @@ export class RegistrarAfiliacionComponent {
 
       fechanacimiento: this.formatDateYYYYMMDD(v.fechanacimiento),
       edadafiliado: Number(v.edadafiliado ?? 0),
+      sexo: v.sexo,
+      idestadocivil: v.idestadocivil,
+      lugarnacimiento: v.lugarnacimiento?.toString()?.trim() || null,
 
       rr, pp, dd,
       ubigeo: dd || pp || rr || null, // prioriza el más específico
@@ -204,8 +289,11 @@ export class RegistrarAfiliacionComponent {
     if (this.form.invalid) {
       this.markAllAsTouched();
       this.isBlockSave = false;
+      Swal.fire('Error', 'Por favor, complete todos los campos obligatorios.', 'error');
       return;
     }
+
+    console.log(this.form.value);
 
     try {
       const model = this.buildPayloadFromForm();
@@ -222,7 +310,7 @@ export class RegistrarAfiliacionComponent {
       // éxito: cierra y devuelve respuesta del back (o el modelo)
       this.dialogRef.close(resp ?? model);
 
-    } catch (err:any) {
+    } catch (err: any) {
       console.error('Error al registrar afiliación:', err);
       alert(err?.error?.message || 'Hubo un error al registrar. Intente nuevamente.');
       this.isBlockSave = false;
@@ -331,10 +419,14 @@ export class RegistrarAfiliacionComponent {
     // 🔹 Guardar en el FormControl
     this.form.get(controlName)?.setValue(file);
     this.form.get(controlName)?.markAsDirty();
+
+    // 🔹 Resetear el input para permitir volver a elegir la misma foto después
+    input.value = '';
   }
 
   removeFile(controlName: 'foto' | 'fichaafiliacionfile' | 'hojadevida' | 'copiadocumento') {
     this.form.get(controlName)?.setValue(null);
+    this.form.get(controlName)?.markAsDirty();
   }
 
   previewImage(controlName: 'foto') {
@@ -376,5 +468,5 @@ export class RegistrarAfiliacionComponent {
   private safeFileMeta(f?: File | null) {
     return f ? { name: f.name, size: f.size, type: f.type } : undefined;
   }
-  
+
 }

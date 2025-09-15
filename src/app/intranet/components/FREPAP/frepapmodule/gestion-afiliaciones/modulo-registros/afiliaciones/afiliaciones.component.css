@@ -1,2 +1,5 @@
 /* Solo para suavizar el modal mostrado con *ngIf */
 .modal.fade.show { display:block; }
+.btn-outline-info {
+    min-width: 90px;  /* Ajusta según tu preferencia */
+  }
