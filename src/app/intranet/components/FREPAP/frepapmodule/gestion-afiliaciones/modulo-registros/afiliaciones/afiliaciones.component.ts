@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
+import { EditarAfiliacionComponent } from './editar-afiliacion/editar-afiliacion.component';
 
 @Component({
   selector: 'app-afiliaciones',
@@ -359,7 +360,6 @@ export class AfiliacionesComponent implements OnInit {
 
   // Stubs de acciones (completa con tu lógica)
   // registrar(): void { this.showModal = true; this.readOnly = false; this.editId = null; this.model = {}; }
-  editar(a: ListarAfiliacion): void { this.showModal = true; this.readOnly = false; this.editId = a.idafiliacion; this.model = { ...a }; }
 
   ver(a: ListarAfiliacion): void { this.showModal = true; this.readOnly = true; this.model = { ...a }; }
   cerrar(): void { this.showModal = false; }
@@ -387,6 +387,28 @@ export class AfiliacionesComponent implements OnInit {
     });
   }
 
+editar(a: ListarAfiliacion): void {
+  this.dialog.open(EditarAfiliacionComponent, {
+    width: '900px',
+    autoFocus: false,
+    panelClass: 'dlg-afiliacion',
+    data: {
+      idafiliacion: a.idafiliacion,
+      ubigeos: this.ubigeoData.map(u => ({
+        codubicacion: u.codubicacion,
+        region: u.region,
+        provincia: u.subregion,
+        distrito: u.localidad
+      }))
+    }
+  }).afterClosed().subscribe(res => {
+    if (res) {
+      // Si luego editas y guardas, aquí puedes refrescar la lista
+      this.buscar();
+    }
+  });
+}
+  
   async convertUrlToBase64(url: string): Promise<string> {
     const response = await fetch(url);
     const blob = await response.blob();

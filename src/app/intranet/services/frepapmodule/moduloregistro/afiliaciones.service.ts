@@ -76,4 +76,15 @@ export class AfiliacionesService {
   postDesactivarAfiliacion(request: FiltroAfiliacionDesactivar): Observable<RespuestaAfiliacionDesactivar> {
     return this.http.post<RespuestaAfiliacionDesactivar>(`${this.apiUrl}Afiliaciones/PostDesactivarAfiliacion`, request);
   }
+
+  getById(id: number) {
+    console.log('AfiliacionesService getById', id);
+  // Tu Swagger muestra POST /api/Afiliaciones/getById con body application/json
+  // Si tu endpoint fuera /getById/{id}, cambia a this.http.post(url, null)
+  return this.http.post<any>(`${this.apiUrl}Afiliaciones/getById`,
+    id,                        // body = 123
+    { headers: { 'Content-Type': 'application/json' } }
+  );
+}
+
 }

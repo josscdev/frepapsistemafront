@@ -1,0 +1,108 @@
+<h2 mat-dialog-title>Editar Afiliado</h2>
+
+<mat-dialog-content>
+  <div *ngIf="loading" class="d-flex justify-content-center my-3">
+    <div class="spinner-border" role="status"><span class="visually-hidden">Cargando…</span></div>
+  </div>
+
+  <form [formGroup]="form" *ngIf="!loading">
+    <div class="row g-3">
+      <div class="col-sm-3">
+        <label class="form-label">N° Ficha</label>
+        <input class="form-control" formControlName="numficha" readonly>
+      </div>
+      <div class="col-sm-3">
+        <label class="form-label">Fecha Afiliación</label>
+        <input class="form-control" [value]="form.value.fechaafiliacion | date:'dd/MM/yyyy'" readonly>
+      </div>
+      <div class="col-sm-6">
+        <label class="form-label">Nombres</label>
+        <input class="form-control" formControlName="nombres" readonly>
+      </div>
+
+      <div class="col-sm-4">
+        <label class="form-label">Ap. Paterno</label>
+        <input class="form-control" formControlName="apellidopaterno" readonly>
+      </div>
+      <div class="col-sm-4">
+        <label class="form-label">Ap. Materno</label>
+        <input class="form-control" formControlName="apellidomaterno" readonly>
+      </div>
+      <div class="col-sm-2">
+        <label class="form-label">Tipo Doc.</label>
+        <input class="form-control" [value]="form.value.idtipodocumento" readonly>
+      </div>
+      <div class="col-sm-2">
+        <label class="form-label">N° Doc.</label>
+        <input class="form-control" formControlName="docafiliado" readonly>
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Fecha Nacimiento</label>
+        <input class="form-control" [value]="form.value.fechanacimiento | date:'dd/MM/yyyy'" readonly>
+      </div>
+      <div class="col-sm-1">
+        <label class="form-label">Edad</label>
+        <input class="form-control" formControlName="edadafiliado" readonly>
+      </div>
+      <div class="col-sm-2">
+        <label class="form-label">Sexo</label>
+        <input class="form-control" formControlName="sexo" readonly>
+      </div>
+      <div class="col-sm-3">
+        <label class="form-label">Estado</label>
+        <input class="form-control" formControlName="estado_text" readonly>
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">RR</label>
+        <input class="form-control" formControlName="rr" readonly>
+      </div>
+      <div class="col-sm-3">
+        <label class="form-label">PP</label>
+        <input class="form-control" formControlName="pp" readonly>
+      </div>
+      <div class="col-sm-3">
+        <label class="form-label">DD</label>
+        <input class="form-control" formControlName="dd" readonly>
+      </div>
+
+      <div class="col-sm-4">
+        <label class="form-label">Avenida</label>
+        <input class="form-control" formControlName="avenida" readonly>
+      </div>
+      <div class="col-sm-2">
+        <label class="form-label">Número</label>
+        <input class="form-control" formControlName="numero" readonly>
+      </div>
+      <div class="col-sm-6">
+        <label class="form-label">Urbanización</label>
+        <input class="form-control" formControlName="urbanizacion" readonly>
+      </div>
+
+      <div class="col-sm-4">
+        <label class="form-label">Teléfono</label>
+        <input class="form-control" formControlName="telefono" readonly>
+      </div>
+      <div class="col-sm-8">
+        <label class="form-label">Correo</label>
+        <input class="form-control" formControlName="correo" readonly>
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Observación</label>
+        <textarea class="form-control" rows="2" formControlName="observacion" readonly></textarea>
+      </div>
+
+      <div class="col-12">
+        <small class="text-muted">
+          (Más adelante habilitamos edición y subida de archivos: foto, ficha, hoja de vida, etc.)
+        </small>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button color="primary" (click)="cerrar()">Cerrar</button>
+</mat-dialog-actions>
