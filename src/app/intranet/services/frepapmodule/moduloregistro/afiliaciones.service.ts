@@ -87,4 +87,65 @@ export class AfiliacionesService {
   );
 }
 
+
+update(id: number, fd: FormData) {
+  // NO pongas Content-Type: el navegador setea el boundary del multipart
+  return this.http.post<any>(
+    `${this.apiUrl}Afiliaciones/update/${id}`,
+    fd
+  );
+}
+
+buildUpdateFormData(model: any, files?: { foto?: File|null; ficha?: File|null; hv?: File|null; copia?: File|null }) {
+  const fd = new FormData();
+
+  // campos (solo si tienen valor; el back usa COALESCE y los que no envíes no cambian)
+  const add = (k: string, v: any) => { if (v !== undefined && v !== null && v !== '') fd.append(k, String(v)); };
+
+  add('numficha', model.numficha);
+  add('fechaafiliacion', toYmd(model.fechaafiliacion));
+  add('nombres', model.nombres);
+  add('apellidopaterno', model.apellidopaterno);
+  add('apellidomaterno', model.apellidomaterno);
+  add('idtipodocumento', model.idtipodocumento);
+  add('docafiliado', model.docafiliado);
+  add('fechanacimiento', toYmd(model.fechanacimiento));
+  add('edadafiliado', model.edadafiliado);
+  add('sexo', model.sexo);
+  add('idestadocivil', model.idestadocivil);
+  add('lugarnacimiento', model.lugarnacimiento);
+
+  // RR/PP/DD (tu back arma codubicacion = dd || pp || rr)
+  add('rr', model.rr);
+  add('pp', model.pp);
+  add('dd', model.dd);
+
+  add('avenida', model.avenida);
+  add('numero', model.numero);
+  add('urbanizacion', model.urbanizacion);
+  add('telefono', model.telefono);
+  add('correo', model.correo);
+  add('observacion', model.observacion);
+
+  // estado_text -> estado (1/0)
+  const estado = model.estado_text === 'ACTIVO' ? 1 : (model.estado === 1 ? 1 : 0);
+  add('estado', estado);
+
+  // archivos (solo si el usuario seleccionó nuevos)
+  if (files?.foto)  fd.append('foto', files.foto);
+  if (files?.ficha) fd.append('fichaafiliacionfile', files.ficha);
+  if (files?.hv)    fd.append('hojadevida', files.hv);
+  if (files?.copia) fd.append('copiadocumento', files.copia);
+
+  return fd;
+
+  function toYmd(d: any) {
+    if (!d) return '';
+    const dt = (d instanceof Date) ? d : new Date(d);
+    const mm = String(dt.getMonth()+1).padStart(2,'0');
+    const dd = String(dt.getDate()).padStart(2,'0');
+    return `${dt.getFullYear()}-${mm}-${dd}`;
+  }
+}
+
 }

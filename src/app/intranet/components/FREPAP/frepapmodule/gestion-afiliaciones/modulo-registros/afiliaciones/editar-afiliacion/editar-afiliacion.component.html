@@ -2,107 +2,151 @@
 
 <mat-dialog-content>
   <div *ngIf="loading" class="d-flex justify-content-center my-3">
-    <div class="spinner-border" role="status"><span class="visually-hidden">Cargando…</span></div>
+    <div class="spinner-border" role="status"></div>
   </div>
 
-  <form [formGroup]="form" *ngIf="!loading">
+  <form [formGroup]="form" *ngIf="!loading" (ngSubmit)="guardar()">
     <div class="row g-3">
+      <!-- datos principales (editable) -->
       <div class="col-sm-3">
         <label class="form-label">N° Ficha</label>
-        <input class="form-control" formControlName="numficha" readonly>
+        <input class="form-control" formControlName="numficha">
       </div>
       <div class="col-sm-3">
         <label class="form-label">Fecha Afiliación</label>
-        <input class="form-control" [value]="form.value.fechaafiliacion | date:'dd/MM/yyyy'" readonly>
+        <input type="date" class="form-control" formControlName="fechaafiliacion">
       </div>
       <div class="col-sm-6">
         <label class="form-label">Nombres</label>
-        <input class="form-control" formControlName="nombres" readonly>
+        <input class="form-control" formControlName="nombres">
       </div>
 
       <div class="col-sm-4">
         <label class="form-label">Ap. Paterno</label>
-        <input class="form-control" formControlName="apellidopaterno" readonly>
+        <input class="form-control" formControlName="apellidopaterno">
       </div>
       <div class="col-sm-4">
         <label class="form-label">Ap. Materno</label>
-        <input class="form-control" formControlName="apellidomaterno" readonly>
+        <input class="form-control" formControlName="apellidomaterno">
       </div>
       <div class="col-sm-2">
         <label class="form-label">Tipo Doc.</label>
-        <input class="form-control" [value]="form.value.idtipodocumento" readonly>
+        <input class="form-control" formControlName="idtipodocumento">
       </div>
       <div class="col-sm-2">
         <label class="form-label">N° Doc.</label>
-        <input class="form-control" formControlName="docafiliado" readonly>
+        <input class="form-control" formControlName="docafiliado">
       </div>
 
       <div class="col-sm-3">
         <label class="form-label">Fecha Nacimiento</label>
-        <input class="form-control" [value]="form.value.fechanacimiento | date:'dd/MM/yyyy'" readonly>
+        <input type="date" class="form-control" formControlName="fechanacimiento">
       </div>
       <div class="col-sm-1">
         <label class="form-label">Edad</label>
         <input class="form-control" formControlName="edadafiliado" readonly>
       </div>
+
       <div class="col-sm-2">
         <label class="form-label">Sexo</label>
-        <input class="form-control" formControlName="sexo" readonly>
+        <input class="form-control" formControlName="sexo">
       </div>
       <div class="col-sm-3">
         <label class="form-label">Estado</label>
-        <input class="form-control" formControlName="estado_text" readonly>
+        <select class="form-select" formControlName="estado_text">
+          <option value="ACTIVO">ACTIVO</option>
+          <option value="INACTIVO">INACTIVO</option>
+        </select>
       </div>
 
       <div class="col-sm-3">
         <label class="form-label">RR</label>
-        <input class="form-control" formControlName="rr" readonly>
+        <input class="form-control" formControlName="rr">
       </div>
       <div class="col-sm-3">
         <label class="form-label">PP</label>
-        <input class="form-control" formControlName="pp" readonly>
+        <input class="form-control" formControlName="pp">
       </div>
       <div class="col-sm-3">
         <label class="form-label">DD</label>
-        <input class="form-control" formControlName="dd" readonly>
+        <input class="form-control" formControlName="dd">
       </div>
 
       <div class="col-sm-4">
         <label class="form-label">Avenida</label>
-        <input class="form-control" formControlName="avenida" readonly>
+        <input class="form-control" formControlName="avenida">
       </div>
       <div class="col-sm-2">
         <label class="form-label">Número</label>
-        <input class="form-control" formControlName="numero" readonly>
+        <input class="form-control" formControlName="numero">
       </div>
       <div class="col-sm-6">
         <label class="form-label">Urbanización</label>
-        <input class="form-control" formControlName="urbanizacion" readonly>
+        <input class="form-control" formControlName="urbanizacion">
       </div>
 
       <div class="col-sm-4">
         <label class="form-label">Teléfono</label>
-        <input class="form-control" formControlName="telefono" readonly>
+        <input class="form-control" formControlName="telefono">
       </div>
       <div class="col-sm-8">
         <label class="form-label">Correo</label>
-        <input class="form-control" formControlName="correo" readonly>
+        <input class="form-control" formControlName="correo">
       </div>
 
       <div class="col-12">
         <label class="form-label">Observación</label>
-        <textarea class="form-control" rows="2" formControlName="observacion" readonly></textarea>
+        <textarea class="form-control" rows="2" formControlName="observacion"></textarea>
       </div>
 
-      <div class="col-12">
-        <small class="text-muted">
-          (Más adelante habilitamos edición y subida de archivos: foto, ficha, hoja de vida, etc.)
-        </small>
+      <!-- Archivos: mostrar actuales y permitir reemplazar -->
+      <div class="col-12"><hr></div>
+      <div class="col-sm-4">
+        <label class="form-label">Foto (actual)</label>
+        <div class="mb-1">
+          <!-- <a *ngIf="form.value.fotoimg" [href]="form.value.fotoimg" target="_blank">ver actual</a> -->
+          <!-- Abrir en nueva pestaña -->
+<!-- <img *ngIf="form.value.fotoimg"
+     [src]="form.value.fotoimg"
+     class="img-thumbnail"
+     style="max-width:140px;max-height:140px;object-fit:cover" /> -->
+
+     <!-- Foto -->
+<a href="#" (click)="openDataUrlInNewTab(form.value.fotoimg); $event.preventDefault()">
+  ver actual
+</a>
+          <span *ngIf="!form.value.fotoimg" class="text-muted">—</span>
+        </div>
+        <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp" (change)="onFilePick('foto',$event)">
+        <button class="btn btn-sm btn-outline-secondary mt-1" type="button" (click)="removeFile('foto')" *ngIf="fileFoto">quitar</button>
       </div>
+
+      <div class="col-sm-4">
+        <label class="form-label">Ficha afiliación (PDF)</label>
+        <div class="mb-1">
+          <a *ngIf="form.value.fichaafiliacionpdf" [href]="form.value.fichaafiliacionpdf" target="_blank">ver actual</a>
+          <span *ngIf="!form.value.fichaafiliacionpdf" class="text-muted">—</span>
+        </div>
+        <input type="file" accept="application/pdf" (change)="onFilePick('ficha',$event)">
+        <button class="btn btn-sm btn-outline-secondary mt-1" type="button" (click)="removeFile('ficha')" *ngIf="fileFicha">quitar</button>
+      </div>
+
+      <div class="col-sm-4">
+        <label class="form-label">Hoja de vida (PDF)</label>
+        <div class="mb-1">
+          <a *ngIf="form.value.hojadevidapdf" [href]="form.value.hojadevidapdf" target="_blank">ver actual</a>
+          <span *ngIf="!form.value.hojadevidapdf" class="text-muted">—</span>
+        </div>
+        <input type="file" accept="application/pdf" (change)="onFilePick('hv',$event)">
+        <button class="btn btn-sm btn-outline-secondary mt-1" type="button" (click)="removeFile('hv')" *ngIf="fileHv">quitar</button>
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit" [disabled]="loading">
+        <i class="bi bi-floppy2-fill"></i> Guardar cambios
+      </button>
+      <button class="btn btn-outline-secondary ms-2" type="button" (click)="cerrar()">Cancelar</button>
     </div>
   </form>
 </mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-stroked-button color="primary" (click)="cerrar()">Cerrar</button>
-</mat-dialog-actions>

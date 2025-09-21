@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { AfiliacionesService } from '../../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
+import Swal from 'sweetalert2';
 
 type UbigeoItem = { codubicacion: string; region?: string; provincia?: string; distrito?: string };
 
@@ -20,6 +21,10 @@ export class EditarAfiliacionComponent implements OnInit {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<EditarAfiliacionComponent>);
   private svc = inject(AfiliacionesService);
+  fileFoto: File|null = null;
+  fileFicha: File|null = null;
+  fileHv: File|null = null;
+  fileCopia: File|null = null;
 
   form!: FormGroup;
   loading = true;
@@ -99,6 +104,7 @@ export class EditarAfiliacionComponent implements OnInit {
     this.loading = true;
     this.svc.getById(this.data.idafiliacion).subscribe({
       next: (dto) => {
+        console.log('getById', dto);
         // mapear DTO -> form
         const rr = dto.codubicacion?.substring(0,2) ?? null;
         const pp = dto.codubicacion?.substring(0,4) ?? null;
@@ -141,6 +147,89 @@ export class EditarAfiliacionComponent implements OnInit {
       complete: () => this.loading = false
     });
   }
+
+
+  // >>> llama al back
+  async guardar() {
+    const id = this.data.idafiliacion;
+    const model = this.form.getRawValue();
+
+    const fd = this.svc.buildUpdateFormData(model, {
+      foto:  this.fileFoto,
+      ficha: this.fileFicha,
+      hv:    this.fileHv,
+      copia: this.fileCopia
+    });
+
+    this.loading = true;
+    this.svc.update(id, fd).subscribe({
+      next: (res) => {
+        if (!res.ok) {
+          Swal.fire('Error', res.error || 'No se pudo actualizar.', 'error');
+          return;
+        }
+        Swal.fire('OK', 'Afiliación actualizada.', 'success');
+        this.dialogRef.close(true);   // notifica al padre para refrescar
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', err?.error?.message || 'Fallo al actualizar', 'error');
+      },
+      complete: () => this.loading = false
+    });
+  }
+
+  // ====== validación y captura de archivos (idéntico a Registrar) ======
+  onFilePick(kind: 'foto'|'ficha'|'hv'|'copia', ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    const f = input?.files && input.files.length ? input.files[0] : null;
+    if (!f) return;
+
+    let ok = true, msg = '';
+    if (kind === 'foto') {
+      const types = ['image/png','image/jpeg','image/jpg','image/webp'];
+      if (!types.includes(f.type)) { ok = false; msg = 'Solo imágenes (PNG/JPG/WEBP).'; }
+      if (f.size > 200*1024)       { ok = false; msg = 'La foto supera 200 KB.'; }
+    } else {
+      if (f.type !== 'application/pdf') { ok = false; msg = 'Solo PDF.'; }
+      if (f.size > 2*1024*1024)         { ok = false; msg = 'El PDF supera 2 MB.'; }
+    }
+    if (!ok) { Swal.fire('Archivo inválido', msg, 'warning'); input.value = ''; return; }
+
+    if (kind === 'foto')  this.fileFoto = f;
+    if (kind === 'ficha') this.fileFicha = f;
+    if (kind === 'hv')    this.fileHv = f;
+    if (kind === 'copia') this.fileCopia = f;
+
+    input.value = ''; // permitir re-seleccionar el mismo archivo
+  }
+
+  removeFile(kind: 'foto'|'ficha'|'hv'|'copia') {
+    if (kind === 'foto')  this.fileFoto = null;
+    if (kind === 'ficha') this.fileFicha = null;
+    if (kind === 'hv')    this.fileHv = null;
+    if (kind === 'copia') this.fileCopia = null;
+  }
+
+
+  private dataUrlToBlobUrl(dataUrl: string) {
+  const [meta, b64] = dataUrl.split(',');
+  const mime = (meta.match(/data:(.*?);base64/) || [])[1] || 'application/octet-stream';
+  const bin = atob(b64);
+  const len = bin.length;
+  const u8 = new Uint8Array(len);
+  for (let i = 0; i < len; i++) u8[i] = bin.charCodeAt(i);
+  const blob = new Blob([u8], { type: mime });
+  const url = URL.createObjectURL(blob);
+  return { blob, url };
+}
+
+openDataUrlInNewTab(dataUrl?: string) {
+  if (!dataUrl) return;
+  const { url } = this.dataUrlToBlobUrl(dataUrl);
+  window.open(url, '_blank');                // ✅ ya no es data:, es blob:
+  setTimeout(() => URL.revokeObjectURL(url), 60_000); // liberar memoria luego
+}
 
   cerrar() { this.dialogRef.close(); }
 }
