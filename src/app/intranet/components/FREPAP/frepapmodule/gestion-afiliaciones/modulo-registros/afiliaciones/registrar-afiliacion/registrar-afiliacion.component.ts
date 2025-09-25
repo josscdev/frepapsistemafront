@@ -89,11 +89,13 @@ export class RegistrarAfiliacionComponent {
   tiposDocumento: ListarTipoDocumento[] = [];
 
   idemppaisnegcue: number = 0;
+  usuario: string = '';
 
   sexosList: Opcion[] = [];
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { ubigeos: UbigeoItem[] }) {
     this.idemppaisnegcue = Number(localStorage.getItem('idemppaisnegcue')) || 0;
+    this.usuario = localStorage.getItem('user') || '';
     this.getListarEstadosCiviles();
     this.getListarTipoDocumentos();
     this.getListarSexos();
@@ -271,6 +273,8 @@ export class RegistrarAfiliacionComponent {
       estado_text: v.estado_text,
       estado: v.estado_text === 'ACTIVO' ? 1 : 0,
       observacion: v.observacion?.toString()?.trim() || null,
+
+      usuario_creacion: this.usuario,
 
       archivosMeta: {
         foto: this.safeFileMeta(v.foto),

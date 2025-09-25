@@ -101,6 +101,8 @@ export interface AfiliacionCreateDto {
   estado: number;                        // 1 activo, 0 inactivo
   observacion: string | null;
 
+  usuario_creacion: string;
+
   archivosMeta: {
     foto?: { name: string; size: number; type: string };
     fichaafiliacionfile?: { name: string; size: number; type: string };
