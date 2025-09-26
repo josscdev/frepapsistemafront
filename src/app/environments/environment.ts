@@ -7,6 +7,7 @@ export const environment = {
 
   endpointIntranet: 'https://localhost:7169/api/',
   //endpointIntranet: 'https://intranet.grupotawa.com/RomBIBack/api/'
+  //endpointIntranet: 'http://localhost/intranetfrepapback/api/'
 
 };
 

@@ -474,47 +474,96 @@ editar(a: ListarAfiliacion): void {
 
     const headerBlock = {
       columns: [
+        // 🔹 Columna izquierda: bloque con Ficha de inscripción
         {
-          width: 390,
-          table: {
-            widths: ['*'],
-            body: [[
-              {
-                stack: [
-                  { text: 'FRENTE POPULAR AGRÍCOLA FIA DEL PERÚ - FREPAP', alignment: 'center', bold: true, fontSize: 10, margin: [0, 0, 0, 2] },
-                  { text: 'PP000363', alignment: 'center', fontSize: 10 },
-                  this.BANNER_BASE64
-                    ? { image: this.BANNER_BASE64, fit: [180, 80], alignment: 'center', margin: [0, 4, 0, 8] }
-                    : { text: 'LOGO', alignment: 'center', bold: true, fontSize: 12, margin: [0, 20, 0, 8] }
-                ]
-              }
-            ]]
-          },
-          layout: {
-            hLineColor: () => '#000',
-            vLineColor: () => '#000',
-            hLineWidth: () => 1,
-            vLineWidth: () => 1,
-          }
-        },
-        { width: 20, text: '' },
-        {
-          width: 100,
+          width: 420,
           stack: [
+            // Texto arriba del recuadro
             {
-              text: `FICHA N° ${M.numficha || '..........'}`,
-              alignment: 'left',
-              margin: [0, 0, 0, 10],
-              bold: true
+              text: 'FICHA DE INSCRIPCIÓN',
+              alignment: 'center',
+              bold: true,
+              fontSize: 11,
+              margin: [0, 0, 0, 6]
             },
+    
+            // Recuadro con título, código y logo
             {
               table: {
-                widths: [90],
-                heights: [110],
+                widths: ['*'],
+                body: [[
+                  {
+                    stack: [
+                      {
+                        text: 'FRENTE POPULAR AGRÍCOLA FIA DEL PERÚ - FREPAP',
+                        alignment: 'center',
+                        bold: true,
+                        fontSize: 12,
+                        margin: [0, 0, 0, 4]
+                      },
+                      {
+                        text: 'PP000363',
+                        alignment: 'center',
+                        fontSize: 11,
+                        margin: [0, 0, 0, 4]
+                      },
+                      this.BANNER_BASE64
+                        ? { image: this.BANNER_BASE64, fit: [100, 40], alignment: 'center', margin: [0, 4, 0, 0] }
+                        : { text: 'LOGO', alignment: 'center', bold: true, fontSize: 12, margin: [0, 20, 0, 0] }
+                    ]
+                  }
+                ]]
+              },
+              layout: {
+                hLineWidth: () => 1,
+                vLineWidth: () => 1,
+                hLineColor: () => '#000',
+                vLineColor: () => '#000'
+              }
+            },
+    
+            // Texto pequeño debajo
+            {
+              text: 'Alcance de la organización política: Nacional (x) Regional ( ) Región: ________',
+              alignment: 'center',
+              fontSize: 8,
+              italics: true,
+              margin: [0, 4, 0, 0]
+            },
+            {
+              text: '(Solo rellenar en caso de movimientos regionales)',
+              alignment: 'right',
+              fontSize: 7,
+              italics: true,
+              margin: [0, 4, 0, 0]
+            }
+          ]
+        },
+    
+        { width: 20, text: '' }, // espacio entre columnas
+    
+        // 🔹 Columna derecha: bloque con foto
+        {
+          width: 90,
+          stack: [
+            // Texto arriba del recuadro de la foto
+            {
+              text: `FICHA N° ${M.numficha || '..........'}`,
+              alignment: 'center',
+              bold: true,
+              fontSize: 10,
+              margin: [0, 4, 0, 0]
+            },
+    
+            // Recuadro con la foto
+            {
+              table: {
+                widths: [80],
+                heights: [100],
                 body: [[
                   {
                     image: M.fotoBase64 || null,
-                    fit: [90, 110], // ajusta al tamaño del recuadro
+                    fit: [80, 100],
                     alignment: 'center',
                     margin: [0, 0, 0, 0]
                   }
@@ -524,13 +573,22 @@ editar(a: ListarAfiliacion): void {
                 hLineWidth: () => 1,
                 vLineWidth: () => 1,
                 hLineColor: () => '#000',
-                vLineColor: () => '#000',
+                vLineColor: () => '#000'
               }
-            }
+            },
+    
+            // Texto debajo de la foto
+            // {
+            //   text: `FICHA N° ${M.numficha || '..........'}`,
+            //   alignment: 'center',
+            //   bold: true,
+            //   fontSize: 10,
+            //   margin: [0, 4, 0, 0]
+            // }
           ]
         }
       ]
-    };
+    };    
 
     const doc: any = {
       pageSize: 'A4',
@@ -538,9 +596,7 @@ editar(a: ListarAfiliacion): void {
       content: [
         headerBlock,
 
-        { text: 'Alcance de la organización política: Nacional (X) Regional ( ) Región: ___________', margin: [0, 12, 0, 6], fontSize: 8 },
-
-        { text: `FECHA DE AFILIACIÓN ${M.fechaAfi || '___ / ___ / ____'}`, bold: true, margin: [0, 0, 0, 6], fontSize: 8 },
+        { text: `FECHA DE AFILIACIÓN  ____ / ____ / ____`, bold: true, margin: [0, 0, 0, 6], fontSize: 8 },
 
         {
           text: 'Por medio del presente manifiesto mi decisión de AFILIARME a la organización política, mediante el cual me comprometo a cumplir con su estatuto y demás normas internas. En fe de lo cual firmo el presente documento.',

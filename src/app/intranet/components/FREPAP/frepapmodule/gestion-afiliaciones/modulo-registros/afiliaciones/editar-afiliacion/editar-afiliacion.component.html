@@ -124,7 +124,7 @@
       <div class="col-sm-4">
         <label class="form-label">Ficha afiliación (PDF)</label>
         <div class="mb-1">
-          <a *ngIf="form.value.fichaafiliacionpdf" [href]="form.value.fichaafiliacionpdf" target="_blank">ver actual</a>
+          <a *ngIf="form.value.fichaafiliacionpdf" [href]="getSafePdf('fichaafiliacionpdf')" target="_blank" rel="noopener">ver actual</a>
           <span *ngIf="!form.value.fichaafiliacionpdf" class="text-muted">—</span>
         </div>
         <input type="file" accept="application/pdf" (change)="onFilePick('ficha',$event)">
@@ -134,7 +134,7 @@
       <div class="col-sm-4">
         <label class="form-label">Hoja de vida (PDF)</label>
         <div class="mb-1">
-          <a *ngIf="form.value.hojadevidapdf" [href]="form.value.hojadevidapdf" target="_blank">ver actual</a>
+          <a *ngIf="form.value.hojadevidapdf" [href]="getSafePdf('hojadevidapdf')" target="_blank" rel="noopener">ver actual</a>
           <span *ngIf="!form.value.hojadevidapdf" class="text-muted">—</span>
         </div>
         <input type="file" accept="application/pdf" (change)="onFilePick('hv',$event)">

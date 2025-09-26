@@ -7,6 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { AfiliacionesService } from '../../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
 import Swal from 'sweetalert2';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 type UbigeoItem = { codubicacion: string; region?: string; provincia?: string; distrito?: string };
 
@@ -21,6 +22,7 @@ export class EditarAfiliacionComponent implements OnInit {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<EditarAfiliacionComponent>);
   private svc = inject(AfiliacionesService);
+  private sanitizer= inject(DomSanitizer);
   fileFoto: File|null = null;
   fileFicha: File|null = null;
   fileHv: File|null = null;
@@ -80,6 +82,28 @@ export class EditarAfiliacionComponent implements OnInit {
     // carga desde el back
     this.cargar();
   }
+
+  // 🔹 Función reusable
+  getSafePdf(field: 'fichaafiliacionpdf' | 'hojadevidapdf'): SafeResourceUrl | null {
+    const rawValue = this.form.value[field];
+    if (!rawValue) return null;
+  
+    // quitar el encabezado si lo tiene
+    const base64 = rawValue.replace(/^data:application\/pdf;base64,/, '');
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+  
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+  
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+  
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+  
 
   private initUbigeoCatalogs(list: UbigeoItem[]) {
     const rrSet = new Map<string, string>();
