@@ -1,152 +1,312 @@
 <h2 mat-dialog-title>Editar Afiliado</h2>
 
-<mat-dialog-content>
-  <div *ngIf="loading" class="d-flex justify-content-center my-3">
-    <div class="spinner-border" role="status"></div>
-  </div>
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <mat-dialog-content class="dialog-container">
 
-  <form [formGroup]="form" *ngIf="!loading" (ngSubmit)="guardar()">
-    <div class="row g-3">
-      <!-- datos principales (editable) -->
-      <div class="col-sm-3">
-        <label class="form-label">N° Ficha</label>
-        <input class="form-control" formControlName="numficha">
-      </div>
-      <div class="col-sm-3">
-        <label class="form-label">Fecha Afiliación</label>
-        <input type="date" class="form-control" formControlName="fechaafiliacion">
-      </div>
-      <div class="col-sm-6">
-        <label class="form-label">Nombres</label>
-        <input class="form-control" formControlName="nombres">
-      </div>
-
-      <div class="col-sm-4">
-        <label class="form-label">Ap. Paterno</label>
-        <input class="form-control" formControlName="apellidopaterno">
-      </div>
-      <div class="col-sm-4">
-        <label class="form-label">Ap. Materno</label>
-        <input class="form-control" formControlName="apellidomaterno">
-      </div>
-      <div class="col-sm-2">
-        <label class="form-label">Tipo Doc.</label>
-        <input class="form-control" formControlName="idtipodocumento">
-      </div>
-      <div class="col-sm-2">
-        <label class="form-label">N° Doc.</label>
-        <input class="form-control" formControlName="docafiliado">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Fecha Nacimiento</label>
-        <input type="date" class="form-control" formControlName="fechanacimiento">
-      </div>
-      <div class="col-sm-1">
-        <label class="form-label">Edad</label>
-        <input class="form-control" formControlName="edadafiliado" readonly>
-      </div>
-
-      <div class="col-sm-2">
-        <label class="form-label">Sexo</label>
-        <input class="form-control" formControlName="sexo">
-      </div>
-      <div class="col-sm-3">
-        <label class="form-label">Estado</label>
-        <select class="form-select" formControlName="estado_text">
-          <option value="ACTIVO">ACTIVO</option>
-          <option value="INACTIVO">INACTIVO</option>
-        </select>
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">RR</label>
-        <input class="form-control" formControlName="rr">
-      </div>
-      <div class="col-sm-3">
-        <label class="form-label">PP</label>
-        <input class="form-control" formControlName="pp">
-      </div>
-      <div class="col-sm-3">
-        <label class="form-label">DD</label>
-        <input class="form-control" formControlName="dd">
-      </div>
-
-      <div class="col-sm-4">
-        <label class="form-label">Avenida</label>
-        <input class="form-control" formControlName="avenida">
-      </div>
-      <div class="col-sm-2">
-        <label class="form-label">Número</label>
-        <input class="form-control" formControlName="numero">
-      </div>
-      <div class="col-sm-6">
-        <label class="form-label">Urbanización</label>
-        <input class="form-control" formControlName="urbanizacion">
-      </div>
-
-      <div class="col-sm-4">
-        <label class="form-label">Teléfono</label>
-        <input class="form-control" formControlName="telefono">
-      </div>
-      <div class="col-sm-8">
-        <label class="form-label">Correo</label>
-        <input class="form-control" formControlName="correo">
-      </div>
-
-      <div class="col-12">
-        <label class="form-label">Observación</label>
-        <textarea class="form-control" rows="2" formControlName="observacion"></textarea>
-      </div>
-
-      <!-- Archivos: mostrar actuales y permitir reemplazar -->
-      <div class="col-12"><hr></div>
-      <div class="col-sm-4">
-        <label class="form-label">Foto (actual)</label>
-        <div class="mb-1">
-          <!-- <a *ngIf="form.value.fotoimg" [href]="form.value.fotoimg" target="_blank">ver actual</a> -->
-          <!-- Abrir en nueva pestaña -->
-<!-- <img *ngIf="form.value.fotoimg"
-     [src]="form.value.fotoimg"
-     class="img-thumbnail"
-     style="max-width:140px;max-height:140px;object-fit:cover" /> -->
-
-     <!-- Foto -->
-<a href="#" (click)="openDataUrlInNewTab(form.value.fotoimg); $event.preventDefault()">
-  ver actual
-</a>
-          <span *ngIf="!form.value.fotoimg" class="text-muted">—</span>
-        </div>
-        <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp" (change)="onFilePick('foto',$event)">
-        <button class="btn btn-sm btn-outline-secondary mt-1" type="button" (click)="removeFile('foto')" *ngIf="fileFoto">quitar</button>
-      </div>
-
-      <div class="col-sm-4">
-        <label class="form-label">Ficha afiliación (PDF)</label>
-        <div class="mb-1">
-          <a *ngIf="form.value.fichaafiliacionpdf" [href]="getSafePdf('fichaafiliacionpdf')" target="_blank" rel="noopener">ver actual</a>
-          <span *ngIf="!form.value.fichaafiliacionpdf" class="text-muted">—</span>
-        </div>
-        <input type="file" accept="application/pdf" (change)="onFilePick('ficha',$event)">
-        <button class="btn btn-sm btn-outline-secondary mt-1" type="button" (click)="removeFile('ficha')" *ngIf="fileFicha">quitar</button>
-      </div>
-
-      <div class="col-sm-4">
-        <label class="form-label">Hoja de vida (PDF)</label>
-        <div class="mb-1">
-          <a *ngIf="form.value.hojadevidapdf" [href]="getSafePdf('hojadevidapdf')" target="_blank" rel="noopener">ver actual</a>
-          <span *ngIf="!form.value.hojadevidapdf" class="text-muted">—</span>
-        </div>
-        <input type="file" accept="application/pdf" (change)="onFilePick('hv',$event)">
-        <button class="btn btn-sm btn-outline-secondary mt-1" type="button" (click)="removeFile('hv')" *ngIf="fileHv">quitar</button>
-      </div>
+    <!-- Loader -->
+    <div *ngIf="loading" class="d-flex justify-content-center my-3">
+      <div class="spinner-border" role="status"></div>
     </div>
 
-    <div class="mt-3 d-flex justify-content-end">
-      <button class="btn btn-primary" type="submit" [disabled]="loading">
-        <i class="bi bi-floppy2-fill"></i> Guardar cambios
-      </button>
-      <button class="btn btn-outline-secondary ms-2" type="button" (click)="cerrar()">Cancelar</button>
-    </div>
-  </form>
-</mat-dialog-content>
+    <!-- Contenido -->
+    <ng-container *ngIf="!loading">
+
+      <!-- Fila 1 -->
+      <div class="row">
+        <div class="col-12 mb-2"><strong style="font-weight: 500;">DATOS PERSONALES</strong></div>
+        <hr>
+
+        <div class="col-sm-3">
+          <label style="font-weight: lighter;">N° Ficha</label>
+          <input type="text" class="form-control" placeholder="Ingrese N° Ficha"
+                 formControlName="numficha" maxlength="30"
+                 (input)="transformToUpperCase($event, 'numficha')">
+        </div>
+
+        <div class="col-sm-3">
+          <label style="font-weight: lighter;">Fecha Afiliación</label>
+          <mat-form-field appearance="outline" class="w-100">
+            <input matInput [matDatepicker]="fecAfi" formControlName="fechaafiliacion"
+                   (focus)="fecAfi.open()" [max]="today" readonly>
+            <mat-datepicker #fecAfi></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="col-sm-6">
+          <label style="font-weight: lighter;">Nombres</label>
+          <input class="form-control" placeholder="Ingrese Nombres" formControlName="nombres" maxlength="150"
+                 (input)="transformToUpperCase($event, 'nombres')">
+        </div>
+      </div>
+
+      <!-- Fila 2 -->
+      <div class="row">
+        <div class="col-sm-4 mb-3">
+          <label style="font-weight: lighter;">Ap. Paterno</label>
+          <input class="form-control" placeholder="Apellido Paterno"
+                 formControlName="apellidopaterno" maxlength="80"
+                 (input)="transformToUpperCase($event, 'apellidopaterno')">
+        </div>
+
+        <div class="col-sm-4 mb-3">
+          <label style="font-weight: lighter;">Ap. Materno</label>
+          <input class="form-control" placeholder="Apellido Materno"
+                 formControlName="apellidomaterno" maxlength="80"
+                 (input)="transformToUpperCase($event, 'apellidomaterno')">
+        </div>
+
+        <div class="col-sm-4 mb-3">
+          <label for="tipodocumento" style="font-weight: lighter;">Tipo Documento</label>
+          <ng-select id="tipodocumento"
+                     [items]="tiposDocumento"
+                     bindLabel="nombretipodocumento"
+                     bindValue="idtipodocumento"
+                     placeholder="Seleccione Tipo Documento"
+                     formControlName="idtipodocumento">
+          </ng-select>
+        </div>
+      </div>
+
+      <!-- Fila 3 -->
+      <div class="row">
+        <div class="col-sm-4">
+          <label style="font-weight: lighter;">N° Documento</label>
+          <input class="form-control" placeholder="Ingrese N° Documento"
+                 formControlName="docafiliado" maxlength="15"
+                 (input)="transformToUpperCase($event, 'docafiliado')">
+        </div>
+
+        <div class="col-sm-4">
+          <label style="font-weight: lighter;">Fecha Nacimiento</label>
+          <mat-form-field appearance="outline" class="w-100">
+            <input matInput [matDatepicker]="fecNac" formControlName="fechanacimiento"
+                   (focus)="fecNac.open()" [max]="today" readonly>
+            <mat-datepicker #fecNac></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="col-sm-2">
+          <label style="font-weight: lighter;">Edad</label>
+          <input class="form-control" formControlName="edadafiliado" readonly>
+        </div>
+
+        <div class="col-sm-2">
+          <label style="font-weight: lighter;">Sexo</label>
+          <ng-select [items]="sexosList" bindLabel="id" bindValue="id"
+                     placeholder="Seleccione" formControlName="sexo">
+          </ng-select>
+        </div>
+
+        <div class="col-sm-4">
+          <label style="font-weight: lighter;">Estado Civil</label>
+          <ng-select [items]="estadosCiviles"
+                     bindLabel="nombreestadocivil"
+                     bindValue="idestadocivil"
+                     placeholder="Seleccione estado civil"
+                     formControlName="idestadocivil">
+          </ng-select>
+        </div>
+
+        <div class="col-sm-8 mb-3">
+          <label style="font-weight: lighter;">Lugar de Nacimiento</label>
+          <input class="form-control" placeholder="Ingrese Lugar de Nacimiento"
+                 formControlName="lugarnacimiento" maxlength="150"
+                 (input)="transformToUpperCase($event, 'lugarnacimiento')">
+        </div>
+      </div>
+
+      <!-- Fila 4: RR / PP / DD -->
+      <div class="row">
+        <div class="col-12 mb-2"><strong style="font-weight: 500;">DOMICILIO ACTUAL</strong></div>
+        <hr>
+
+        <div class="col-sm-4 mb-3">
+          <label style="font-weight: lighter;">Región (RR)</label>
+          <ng-select [items]="regiones" bindLabel="nombre" bindValue="id"
+                     placeholder="Seleccione región" formControlName="rr" appendTo="body">
+          </ng-select>
+        </div>
+
+        <div class="col-sm-4 mb-3">
+          <label style="font-weight: lighter;">Provincia (PP)</label>
+          <ng-select [items]="provincias" bindLabel="nombre" bindValue="id"
+                     placeholder="Seleccione provincia" formControlName="pp"
+                     [disabled]="!form.get('rr')?.value" appendTo="body">
+          </ng-select>
+        </div>
+
+        <div class="col-sm-4 mb-3">
+          <label style="font-weight: lighter;">Distrito (DD)</label>
+          <ng-select [items]="distritos" bindLabel="nombre" bindValue="id"
+                     placeholder="Seleccione distrito" formControlName="dd"
+                     [disabled]="!form.get('pp')?.value" appendTo="body">
+          </ng-select>
+        </div>
+      </div>
+
+      <!-- Dirección -->
+      <div class="row">
+        <div class="col-sm-4 mb-3">
+          <label style="font-weight: lighter;">Avenida</label>
+          <input class="form-control" placeholder="Ingrese Avenida"
+                 formControlName="avenida" maxlength="100"
+                 (input)="transformToUpperCase($event, 'avenida')">
+        </div>
+
+        <div class="col-sm-2 mb-3">
+          <label style="font-weight: lighter;">Número</label>
+          <input class="form-control" placeholder="N°"
+                 formControlName="numero" maxlength="10"
+                 (input)="transformToUpperCase($event, 'numero')">
+        </div>
+
+        <div class="col-sm-6 mb-3">
+          <label style="font-weight: lighter;">Urbanización</label>
+          <input class="form-control" placeholder="Ingrese Urbanización"
+                 formControlName="urbanizacion" maxlength="100"
+                 (input)="transformToUpperCase($event, 'urbanizacion')">
+        </div>
+      </div>
+
+      <!-- Contacto -->
+      <div class="row">
+        <div class="col-sm-4 mb-3">
+          <label style="font-weight: lighter;">Teléfono</label>
+          <input class="form-control" placeholder="Teléfono"
+                 formControlName="telefono" maxlength="20">
+        </div>
+
+        <div class="col-sm-8 mb-3">
+          <label style="font-weight: lighter;">Correo Cliente</label>
+          <input type="text" class="form-control" placeholder="Ingrese Correo"
+                 formControlName="correo" maxlength="100"
+                 (input)="transformToUpperCase($event, 'correo')">
+        </div>
+      </div>
+
+      <!-- Archivos -->
+      <div class="row">
+        <div class="col-12 mb-2"><strong style="font-weight: 500;">ARCHIVOS</strong></div>
+        <hr>
+
+        <!-- Foto -->
+        <div class="col-sm-3 mb-3">
+          <label class="upload-label">Foto</label>
+          <div class="upload-box">
+            <div class="mb-1">
+              <a *ngIf="form.value.fotoimg"
+                 href="#" (click)="openDataUrlInNewTab(form.value.fotoimg); $event.preventDefault()">ver actual</a>
+              <span *ngIf="!form.value.fotoimg" class="text-muted">—</span>
+            </div>
+
+            <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp"
+                   (change)="onFilePick('foto',$event)" hidden #fotoInput>
+            <button type="button" class="btn-upload" (click)="fotoInput.click()">Seleccionar</button>
+
+            <div class="file-meta" *ngIf="fileFoto as f">
+              <span class="file-name">{{ f.name }}</span>
+              <div class="file-actions">
+                <button type="button" class="link" (click)="openDataUrlInNewTab(form.value.fotoimg)" *ngIf="false">ver</button>
+                <button type="button" class="link danger" (click)="removeFile('foto')">quitar</button>
+              </div>
+            </div>
+            <div class="file-hint">PNG/JPG/WEBP · máx 200KB</div>
+          </div>
+        </div>
+
+        <!-- Ficha afiliación (PDF) -->
+        <div class="col-sm-3 mb-3">
+          <label class="upload-label">Subir Ficha Afil.</label>
+          <div class="upload-box">
+            <div class="mb-1">
+              <a *ngIf="form.value.fichaafiliacionpdf" [href]="getSafePdf('fichaafiliacionpdf')" target="_blank" rel="noopener">ver actual</a>
+              <span *ngIf="!form.value.fichaafiliacionpdf" class="text-muted">—</span>
+            </div>
+
+            <input type="file" accept="application/pdf" (change)="onFilePick('ficha',$event)" hidden #fichaInput>
+            <button type="button" class="btn-upload" (click)="fichaInput.click()">Seleccionar</button>
+
+            <div class="file-meta" *ngIf="fileFicha as f">
+              <span class="file-name">{{ f.name }}</span>
+              <div class="file-actions">
+                <button type="button" class="link danger" (click)="removeFile('ficha')">quitar</button>
+              </div>
+            </div>
+            <div class="file-hint">PDF · máx 2MB</div>
+          </div>
+        </div>
+
+        <!-- Hoja de Vida (PDF) -->
+        <div class="col-sm-3 mb-3">
+          <label class="upload-label">Hoja de Vida</label>
+          <div class="upload-box">
+            <div class="mb-1">
+              <a *ngIf="form.value.hojadevidapdf" [href]="getSafePdf('hojadevidapdf')" target="_blank" rel="noopener">ver actual</a>
+              <span *ngIf="!form.value.hojadevidapdf" class="text-muted">—</span>
+            </div>
+
+            <input type="file" accept="application/pdf" (change)="onFilePick('hv',$event)" hidden #hvInput>
+            <button type="button" class="btn-upload" (click)="hvInput.click()">Seleccionar</button>
+
+            <div class="file-meta" *ngIf="fileHv as f">
+              <span class="file-name">{{ f.name }}</span>
+              <div class="file-actions">
+                <button type="button" class="link danger" (click)="removeFile('hv')">quitar</button>
+              </div>
+            </div>
+            <div class="file-hint">PDF · máx 2MB</div>
+          </div>
+        </div>
+
+        <!-- Copia Documento (PDF) -->
+        <div class="col-sm-3 mb-3">
+          <label class="upload-label">Documento Identidad</label>
+          <div class="upload-box">
+            <div class="mb-1">
+              <a *ngIf="form.value.copiadocumentopdf" [href]="getSafePdf('copiadocumentopdf')" target="_blank" rel="noopener">ver actual</a>
+              <span *ngIf="!form.value.copiadocumentopdf" class="text-muted">—</span>
+            </div>
+
+            <input type="file" accept="application/pdf" (change)="onFilePick('copia',$event)" hidden #docInput>
+            <button type="button" class="btn-upload" (click)="docInput.click()">Seleccionar</button>
+
+            <div class="file-meta" *ngIf="fileCopia as f">
+              <span class="file-name">{{ f.name }}</span>
+              <div class="file-actions">
+                <button type="button" class="link danger" (click)="removeFile('copia')">quitar</button>
+              </div>
+            </div>
+            <div class="file-hint">PDF · máx 2MB</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observación y Estado -->
+      <div class="row">
+        <div class="col-sm-3 mb-3">
+          <label style="font-weight: lighter;">Estado</label>
+          <ng-select [items]="[{id:'ACTIVO',nombre:'ACTIVO'},{id:'INACTIVO',nombre:'INACTIVO'}]"
+                     bindLabel="nombre" bindValue="id" formControlName="estado_text">
+          </ng-select>
+        </div>
+        <div class="col-9 mb-2">
+          <label style="font-weight: lighter;">Observación</label>
+          <textarea class="form-control" rows="2" placeholder="Observación"
+                    formControlName="observacion" maxlength="300"
+                    (input)="transformToUpperCase($event, 'observacion')"></textarea>
+        </div>
+      </div>
+
+    </ng-container>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-footer">
+    <button mat-flat-button color="primary" type="submit" [disabled]="loading">
+      <i class="bi bi-floppy2-fill"></i> Guardar cambios
+    </button>
+
+    <button mat-stroked-button color="warn" type="button" (click)="cerrar()">
+      <i class="bi bi-x-square-fill"></i> Cerrar
+    </button>
+  </mat-dialog-actions>
+</form>

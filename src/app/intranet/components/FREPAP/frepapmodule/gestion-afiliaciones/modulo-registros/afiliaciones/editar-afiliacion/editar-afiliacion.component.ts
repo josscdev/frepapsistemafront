@@ -8,13 +8,16 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { AfiliacionesService } from '../../../../../../../services/frepapmodule/moduloregistro/afiliaciones.service';
 import Swal from 'sweetalert2';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 type UbigeoItem = { codubicacion: string; region?: string; provincia?: string; distrito?: string };
 
 @Component({
   selector: 'app-editar-afiliacion',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatInputModule, MatDatepickerModule, MatNativeDateModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatInputModule, MatDatepickerModule, MatNativeDateModule,MatFormFieldModule, MatButtonModule, NgSelectModule],
   templateUrl: './editar-afiliacion.component.html',
   styleUrls: ['./editar-afiliacion.component.css']
 })
@@ -35,6 +38,20 @@ export class EditarAfiliacionComponent implements OnInit {
   regiones: { id: string; nombre: string }[] = [];
   provincias: { id: string; nombre: string }[] = [];
   distritos: { id: string; nombre: string }[] = [];
+  // Cache para filtrar rápido
+private byRR = new Map<string, UbigeoItem[]>();   // RR -> items
+private byRRPP = new Map<string, UbigeoItem[]>(); // RRPP -> items
+
+// Reutiliza los catálogos como en Registrar
+sexosList = [
+  { id: 'M', nombre: 'Masculino', code: 'M', display: 'Masculino' },
+  { id: 'F', nombre: 'Femenino',  code: 'F', display: 'Femenino'  },
+];
+tiposDocumento: Array<{ idtipodocumento: any; nombretipodocumento: string }> = [];
+estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
+
+  idemppaisnegcue = Number(localStorage.getItem('idemppaisnegcue')) || 0;
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -74,36 +91,77 @@ export class EditarAfiliacionComponent implements OnInit {
       fotoimg: [null],
       fichaafiliacionpdf: [null],
       hojadevidapdf: [null],
+      copiadocumentopdf: [null],
+
     });
 
     // inicializa catálogos rápidos
     this.initUbigeoCatalogs(this.data.ubigeos);
 
+    // Llamarlas en ngOnInit, antes o después de this.cargar():
+      this.getListarTipoDocumentos();
+      this.getListarEstadosCiviles();
+
+      // inicializa catálogos/caches
+this.setupUbigeos(this.data.ubigeos);
+
+// Cambios en RR → recalcular PP y limpiar DD
+this.form.get('rr')?.valueChanges.subscribe((rr: string | null) => {
+  this.form.patchValue({ pp: null, dd: null }, { emitEvent: false });
+  this.provincias = rr ? this.buildProvincias(rr) : [];
+  this.distritos = [];
+  
+});
+
+// Cambios en PP → recalcular DD
+this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
+  this.form.patchValue({ dd: null }, { emitEvent: false });
+  this.distritos = rrpp ? this.buildDistritos(rrpp) : [];
+});
+
     // carga desde el back
     this.cargar();
   }
 
-  // 🔹 Función reusable
-  getSafePdf(field: 'fichaafiliacionpdf' | 'hojadevidapdf'): SafeResourceUrl | null {
-    const rawValue = this.form.value[field];
-    if (!rawValue) return null;
+  // // 🔹 Función reusable
+  // getSafePdf(field: 'fichaafiliacionpdf' | 'hojadevidapdf'): SafeResourceUrl | null {
+  //   const rawValue = this.form.value[field];
+  //   if (!rawValue) return null;
   
-    // quitar el encabezado si lo tiene
-    const base64 = rawValue.replace(/^data:application\/pdf;base64,/, '');
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
+  //   // quitar el encabezado si lo tiene
+  //   const base64 = rawValue.replace(/^data:application\/pdf;base64,/, '');
+  //   const byteCharacters = atob(base64);
+  //   const byteNumbers = new Array(byteCharacters.length);
   
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
+  //   for (let i = 0; i < byteCharacters.length; i++) {
+  //     byteNumbers[i] = byteCharacters.charCodeAt(i);
+  //   }
   
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
+  //   const byteArray = new Uint8Array(byteNumbers);
+  //   const blob = new Blob([byteArray], { type: 'application/pdf' });
+  //   const url = URL.createObjectURL(blob);
   
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  //   return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  // }
+  
+  getSafePdf(field: 'fichaafiliacionpdf' | 'hojadevidapdf' | 'copiadocumentopdf'): SafeResourceUrl | null {
+  const rawValue = this.form.value[field];
+  if (!rawValue) return null;
+
+  const base64 = rawValue.replace(/^data:application\/pdf;base64,/, '');
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
   }
-  
+
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+}
+
 
   private initUbigeoCatalogs(list: UbigeoItem[]) {
     const rrSet = new Map<string, string>();
@@ -161,7 +219,9 @@ export class EditarAfiliacionComponent implements OnInit {
 
           fotoimg: dto.fotoimg ?? null,
           fichaafiliacionpdf: dto.fichaafiliacionpdf ?? null,
-          hojadevidapdf: dto.hojadevidapdf ?? null
+          hojadevidapdf: dto.hojadevidapdf ?? null,
+          copiadocumentopdf: (dto as any).copiadocumentopdf ?? (dto as any).copiadocumento ?? null
+
         });
       },
       error: (err) => {
@@ -254,6 +314,90 @@ openDataUrlInNewTab(dataUrl?: string) {
   window.open(url, '_blank');                // ✅ ya no es data:, es blob:
   setTimeout(() => URL.revokeObjectURL(url), 60_000); // liberar memoria luego
 }
+  transformToUpperCase(event: Event, campo: string): void {
+    const input = event.target as HTMLInputElement;
+    const start = input.selectionStart || 0;
+    const end = input.selectionEnd || 0;
+
+    const valor = input.value.toUpperCase();
+    input.value = valor;
+    input.setSelectionRange(start, end);
+
+    this.form.get(campo)?.setValue(valor, { emitEvent: false });
+  }
+
+
+
 
   cerrar() { this.dialogRef.close(); }
+
+
+  today = new Date();
+
+
+
+getListarTipoDocumentos() {
+  this.svc.listarTipoDocumentos(this.idemppaisnegcue).subscribe({
+    next: (data) => {
+      this.tiposDocumento = data.map((it: any) => ({
+        idtipodocumento: it.idtipodocumento,
+        nombretipodocumento: `(${it.abreviatura}) ${it.nombretipodocumento}`
+      }));
+    }
+  });
+}
+
+getListarEstadosCiviles() {
+  this.svc.listarEstadosCiviles(this.idemppaisnegcue).subscribe({
+    next: (data) => this.estadosCiviles = data
+  });
+}
+
+private setupUbigeos(list: UbigeoItem[]) {
+  const clean = (list || []).filter(x => x?.codubicacion?.trim()?.length >= 2);
+  const rrSeen = new Map<string, string>();
+
+  for (const it of clean) {
+    const rr = it.codubicacion.substring(0, 2);
+    const rrpp = it.codubicacion.substring(0, 4);
+
+    if (!this.byRR.has(rr)) this.byRR.set(rr, []);
+    this.byRR.get(rr)!.push(it);
+
+    if (!this.byRRPP.has(rrpp)) this.byRRPP.set(rrpp, []);
+    this.byRRPP.get(rrpp)!.push(it);
+
+    if (!rrSeen.has(rr)) rrSeen.set(rr, it.region?.trim() || `Región ${rr}`);
+  }
+
+  this.regiones = Array.from(rrSeen.entries())
+    .map(([id, nombre]) => ({ id, nombre }))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+}
+
+private buildProvincias(rr: string) {
+  const provSeen = new Map<string, string>(); // RRPP -> nombre
+  const items = this.byRR.get(rr) || [];
+  for (const it of items) {
+    const rrpp = it.codubicacion.substring(0, 4);
+    if (!provSeen.has(rrpp)) provSeen.set(rrpp, it.provincia?.trim() || `Prov ${rrpp}`);
+  }
+  return Array.from(provSeen.entries())
+    .map(([id, nombre]) => ({ id, nombre }))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+}
+
+private buildDistritos(rrpp: string) {
+  const distSeen = new Map<string, string>(); // RRPPDD -> nombre
+  const items = this.byRRPP.get(rrpp) || [];
+  for (const it of items) {
+    const id = it.codubicacion.substring(0, 6);
+    if (!distSeen.has(id)) distSeen.set(id, it.distrito?.trim() || `Dist ${id}`);
+  }
+  return Array.from(distSeen.entries())
+    .map(([id, nombre]) => ({ id, nombre }))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+}
+
+
 }
