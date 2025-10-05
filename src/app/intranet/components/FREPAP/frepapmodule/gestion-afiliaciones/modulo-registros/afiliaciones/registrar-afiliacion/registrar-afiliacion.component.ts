@@ -287,40 +287,78 @@ export class RegistrarAfiliacionComponent {
     return payload;
   }
 
-  async guardarAfiliacion(): Promise<void> {
-    this.isBlockSave = true;
+  // async guardarAfiliacion(): Promise<void> {
+  //   this.isBlockSave = true;
 
-    if (this.form.invalid) {
-      this.markAllAsTouched();
-      this.isBlockSave = false;
-      Swal.fire('Error', 'Por favor, complete todos los campos obligatorios.', 'error');
-      return;
-    }
+  //   if (this.form.invalid) {
+  //     this.markAllAsTouched();
+  //     this.isBlockSave = false;
+  //     Swal.fire('Error', 'Por favor, complete todos los campos obligatorios.', 'error');
+  //     return;
+  //   }
 
-    console.log(this.form.value);
+  //   console.log(this.form.value);
 
-    try {
-      const model = this.buildPayloadFromForm();
-      const raw = this.form.getRawValue();
+  //   try {
+  //     const model = this.buildPayloadFromForm();
+  //     const raw = this.form.getRawValue();
 
-      const resp = await this.afiliacionesSrv.registrarAfiliacion(model, {
-        foto: raw.foto,
-        fichaafiliacionfile: raw.fichaafiliacionfile,
-        hojadevida: raw.hojadevida,
-        copiadocumento: raw.copiadocumento
-      });
-      console.log('OK', resp);
+  //     const resp = await this.afiliacionesSrv.registrarAfiliacion(model, {
+  //       foto: raw.foto,
+  //       fichaafiliacionfile: raw.fichaafiliacionfile,
+  //       hojadevida: raw.hojadevida,
+  //       copiadocumento: raw.copiadocumento
+  //     });
+  //     console.log('OK', resp);
 
-      // éxito: cierra y devuelve respuesta del back (o el modelo)
-      this.dialogRef.close(resp ?? model);
+  //     // éxito: cierra y devuelve respuesta del back (o el modelo)
+  //     this.dialogRef.close(resp ?? model);
 
-    } catch (err: any) {
-      console.error('Error al registrar afiliación:', err);
-      alert(err?.error?.message || 'Hubo un error al registrar. Intente nuevamente.');
-      this.isBlockSave = false;
-      return;
-    }
+  //   } catch (err: any) {
+  //     console.error('Error al registrar afiliación:', err);
+  //     alert(err?.error?.message || 'Hubo un error al registrar. Intente nuevamente.');
+  //     this.isBlockSave = false;
+  //     return;
+  //   }
+  // }
+async guardarAfiliacion(): Promise<void> {
+  if (this.isBlockSave) return;
+  this.isBlockSave = true;
+
+  if (this.form.invalid) {
+    this.markAllAsTouched();
+    this.isBlockSave = false;
+    await Swal.fire('Campos incompletos', 'Completa los obligatorios.', 'warning');
+    return;
   }
+
+  try {
+    const model = this.buildPayloadFromForm();
+    const raw = this.form.getRawValue();
+
+    const resp = await this.afiliacionesSrv.registrarAfiliacion(model, {
+      foto: raw.foto,
+      fichaafiliacionfile: raw.fichaafiliacionfile,
+      hojadevida: raw.hojadevida,
+      copiadocumento: raw.copiadocumento
+    });
+
+    // éxito rápido
+    await Swal.fire({
+      icon: 'success',
+      title: 'Afiliación registrada',
+      showConfirmButton: false,
+      timer: 1400
+    });
+
+    this.dialogRef.close(resp ?? model);
+  } catch (err: any) {
+    const msg = err?.error?.message || err?.message || 'Hubo un error al registrar.';
+    await Swal.fire({ icon: 'error', title: 'No se pudo registrar', text: msg });
+  } finally {
+    this.isBlockSave = false;
+  }
+}
 
 
   // ===== Ubigeos =====

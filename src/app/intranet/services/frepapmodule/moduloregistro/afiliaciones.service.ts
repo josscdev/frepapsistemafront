@@ -89,7 +89,8 @@ export class AfiliacionesService {
 
 
 update(id: number, fd: FormData) {
-  // NO pongas Content-Type: el navegador setea el boundary del multipart
+  // NO pongas Content-Type: el navegador setea el boundary del multipart+
+ 
   return this.http.post<any>(
     `${this.apiUrl}Afiliaciones/update/${id}`,
     fd
@@ -126,16 +127,20 @@ buildUpdateFormData(model: any, files?: { foto?: File|null; ficha?: File|null; h
   add('telefono', model.telefono);
   add('correo', model.correo);
   add('observacion', model.observacion);
-
   // estado_text -> estado (1/0)
   const estado = model.estado_text === 'ACTIVO' ? 1 : (model.estado === 1 ? 1 : 0);
   add('estado', estado);
+  add('usuariomodificacion', model.usuariomodificacion); // 👈 nombre exacto que espera el back
 
+console.log('usuariomodificacion build', model.usuariomodificacion);
   // archivos (solo si el usuario seleccionó nuevos)
   if (files?.foto)  fd.append('foto', files.foto);
   if (files?.ficha) fd.append('fichaafiliacionfile', files.ficha);
   if (files?.hv)    fd.append('hojadevida', files.hv);
   if (files?.copia) fd.append('copiadocumento', files.copia);
+
+    console.log('buildUpdateFormData', fd);
+    console.log('model', model);
 
   return fd;
 

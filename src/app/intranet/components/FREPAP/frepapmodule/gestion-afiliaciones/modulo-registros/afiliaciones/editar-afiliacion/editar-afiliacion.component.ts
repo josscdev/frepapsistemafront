@@ -51,6 +51,7 @@ tiposDocumento: Array<{ idtipodocumento: any; nombretipodocumento: string }> = [
 estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
 
   idemppaisnegcue = Number(localStorage.getItem('idemppaisnegcue')) || 0;
+  usuariomodificacion  = localStorage.getItem('user') || ''; // 👈 del LS
 
 
   constructor(
@@ -92,6 +93,7 @@ estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
       fichaafiliacionpdf: [null],
       hojadevidapdf: [null],
       copiadocumentopdf: [null],
+      usuariomodificacion: this.usuariomodificacion ,
 
     });
 
@@ -238,6 +240,8 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
     const id = this.data.idafiliacion;
     const model = this.form.getRawValue();
 
+    console.log('usuariomodificacion', this.form.value.usuariomodificacion);
+
     const fd = this.svc.buildUpdateFormData(model, {
       foto:  this.fileFoto,
       ficha: this.fileFicha,
@@ -245,6 +249,8 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
       copia: this.fileCopia
     });
 
+
+    console.log('fd', fd);
     this.loading = true;
     this.svc.update(id, fd).subscribe({
       next: (res) => {
