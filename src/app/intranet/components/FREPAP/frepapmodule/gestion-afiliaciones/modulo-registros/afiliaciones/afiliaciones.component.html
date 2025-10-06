@@ -31,10 +31,21 @@
           </select>
         </div>
 
-        <div class="col-sm-3 text-sm-end">
-          <button class="btn btn-primary me-2" (click)="buscar()">Buscar</button>
-          <button class="btn btn-success" (click)="registrar()" *ngIf="perfil !== 'SUPERVISOR'">Registrar</button>
-        </div>
+        <div class="col-sm-3">
+          <div class="btn-group-responsive">
+            <button class="btn btn-primary" (click)="buscar()">
+              <i class="bi bi-search"></i> Buscar
+            </button>
+        
+            <button class="btn btn-success" (click)="registrar()" *ngIf="perfil !== 'SUPERVISOR'">
+              <i class="bi bi-plus-circle"></i> Registrar
+            </button>
+        
+            <button class="btn btn-danger" (click)="abrirRegistro()">
+              <i class="bi bi-file-earmark-text"></i> ROP
+            </button>
+          </div>
+        </div>        
 
         <div class="col-12 col-sm-6 ms-auto d-flex align-items-center">
           <button class="btn btn-outline-info me-2" (click)="exportarExcel()">
@@ -104,8 +115,8 @@
                   <button class="btn btn-sm btn-warning" (click)="ver(a)" title="Ver">
                     <i class="bi bi-eye"></i>
                   </button>
-                  <button class="btn btn-sm btn-info" [disabled]="a.estado !== 1"
-                    (click)="imprimir(a)" title="Imprimir">
+                  <button class="btn btn-sm btn-info" [disabled]="a.estado !== 1" (click)="imprimir(a)"
+                    title="Imprimir">
                     <i class="bi bi-printer"></i>
                   </button>
                 </div>
@@ -122,116 +133,6 @@
       <mat-paginator [length]="lista.length" [pageSize]="pageSize" [pageIndex]="pageIndex"
         [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons (page)="onPageChange($event)">
       </mat-paginator>
-    </div>
-  </div>
-
-  <!-- Modal Bootstrap (simple con *ngIf) -->
-  <div class="modal fade show" tabindex="-1" style="display:block; background:#00000066" *ngIf="showModal">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ readOnly ? 'Ver ficha' : (editId ? 'Editar afiliado' : 'Registrar afiliado') }}
-          </h5>
-          <button type="button" class="btn-close" (click)="cerrar()"></button>
-        </div>
-
-        <form (ngSubmit)="guardar()">
-          <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-sm-3">
-                <label class="form-label">N° Ficha</label>
-                <input class="form-control" [(ngModel)]="model.numficha" name="numficha" [disabled]="readOnly">
-              </div>
-              <div class="col-sm-3">
-                <label class="form-label">Fecha Afiliación</label>
-                <input type="date" class="form-control" [(ngModel)]="model.fechaafiliacion" name="fechaafiliacion"
-                  [disabled]="readOnly">
-              </div>
-              <div class="col-sm-6">
-                <label class="form-label">Nombres *</label>
-                <input class="form-control" [(ngModel)]="model.nombres" name="nombres" required [disabled]="readOnly">
-              </div>
-
-              <div class="col-sm-4">
-                <label class="form-label">Ap. Paterno *</label>
-                <input class="form-control" [(ngModel)]="model.apellidopaterno" name="apellidopaterno" required
-                  [disabled]="readOnly">
-              </div>
-              <div class="col-sm-4">
-                <label class="form-label">Ap. Materno</label>
-                <input class="form-control" [(ngModel)]="model.apellidomaterno" name="apellidomaterno"
-                  [disabled]="readOnly">
-              </div>
-
-              <div class="col-sm-2">
-                <label class="form-label">Tipo Doc.</label>
-                <select class="form-select" [(ngModel)]="model.tipodocumento" name="tipodocumento"
-                  [disabled]="readOnly">
-                  <option *ngFor="let t of tiposDoc" [value]="t">{{ t }}</option>
-                </select>
-              </div>
-              <div class="col-sm-2">
-                <label class="form-label">N° Doc.</label>
-                <input class="form-control" [(ngModel)]="model.docafiliado" name="docafiliado" [disabled]="readOnly">
-              </div>
-
-              <div class="col-sm-3">
-                <label class="form-label">Fecha Nacimiento</label>
-                <input type="date" class="form-control" [(ngModel)]="model.fechanacimiento" name="fechanacimiento"
-                  [disabled]="readOnly">
-              </div>
-              <div class="col-sm-1">
-                <label class="form-label">Edad</label>
-                <input class="form-control" [value]="model.edadafiliado || ''" disabled>
-              </div>
-
-              <div class="col-sm-3">
-                <label class="form-label">Estado</label>
-                <select class="form-select" [(ngModel)]="model.estado_text" name="estado_text" [disabled]="readOnly">
-                  <option value="ACTIVO">ACTIVO</option>
-                  <option value="INACTIVO">INACTIVO</option>
-                </select>
-              </div>
-
-              <div class="col-sm-3">
-                <label class="form-label">Región (RR)</label>
-                <select class="form-select" [(ngModel)]="model.rr" name="rr" [disabled]="readOnly">
-                  <option value="">—</option>
-                  <option *ngFor="let r of regiones" [value]="r">{{ r }}</option>
-                </select>
-              </div>
-              <div class="col-sm-3">
-                <label class="form-label">Provincia (PP)</label>
-                <input class="form-control" [(ngModel)]="model.pp" name="pp" [disabled]="readOnly">
-              </div>
-              <div class="col-sm-3">
-                <label class="form-label">Distrito (DD)</label>
-                <input class="form-control" [(ngModel)]="model.dd" name="dd" [disabled]="readOnly">
-              </div>
-
-              <div class="col-sm-4">
-                <label class="form-label">Teléfono</label>
-                <input class="form-control" [(ngModel)]="model.telefono" name="telefono" [disabled]="readOnly">
-              </div>
-              <div class="col-sm-8">
-                <label class="form-label">Correo</label>
-                <input type="email" class="form-control" [(ngModel)]="model.correo" name="correo" [disabled]="readOnly">
-              </div>
-
-              <div class="col-12">
-                <label class="form-label">Observación</label>
-                <textarea class="form-control" rows="2" [(ngModel)]="model.observacion" name="observacion"
-                  [disabled]="readOnly"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" (click)="cerrar()">Cerrar</button>
-            <button class="btn btn-primary" type="submit" [disabled]="readOnly">Guardar</button>
-          </div>
-        </form>
-      </div>
     </div>
   </div>
 </div>

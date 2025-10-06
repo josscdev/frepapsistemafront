@@ -295,7 +295,7 @@ export class AfiliacionesComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, 'Afiliados');
 
     // 🔹 Genera el archivo y lo descarga automáticamente
-    const fileName = `afiliados_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    const fileName = `afiliados_frepap.xlsx`;
     XLSX.writeFile(wb, fileName);
   }
 
@@ -371,6 +371,10 @@ export class AfiliacionesComponent implements OnInit {
     return v && v.trim() !== '' ? v.trim() : null;
   }
 
+  abrirRegistro() {
+    window.open('https://sroppublico.jne.gob.pe/Consulta/Afiliado', '_blank');
+  }  
+
   // Stubs de acciones (completa con tu lógica)
   // registrar(): void { this.showModal = true; this.readOnly = false; this.editId = null; this.model = {}; }
 
@@ -383,9 +387,7 @@ export class AfiliacionesComponent implements OnInit {
       disableClose: true
     });
   }
-  cerrar(): void { this.showModal = false; }
-  guardar(): void { /* TODO: persistir */ this.cerrar(); }
-
+  
   registrar(): void {
     this.dialog.open(RegistrarAfiliacionComponent, {
       width: '900px',
