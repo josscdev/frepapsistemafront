@@ -33,7 +33,7 @@
 
         <div class="col-sm-3 text-sm-end">
           <button class="btn btn-primary me-2" (click)="buscar()">Buscar</button>
-          <button class="btn btn-success" (click)="registrar()">Registrar</button>
+          <button class="btn btn-success" (click)="registrar()" *ngIf="perfil !== 'SUPERVISOR'">Registrar</button>
         </div>
 
         <div class="col-12 col-sm-6 ms-auto d-flex align-items-center">
@@ -72,7 +72,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let a of listaFiltrada; trackBy: trackById">
+            <tr *ngFor="let a of listaPaginada; trackBy: trackById">
               <td>{{ a.idafiliacion }}</td>
               <td>{{ a.numficha || '—' }}</td>
               <td>{{ a.docafiliado }}</td>

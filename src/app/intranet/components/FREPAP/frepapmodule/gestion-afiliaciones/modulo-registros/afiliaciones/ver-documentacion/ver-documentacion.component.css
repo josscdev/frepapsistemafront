@@ -1,0 +1,66 @@
+/* contenedor general del diálogo */
+.dlg-documentacion .mat-mdc-dialog-surface {
+    max-height: 90vh;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+/* solo 1 scroll: el contenido */
+.dialog-container {
+    max-height: calc(90vh - 90px);
+    overflow-y: auto;
+    padding: 10px 16px;
+    background: #fff;
+}
+
+/* centrado de spinner */
+.d-flex {
+    display: flex;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.text-muted {
+    color: #777;
+}
+
+/* visual del pdf */
+.pdf-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-frame {
+    width: 100%;
+    height: 80vh;
+    border: none;
+    border-radius: 6px;
+}
+
+/* footer fijo igual que editar-afiliacion */
+.dialog-footer {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid #ddd;
+    z-index: 10;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

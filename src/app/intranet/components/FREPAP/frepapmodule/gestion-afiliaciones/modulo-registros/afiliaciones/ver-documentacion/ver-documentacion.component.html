@@ -1,1 +1,22 @@
-<p>ver-documentacion works!</p>
+<h2 mat-dialog-title>Ficha de Afiliación</h2>
+
+<mat-dialog-content class="dialog-container">
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center my-4 flex-column">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p class="mt-3 text-muted">Cargando documento...</p>
+  </div>
+
+  <!-- Contenido -->
+  <div *ngIf="!loading && pdfUrl" class="pdf-container">
+    <iframe [src]="pdfUrl" class="pdf-frame" title="Ficha de Afiliación"></iframe>
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-footer">
+  <button mat-flat-button color="primary" (click)="cerrar()">
+    <i class="bi bi-x-circle-fill"></i> Cerrar
+  </button>
+</mat-dialog-actions>

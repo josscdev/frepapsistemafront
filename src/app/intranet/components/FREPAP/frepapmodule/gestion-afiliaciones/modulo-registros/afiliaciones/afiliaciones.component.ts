@@ -17,18 +17,20 @@ import Swal from 'sweetalert2';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { EditarAfiliacionComponent } from './editar-afiliacion/editar-afiliacion.component';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { VerDocumentacionComponent } from './ver-documentacion/ver-documentacion.component';
 
 @Component({
   selector: 'app-afiliaciones',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatPaginator, MatProgressSpinner],
+  imports: [FormsModule, CommonModule, MatPaginator, MatProgressSpinner, HttpClientModule],
   templateUrl: './afiliaciones.component.html',
   styleUrl: './afiliaciones.component.css'
 })
 
 
 export class AfiliacionesComponent implements OnInit {
-
+  private fontsLoaded = false;
 
   // filtros UI
   fRegion: string | null = null;    // RR
@@ -44,10 +46,13 @@ export class AfiliacionesComponent implements OnInit {
   // dataset completo de la función única (si la usas)
   ubigeoData: ListarOpcionUbigeo[] = [];
 
-
+  // Paginacion
+  pageSize = 10; // cantidad por página
+  pageIndex = 0;
   // datos
   lista: ListarAfiliacion[] = [];
   listaFiltrada: ListarAfiliacion[] = [];
+  listaPaginada: any[] = [];
 
   // puedes setear esto según tu sesión
   perfil: string = '';
@@ -66,13 +71,11 @@ export class AfiliacionesComponent implements OnInit {
   // Imagen del banner superior (opcional). Coloca aquí tu base64 si lo tienes.
   private BANNER_BASE64: string | null = null; // 'data:image/png;base64,iVBORw0K...'
 
-  // Paginacion
-  pageSize = 10; // cantidad por página
-  pageIndex = 0;
+
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private svc: AfiliacionesService, private dialog: MatDialog, private router: Router) {
+  constructor(private svc: AfiliacionesService, private dialog: MatDialog, private router: Router, private http: HttpClient) {
     this.menuString = (localStorage.getItem('menu') || '');
     this.usuario = (localStorage.getItem('user') || '');
     this.perfil = localStorage.getItem('perfil') || '';
@@ -106,27 +109,96 @@ export class AfiliacionesComponent implements OnInit {
     this.buscar(); // carga inicial
     this.listarUbigeo();
 
-    this.actualizarLista();
-
     this.convertUrlToBase64('assets/img/frepap/frep_sinfondo.png').then(base64 => {
       this.BANNER_BASE64 = base64;
     });
   }
 
-  actualizarLista(): void {
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.listaFiltrada = this.lista.slice(start, end);
+  // Aplica el corte de registros visibles
+  actualizarPaginacion() {
+    const startIndex = this.pageIndex * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.listaPaginada = this.listaFiltrada.slice(startIndex, endIndex);
   }
 
   onPageChange(event: any): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.actualizarLista();
+    this.actualizarPaginacion();
   }
 
   trackById(index: number, item: any): number {
     return item.idafiliacion;
+  }
+
+  // Si filtras en front además, usa null-checks:
+  applyFilter(): void {
+    const q = (this.fQ || '').trim().toLowerCase();
+
+    // Filtra la lista original
+    this.listaFiltrada = this.lista.filter(a => {
+      const matchesText =
+        q.length === 0 ||
+        [
+          a.idafiliacion?.toString() ?? '',
+          a.numficha ?? '',
+          a.docafiliado ?? '',
+          a.nombres ?? '',
+          a.apellidopaterno ?? '',
+          a.apellidomaterno ?? '',
+          a.estado_text ?? '',
+          a.region ?? '',
+          a.subregion ?? '',
+          a.localidad ?? '',
+          a.usuariocreacion ?? ''
+        ].some(v => v.toLowerCase().includes(q));
+
+      const cod = (a.codubicacion ?? '').trim();
+      const r = cod.substring(0, 2);
+      const p = cod.substring(2, 4);
+      const d = cod.substring(4, 6);
+
+      const matchesUbigeo =
+        (this.fRegion == null || r === this.fRegion) &&
+        (this.fProvincia == null || p === this.fProvincia) &&
+        (this.fDistrito == null || d === this.fDistrito);
+
+      return matchesText && matchesUbigeo;
+    });
+
+    // 🔹 Reinicia a la primera página al filtrar
+    this.pageIndex = 0;
+
+    // 🔹 Aplica el corte de registros visibles según el paginator
+    this.actualizarPaginacion();
+  }
+
+  // Llama al API
+  buscar(): void {
+    const filtro: FiltroAfiliacion = {
+      region: this.fRegion,       // null => Todos (RR)
+      provincia: this.fProvincia, // null => Todos (PP)
+      distrito: this.fDistrito,   // null => Todos (DD)
+      perfil: this.perfil, // si es ADMIN, muestra todo, si es otro perfil, muestra solo su data segun this.usuario
+      usuario: this.usuario,
+    };
+
+    this.svc.listarAfiliaciones(filtro).subscribe({
+      next: (data) => {
+        this.lista = data ?? [];
+        this.listaFiltrada = [...this.lista];
+        this.actualizarPaginacion(); // <- aquí se aplica el corte de 10 registros
+      },
+      error: (err) => {
+        console.error('Error al listar afiliaciones:', err);
+        this.lista = [];
+        this.listaFiltrada = [];
+        this.listaPaginada = [];
+        this.regiones = [];
+        this.provincias = [];
+        this.distritos = [];
+      }
+    });
   }
 
   checkUrl(menu: any, requestedPath: string): string {
@@ -258,66 +330,7 @@ export class AfiliacionesComponent implements OnInit {
     });
   }
 
-  // Llama al API
-  buscar(): void {
-    const filtro: FiltroAfiliacion = {
-      region: this.fRegion,       // null => Todos (RR)
-      provincia: this.fProvincia, // null => Todos (PP)
-      distrito: this.fDistrito,   // null => Todos (DD)
-      perfil: this.perfil, // si es ADMIN, muestra todo, si es otro perfil, muestra solo su data segun this.usuario
-      usuario: this.usuario,
-    };
 
-    this.svc.listarAfiliaciones(filtro).subscribe({
-      next: (data) => {
-        this.lista = data ?? [];
-        console.log(this.lista);
-        this.applyFilter();
-      },
-      error: (err) => {
-        console.error('Error al listar afiliaciones:', err);
-        this.lista = [];
-        this.listaFiltrada = [];
-        this.regiones = [];
-        this.provincias = [];
-        this.distritos = [];
-      }
-    });
-  }
-
-  // Si filtras en front además, usa null-checks:
-  applyFilter(): void {
-    const q = (this.fQ || '').trim().toLowerCase();
-    this.listaFiltrada = this.lista.filter(a => {
-      const matchesText =
-        q.length === 0 ||
-        [
-          a.idafiliacion?.toString() ?? '',
-          a.numficha ?? '',
-          a.docafiliado ?? '',
-          a.nombres ?? '',
-          a.apellidopaterno ?? '',
-          a.apellidomaterno ?? '',
-          a.estado_text ?? '',
-          a.region ?? '',
-          a.subregion ?? '',
-          a.localidad ?? '',
-          a.usuariocreacion ?? ''
-        ].some(v => v.toLowerCase().includes(q));
-
-      const cod = (a.codubicacion ?? '').trim();
-      const r = cod.substring(0, 2);
-      const p = cod.substring(2, 4);
-      const d = cod.substring(4, 6);
-
-      const matchesUbigeo =
-        (this.fRegion == null || r === this.fRegion) &&
-        (this.fProvincia == null || p === this.fProvincia) &&
-        (this.fDistrito == null || d === this.fDistrito);
-
-      return matchesText && matchesUbigeo;
-    });
-  }
 
   onRegionChange(): void {
     // reset dependientes
@@ -361,7 +374,15 @@ export class AfiliacionesComponent implements OnInit {
   // Stubs de acciones (completa con tu lógica)
   // registrar(): void { this.showModal = true; this.readOnly = false; this.editId = null; this.model = {}; }
 
-  ver(a: ListarAfiliacion): void { this.showModal = true; this.readOnly = true; this.model = { ...a }; }
+  // método para abrir el modal
+  ver(a: any) {
+    this.dialog.open(VerDocumentacionComponent, {
+      width: '80%',
+      height: '90%',
+      data: { id: a.idafiliacion }, // o el campo correcto
+      disableClose: true
+    });
+  }
   cerrar(): void { this.showModal = false; }
   guardar(): void { /* TODO: persistir */ this.cerrar(); }
 
@@ -387,28 +408,28 @@ export class AfiliacionesComponent implements OnInit {
     });
   }
 
-editar(a: ListarAfiliacion): void {
-  this.dialog.open(EditarAfiliacionComponent, {
-    width: '900px',
-    autoFocus: false,
-    panelClass: 'dlg-afiliacion',
-    data: {
-      idafiliacion: a.idafiliacion,
-      ubigeos: this.ubigeoData.map(u => ({
-        codubicacion: u.codubicacion,
-        region: u.region,
-        provincia: u.subregion,
-        distrito: u.localidad
-      }))
-    }
-  }).afterClosed().subscribe(res => {
-    if (res) {
-      // Si luego editas y guardas, aquí puedes refrescar la lista
-      this.buscar();
-    }
-  });
-}
-  
+  editar(a: ListarAfiliacion): void {
+    this.dialog.open(EditarAfiliacionComponent, {
+      width: '900px',
+      autoFocus: false,
+      panelClass: 'dlg-afiliacion',
+      data: {
+        idafiliacion: a.idafiliacion,
+        ubigeos: this.ubigeoData.map(u => ({
+          codubicacion: u.codubicacion,
+          region: u.region,
+          provincia: u.subregion,
+          distrito: u.localidad
+        }))
+      }
+    }).afterClosed().subscribe(res => {
+      if (res) {
+        // Si luego editas y guardas, aquí puedes refrescar la lista
+        this.buscar();
+      }
+    });
+  }
+
   async convertUrlToBase64(url: string): Promise<string> {
     const response = await fetch(url);
     const blob = await response.blob();
@@ -428,7 +449,48 @@ editar(a: ListarAfiliacion): void {
     return `${String(t.getDate()).padStart(2, '0')}/${String(t.getMonth() + 1).padStart(2, '0')}/${t.getFullYear()}`;
   }
 
+  private async ensureFontsLoaded() {
+    if (this.fontsLoaded) return;
+
+    const files: Array<[string, string]> = [
+      ['arial.ttf', 'assets/fonts/arial.ttf'],
+      ['arialbd.ttf', 'assets/fonts/arialbd.ttf'],
+      ['ariali.ttf', 'assets/fonts/ariali.ttf'],
+      ['arialbi.ttf', 'assets/fonts/arialbi.ttf'],
+      ['times.ttf', 'assets/fonts/times.ttf'],
+      ['timesbd.ttf', 'assets/fonts/timesbd.ttf'],
+      ['timesi.ttf', 'assets/fonts/timesi.ttf'],
+      ['timesbi.ttf', 'assets/fonts/timesbi.ttf'],
+    ];
+
+    const toBase64 = async (path: string) => {
+      const blob = await this.http.get(path, { responseType: 'blob' }).toPromise();
+      return await new Promise<string>((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res((r.result as string).split(',')[1]); // quitar el prefijo data:
+        r.onerror = rej;
+        r.readAsDataURL(blob!);
+      });
+    };
+
+    for (const [name, path] of files) {
+      const b64 = await toBase64(path);
+      (pdfMake as any).vfs[name] = b64; // 👈 meter cada TTF al vfs
+    }
+
+    // Mapear nombres lógicos a archivos del vfs
+    (pdfMake as any).fonts = {
+      Arial: { normal: 'arial.ttf', bold: 'arialbd.ttf', italics: 'ariali.ttf', bolditalics: 'arialbi.ttf' },
+      Times: { normal: 'times.ttf', bold: 'timesbd.ttf', italics: 'timesi.ttf', bolditalics: 'timesbi.ttf' },
+      Roboto: { normal: 'Roboto-Regular.ttf', bold: 'Roboto-Medium.ttf', italics: 'Roboto-Italic.ttf', bolditalics: 'Roboto-MediumItalic.ttf' }
+    };
+
+    this.fontsLoaded = true;
+  }
+
   async imprimir(a: ListarAfiliacion) {
+    await this.ensureFontsLoaded();
+
     // Mapea aquí tus campos reales
     console.log('Imprimir', a);
 
@@ -455,9 +517,9 @@ editar(a: ListarAfiliacion): void {
     };
 
     // etiqueta arriba + caja uniforme
-    const label = (t: string) => ({ text: t.toUpperCase(), bold: true, fontSize: 9, margin: [2, 0, 0, 3] });
+    const label = (t: string) => ({ text: t.toUpperCase(), bold: true, fontSize: 12, margin: [0, 0, 0, 0] });
     const box = (t: string, h = 24) => ({
-      table: { widths: ['*'], body: [[{ text: t, margin: [8, 3, 8, 3], fontSize: 10, height: h }]] },
+      table: { widths: ['*'], body: [[{ text: t, margin: [2, 1, 2, 1], fontSize: 9, height: h }]] },
       layout: {
         hLineColor: () => '#000', vLineColor: () => '#000',
         hLineWidth: () => 1, vLineWidth: () => 1
@@ -468,8 +530,9 @@ editar(a: ListarAfiliacion): void {
         widths,
         body: [labels.map(l => label(l)), values.map(v => box(v, h))]
       },
+      font: 'Times',
       layout: 'noBorders',
-      margin: [0, 2, 0, 8]
+      margin: [0, 2, 0, 2]
     });
 
     const headerBlock = {
@@ -481,12 +544,13 @@ editar(a: ListarAfiliacion): void {
             // Texto arriba del recuadro
             {
               text: 'FICHA DE INSCRIPCIÓN',
+              font: 'Times',
               alignment: 'center',
               bold: true,
               fontSize: 11,
-              margin: [0, 0, 0, 6]
+              margin: [0, 0, 0, 0]
             },
-    
+
             // Recuadro con título, código y logo
             {
               table: {
@@ -496,6 +560,7 @@ editar(a: ListarAfiliacion): void {
                     stack: [
                       {
                         text: 'FRENTE POPULAR AGRÍCOLA FIA DEL PERÚ - FREPAP',
+                        color: '#040499',
                         alignment: 'center',
                         bold: true,
                         fontSize: 12,
@@ -503,12 +568,14 @@ editar(a: ListarAfiliacion): void {
                       },
                       {
                         text: 'PP000363',
+                        color: '#040499',
                         alignment: 'center',
-                        fontSize: 11,
+                        bold: true,
+                        fontSize: 12,
                         margin: [0, 0, 0, 4]
                       },
                       this.BANNER_BASE64
-                        ? { image: this.BANNER_BASE64, fit: [100, 40], alignment: 'center', margin: [0, 4, 0, 0] }
+                        ? { image: this.BANNER_BASE64, fit: [120, 60], alignment: 'center', margin: [0, 4, 0, 0] }
                         : { text: 'LOGO', alignment: 'center', bold: true, fontSize: 12, margin: [0, 20, 0, 0] }
                     ]
                   }
@@ -521,27 +588,25 @@ editar(a: ListarAfiliacion): void {
                 vLineColor: () => '#000'
               }
             },
-    
+
             // Texto pequeño debajo
             {
               text: 'Alcance de la organización política: Nacional (x) Regional ( ) Región: ________',
               alignment: 'center',
               fontSize: 8,
-              italics: true,
               margin: [0, 4, 0, 0]
             },
             {
               text: '(Solo rellenar en caso de movimientos regionales)',
               alignment: 'right',
               fontSize: 7,
-              italics: true,
               margin: [0, 4, 0, 0]
             }
           ]
         },
-    
+
         { width: 20, text: '' }, // espacio entre columnas
-    
+
         // 🔹 Columna derecha: bloque con foto
         {
           width: 90,
@@ -549,12 +614,13 @@ editar(a: ListarAfiliacion): void {
             // Texto arriba del recuadro de la foto
             {
               text: `FICHA N° ${M.numficha || '..........'}`,
+              font: 'Times',
               alignment: 'center',
               bold: true,
               fontSize: 10,
               margin: [0, 4, 0, 0]
             },
-    
+
             // Recuadro con la foto
             {
               table: {
@@ -576,7 +642,7 @@ editar(a: ListarAfiliacion): void {
                 vLineColor: () => '#000'
               }
             },
-    
+
             // Texto debajo de la foto
             // {
             //   text: `FICHA N° ${M.numficha || '..........'}`,
@@ -588,22 +654,42 @@ editar(a: ListarAfiliacion): void {
           ]
         }
       ]
-    };    
+    };
+
+    const AZUL = '#040499';
 
     const doc: any = {
       pageSize: 'A4',
       pageMargins: [36, 26, 36, 120],
+      // Marco azul en TODA la hoja (ligeramente separado del borde)
+      background: (currentPage: number, pageSize: any) => {
+        const [ml, mt, mr, mb] = [26, 26, 26, 26]; // mismos que arriba
+        const pad = 15; // que el marco quede un poquito fuera del contenido
+        return {
+          canvas: [
+            {
+              type: 'rect',
+              x: ml - pad,
+              y: mt - pad,
+              w: pageSize.width - (ml + mr) + 2 * pad,
+              h: pageSize.height - (mt + mb) + 2 * pad,
+              lineWidth: 0.5,
+              lineColor: AZUL
+            }
+          ]
+        };
+      },
       content: [
         headerBlock,
 
-        { text: `FECHA DE AFILIACIÓN  ____ / ____ / ____`, bold: true, margin: [0, 0, 0, 6], fontSize: 8 },
+        { text: `FECHA DE AFILIACIÓN  ____ / ____ / ____`, font: 'Times', bold: true, margin: [0, 8, 0, 6], fontSize: 12 },
 
         {
           text: 'Por medio del presente manifiesto mi decisión de AFILIARME a la organización política, mediante el cual me comprometo a cumplir con su estatuto y demás normas internas. En fe de lo cual firmo el presente documento.',
-          fontSize: 8, margin: [0, 0, 0, 14]
+          font: 'Times', bold: true, fontSize: 12, margin: [0, 0, 0, 14], alignment: 'justify'
         },
 
-        { text: 'DATOS PERSONALES', bold: true, margin: [0, 2, 0, 6] },
+        { text: 'DATOS PERSONALES', font: 'Times', fontSize: 12, bold: true, margin: [0, 2, 0, 6] },
 
         // APELLIDOS / NOMBRES (tres columnas iguales)
         row(['Apellido Paterno', 'Apellido Materno', 'Nombres'], [M.apPaterno, M.apMaterno, M.nombres], ['*', '*', '*'], 26),
@@ -614,7 +700,7 @@ editar(a: ListarAfiliacion): void {
         // LUGAR DE NACIMIENTO
         row(['Lugar de Nacimiento'], [M.lugarNac], ['*'], 26),
 
-        { text: 'DOMICILIO ACTUAL', bold: true, margin: [0, 6, 0, 6] },
+        { text: 'DOMICILIO ACTUAL', font: 'Times', bold: true, margin: [0, 6, 0, 6] },
 
         // REGION / PROVINCIA / DISTRITO
         row(['Región', 'Provincia', 'Distrito'], [M.region, M.subregion, M.localidad], [170, 170, 170], 26),
@@ -628,7 +714,9 @@ editar(a: ListarAfiliacion): void {
         // CORREO
         row(['Correo Electrónico'], [M.correo], ['*'], 26),
 
-        { text: ' ', margin: [0, 8, 0, 0] },
+        { text: ' ', margin: [0, 2, 0, 0] },
+        { text: 'DECLARACIÓN JURADA DE TRATAMIENTO DE DATOS', margin: [0, 2, 0, 0], fontSize: 9, bold: true, alignment: 'center', decoration: 'underline' },
+        { text: 'Declaro bajo juramento que he sido informado/a del tratamiento de mis datos personales consignados en la presente ficha de afiliación, bajo los términos establecidos en la Ley N° 29733 - Ley de Protección de Datos Personales, y en particular en el artículo 18° y la guía práctica para la observancia del deber de informar, para dicho fin, debe comunicar al afiliado/adherente, mínimamente, sobre el tratamiento de sus datos personales, la finalidad del tratamiento, quiénes son o pueden ser sus destinatarios, la existencia del banco de datos en que se almacenarán, así como la identidad y domicilio de su titular entre otros aspectos; así también, se deberá informar al afiliado/adherente sobre la posibilidad del ejercicio de los derechos ARCO (Acceso, Rectificación, Cancelación y Oposición)', margin: [0, 2, 0, 0], fontSize: 9, alignment: 'justify' },
       ],
 
       footer: () => ({
@@ -653,7 +741,7 @@ editar(a: ListarAfiliacion): void {
                 stack: [
                   {
                     canvas: [
-                      { type: 'rect', x: 0, y: 0, w: 90, h: 90, r: 8, lineWidth: 1 }
+                      { type: 'rect', x: 0, y: 0, w: 90, h: 90, r: 0, lineWidth: 1 }
                     ],
                     margin: [-30, -30, 0, 2]
                   },
@@ -667,7 +755,7 @@ editar(a: ListarAfiliacion): void {
         layout: 'noBorders'
       }),
 
-      defaultStyle: { font: 'Roboto', fontSize: 10 }
+      defaultStyle: { font: 'Arial', fontSize: 10 }
     };
 
     pdfMake.createPdf(doc).open(); // o .download('FichaAfiliacion.pdf')

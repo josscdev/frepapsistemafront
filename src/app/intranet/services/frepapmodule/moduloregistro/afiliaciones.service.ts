@@ -79,78 +79,88 @@ export class AfiliacionesService {
 
   getById(id: number) {
     console.log('AfiliacionesService getById', id);
-  // Tu Swagger muestra POST /api/Afiliaciones/getById con body application/json
-  // Si tu endpoint fuera /getById/{id}, cambia a this.http.post(url, null)
-  return this.http.post<any>(`${this.apiUrl}Afiliaciones/getById`,
-    id,                        // body = 123
-    { headers: { 'Content-Type': 'application/json' } }
-  );
-}
+    // Tu Swagger muestra POST /api/Afiliaciones/getById con body application/json
+    // Si tu endpoint fuera /getById/{id}, cambia a this.http.post(url, null)
+    return this.http.post<any>(`${this.apiUrl}Afiliaciones/getById`,
+      id,                        // body = 123
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  getDocumentacionById(id: number) {
+    console.log('AfiliacionesService getById', id);
+    // Tu Swagger muestra POST /api/Afiliaciones/getById con body application/json
+    // Si tu endpoint fuera /getById/{id}, cambia a this.http.post(url, null)
+    return this.http.post<any>(`${this.apiUrl}Afiliaciones/GetDocumentacionById`,
+      id,                        // body = 123
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
 
-update(id: number, fd: FormData) {
-  // NO pongas Content-Type: el navegador setea el boundary del multipart+
- 
-  return this.http.post<any>(
-    `${this.apiUrl}Afiliaciones/update/${id}`,
-    fd
-  );
-}
+  update(id: number, fd: FormData) {
+    // NO pongas Content-Type: el navegador setea el boundary del multipart+
 
-buildUpdateFormData(model: any, files?: { foto?: File|null; ficha?: File|null; hv?: File|null; copia?: File|null }) {
-  const fd = new FormData();
+    return this.http.post<any>(
+      `${this.apiUrl}Afiliaciones/update/${id}`,
+      fd
+    );
+  }
 
-  // campos (solo si tienen valor; el back usa COALESCE y los que no envíes no cambian)
-  const add = (k: string, v: any) => { if (v !== undefined && v !== null && v !== '') fd.append(k, String(v)); };
+  buildUpdateFormData(model: any, files?: { foto?: File | null; ficha?: File | null; hv?: File | null; copia?: File | null }) {
+    const fd = new FormData();
 
-  add('numficha', model.numficha);
-  add('fechaafiliacion', toYmd(model.fechaafiliacion));
-  add('nombres', model.nombres);
-  add('apellidopaterno', model.apellidopaterno);
-  add('apellidomaterno', model.apellidomaterno);
-  add('idtipodocumento', model.idtipodocumento);
-  add('docafiliado', model.docafiliado);
-  add('fechanacimiento', toYmd(model.fechanacimiento));
-  add('edadafiliado', model.edadafiliado);
-  add('sexo', model.sexo);
-  add('idestadocivil', model.idestadocivil);
-  add('lugarnacimiento', model.lugarnacimiento);
+    // campos (solo si tienen valor; el back usa COALESCE y los que no envíes no cambian)
+    const add = (k: string, v: any) => { if (v !== undefined && v !== null && v !== '') fd.append(k, String(v)); };
 
-  // RR/PP/DD (tu back arma codubicacion = dd || pp || rr)
-  add('rr', model.rr);
-  add('pp', model.pp);
-  add('dd', model.dd);
+    add('numficha', model.numficha);
+    add('fechaafiliacion', toYmd(model.fechaafiliacion));
+    add('nombres', model.nombres);
+    add('apellidopaterno', model.apellidopaterno);
+    add('apellidomaterno', model.apellidomaterno);
+    add('idtipodocumento', model.idtipodocumento);
+    add('docafiliado', model.docafiliado);
+    add('fechanacimiento', toYmd(model.fechanacimiento));
+    add('edadafiliado', model.edadafiliado);
+    add('sexo', model.sexo);
+    add('idestadocivil', model.idestadocivil);
+    add('lugarnacimiento', model.lugarnacimiento);
 
-  add('avenida', model.avenida);
-  add('numero', model.numero);
-  add('urbanizacion', model.urbanizacion);
-  add('telefono', model.telefono);
-  add('correo', model.correo);
-  add('observacion', model.observacion);
-  // estado_text -> estado (1/0)
-  const estado = model.estado_text === 'ACTIVO' ? 1 : (model.estado === 1 ? 1 : 0);
-  add('estado', estado);
-  add('usuariomodificacion', model.usuariomodificacion); // 👈 nombre exacto que espera el back
+    // RR/PP/DD (tu back arma codubicacion = dd || pp || rr)
+    add('rr', model.rr);
+    add('pp', model.pp);
+    add('dd', model.dd);
 
-console.log('usuariomodificacion build', model.usuariomodificacion);
-  // archivos (solo si el usuario seleccionó nuevos)
-  if (files?.foto)  fd.append('foto', files.foto);
-  if (files?.ficha) fd.append('fichaafiliacionfile', files.ficha);
-  if (files?.hv)    fd.append('hojadevida', files.hv);
-  if (files?.copia) fd.append('copiadocumento', files.copia);
+    add('avenida', model.avenida);
+    add('numero', model.numero);
+    add('urbanizacion', model.urbanizacion);
+    add('telefono', model.telefono);
+    add('correo', model.correo);
+    add('observacion', model.observacion);
+    // estado_text -> estado (1/0)
+    const estado = model.estado_text === 'ACTIVO' ? 1 : (model.estado === 1 ? 1 : 0);
+    add('estado', estado);
+    add('usuariomodificacion', model.usuariomodificacion); // 👈 nombre exacto que espera el back
+
+    console.log('usuariomodificacion build', model.usuariomodificacion);
+    // archivos (solo si el usuario seleccionó nuevos)
+    if (files?.foto) fd.append('foto', files.foto);
+    if (files?.ficha) fd.append('fichaafiliacionfile', files.ficha);
+    if (files?.hv) fd.append('hojadevida', files.hv);
+    if (files?.copia) fd.append('copiadocumento', files.copia);
 
     console.log('buildUpdateFormData', fd);
     console.log('model', model);
 
-  return fd;
+    return fd;
 
-  function toYmd(d: any) {
-    if (!d) return '';
-    const dt = (d instanceof Date) ? d : new Date(d);
-    const mm = String(dt.getMonth()+1).padStart(2,'0');
-    const dd = String(dt.getDate()).padStart(2,'0');
-    return `${dt.getFullYear()}-${mm}-${dd}`;
+    function toYmd(d: any) {
+      if (!d) return '';
+      const dt = (d instanceof Date) ? d : new Date(d);
+      const mm = String(dt.getMonth() + 1).padStart(2, '0');
+      const dd = String(dt.getDate()).padStart(2, '0');
+      return `${dt.getFullYear()}-${mm}-${dd}`;
+    }
   }
-}
 
 }
