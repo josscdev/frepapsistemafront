@@ -206,7 +206,7 @@
             <div class="file-meta" *ngIf="fileFoto as f">
               <span class="file-name">{{ f.name }}</span>
               <div class="file-actions">
-                <button type="button" class="link" (click)="openDataUrlInNewTab(form.value.fotoimg)" *ngIf="false">ver</button>
+                <button type="button" class="link" (click)="previewNew('foto')">ver</button>
                 <button type="button" class="link danger" (click)="removeFile('foto')">quitar</button>
               </div>
             </div>
@@ -229,6 +229,8 @@
             <div class="file-meta" *ngIf="fileFicha as f">
               <span class="file-name">{{ f.name }}</span>
               <div class="file-actions">
+                    <button type="button" class="link" (click)="previewNew('ficha')">ver</button>
+
                 <button type="button" class="link danger" (click)="removeFile('ficha')">quitar</button>
               </div>
             </div>
@@ -251,6 +253,8 @@
             <div class="file-meta" *ngIf="fileHv as f">
               <span class="file-name">{{ f.name }}</span>
               <div class="file-actions">
+                    <button type="button" class="link" (click)="previewNew('hv')">ver</button>
+
                 <button type="button" class="link danger" (click)="removeFile('hv')">quitar</button>
               </div>
             </div>
@@ -273,6 +277,8 @@
             <div class="file-meta" *ngIf="fileCopia as f">
               <span class="file-name">{{ f.name }}</span>
               <div class="file-actions">
+                    <button type="button" class="link" (click)="previewNew('copia')">ver</button>
+
                 <button type="button" class="link danger" (click)="removeFile('copia')">quitar</button>
               </div>
             </div>
@@ -294,6 +300,55 @@
           <textarea class="form-control" rows="2" placeholder="Observación"
                     formControlName="observacion" maxlength="300"
                     (input)="transformToUpperCase($event, 'observacion')"></textarea>
+        </div>
+      </div>
+
+    <!-- 🔹 Trazabilidad (solo lectura desde el DTO) -->
+    <!-- <div class="row mt-3" *ngIf="!loading && dto">
+      <div class="col-12 mb-2"><strong style="font-weight: 500;">TRAZABILIDAD</strong></div>
+      <hr>
+
+      <div class="col-sm-4 mb-3">
+        <label style="font-weight: lighter;">Usuario Creación</label>
+        <input class="form-control" [value]="dto.usuariocreacion || '—'" readonly>
+      </div>
+      <div class="col-sm-4 mb-3">
+        <label style="font-weight: lighter;">Fecha Creación</label>
+        <input class="form-control" [value]="dto.fechacreacion ? (dto.fechacreacion | date:'dd/MM/yyyy HH:mm') : '—'" readonly>
+      </div>
+
+      <div class="col-sm-4 mb-3">
+        <label style="font-weight: lighter;">Usuario Modificación</label>
+        <input class="form-control" [value]="dto.usuariomodificacion || '—'" readonly>
+      </div>
+      <div class="col-sm-4 mb-3">
+        <label style="font-weight: lighter;">Fecha Modificación</label>
+        <input class="form-control" [value]="dto.fechamodificacion ? (dto.fechamodificacion | date:'dd/MM/yyyy HH:mm') : '—'" readonly>
+      </div>
+
+      <div class="col-sm-4 mb-3">
+        <label style="font-weight: lighter;">Usuario Anulación</label>
+        <input class="form-control" [value]="dto.usuarioanulacion || '—'" readonly>
+      </div>
+      <div class="col-sm-4 mb-3">
+        <label style="font-weight: lighter;">Fecha Anulación</label>
+        <input class="form-control" [value]="dto.fechaanulacion ? (dto.fechaanulacion | date:'dd/MM/yyyy HH:mm') : '—'" readonly>
+      </div>
+    </div>
+ -->
+
+      <div class="row mt-3" *ngIf="!loading && dto">
+        <div class="col-12 mb-2"><strong style="font-weight: 500;">TRAZABILIDAD</strong></div>
+        <hr>
+        <div class="col-sm-6">
+          <ul class="list-unstyled mb-0">
+            <li><strong>Usuario Creación:</strong> {{ dto.usuariocreacion || '—' }}</li>
+            <li><strong>Fecha Creación:</strong> {{ dto.fechacreacion ? (dto.fechacreacion | date:'dd/MM/yyyy HH:mm') : '—' }}</li>
+            <li><strong>Usuario Modificación:</strong> {{ dto.usuariomodificacion || '—' }}</li>
+            <li><strong>Fecha Modificación:</strong> {{ dto.fechamodificacion ? (dto.fechamodificacion | date:'dd/MM/yyyy HH:mm') : '—' }}</li>
+            <li><strong>Usuario Anulación:</strong> {{ dto.usuarioanulacion || '—' }}</li>
+            <li><strong>Fecha Anulación:</strong> {{ dto.fechaanulacion ? (dto.fechaanulacion | date:'dd/MM/yyyy HH:mm') : '—' }}</li>
+          </ul>
         </div>
       </div>
 

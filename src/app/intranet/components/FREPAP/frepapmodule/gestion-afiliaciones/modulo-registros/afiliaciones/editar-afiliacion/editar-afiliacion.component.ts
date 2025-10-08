@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -33,6 +33,8 @@ export class EditarAfiliacionComponent implements OnInit {
 
   form!: FormGroup;
   loading = true;
+    dto?: any; // 👈 agrega esto
+
 
   // catálogos mínimos para mostrar — si quieres selects, puedes armar como en Registrar
   regiones: { id: string; nombre: string }[] = [];
@@ -62,13 +64,15 @@ estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
   ngOnInit(): void {
     this.form = this.fb.group({
       // mismos nombres que usarás luego para editar
-      numficha: [null],
-      fechaafiliacion: [null],
-      nombres: [null],
-      apellidopaterno: [null],
-      apellidomaterno: [null],
-      idtipodocumento: [null],
-      docafiliado: [null],
+     
+
+      numficha: [null, Validators.required],
+      fechaafiliacion: [null, Validators.required],
+      nombres: [null, Validators.required],
+      apellidopaterno: [null, Validators.required],
+      apellidomaterno: [null, Validators.required],
+      idtipodocumento: [null, Validators.required],
+      docafiliado: [null, Validators.required],
       fechanacimiento: [null],
       edadafiliado: [null],
       sexo: [null],
@@ -188,12 +192,20 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
     this.loading = true;
     this.svc.getById(this.data.idafiliacion).subscribe({
       next: (dto) => {
-        console.log('getById', dto);
+          console.log('getById', dto);
+          this.dto = {
+          ...dto,
+          // si quieres que el pipe date funcione bien, convierte a Date:
+            fechacreacion:     dto.fechacreacion     ? new Date(dto.fechacreacion)     : null,
+            fechamodificacion: dto.fechamodificacion ? new Date(dto.fechamodificacion) : null,
+            fechaanulacion:    dto.fechaanulacion    ? new Date(dto.fechaanulacion)    : null,
+        };
+
         // mapear DTO -> form
         const rr = dto.codubicacion?.substring(0,2) ?? null;
         const pp = dto.codubicacion?.substring(0,4) ?? null;
         const dd = dto.codubicacion?.substring(0,6) ?? null;
-
+        console.log('respuesta cargar', dto)
         this.form.patchValue({
           numficha: dto.numficha ?? null,
           fechaafiliacion: dto.fechaafiliacion ? new Date(dto.fechaafiliacion) : null,
@@ -222,7 +234,8 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
           fotoimg: dto.fotoimg ?? null,
           fichaafiliacionpdf: dto.fichaafiliacionpdf ?? null,
           hojadevidapdf: dto.hojadevidapdf ?? null,
-          copiadocumentopdf: (dto as any).copiadocumentopdf ?? (dto as any).copiadocumento ?? null
+          copiadocumentopdf: (dto as any).copiadocumentopdf ?? (dto as any).copiadocumento ?? null,
+
 
         });
       },
@@ -232,13 +245,25 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
       },
       complete: () => this.loading = false
     });
+    console.log('todo', this.form.value)
+
   }
 
+ private markAllAsTouched() {
+    Object.values(this.form.controls).forEach(c => c.markAsTouched());
+  }
 
   // >>> llama al back
   async guardar() {
     const id = this.data.idafiliacion;
     const model = this.form.getRawValue();
+
+  if (this.form.invalid) {
+    this.markAllAsTouched();
+    await Swal.fire('Campos incompletos', 'Completa los obligatorios.', 'warning');
+    return;
+  }
+  
 
     console.log('usuariomodificacion', this.form.value.usuariomodificacion);
 
@@ -405,5 +430,23 @@ private buildDistritos(rrpp: string) {
     .sort((a,b)=>a.nombre.localeCompare(b.nombre));
 }
 
+// ✅ Util: abre un File en nueva pestaña con URL temporal (se libera luego)
+private openFileInNewTab(file: File) {
+  const url = URL.createObjectURL(file);
+  window.open(url, '_blank');
+  // libera memoria (1 min es suficiente)
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+// ✅ Genérico: vista previa según “kind”
+previewNew(kind: 'foto'|'ficha'|'hv'|'copia') {
+  let f: File | null = null;
+  if (kind === 'foto')  f = this.fileFoto;
+  if (kind === 'ficha') f = this.fileFicha;
+  if (kind === 'hv')    f = this.fileHv;
+  if (kind === 'copia') f = this.fileCopia;
+  if (!f) return;
+  this.openFileInNewTab(f);
+}
 
 }
