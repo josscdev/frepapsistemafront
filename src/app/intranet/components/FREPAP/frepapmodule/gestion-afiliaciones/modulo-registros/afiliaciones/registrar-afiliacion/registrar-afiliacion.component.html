@@ -186,10 +186,14 @@
 
                     <div class="file-meta" *ngIf="form.get('foto')?.value as f">
                         <span class="file-name">{{ f.name }}</span>
-                        <div class="file-actions">
-                            <button type="button" class="link" (click)="previewImage('foto')">ver</button>
-                            <button type="button" class="link danger" (click)="removeFile('foto')">quitar</button>
+                      <!-- Foto -->
+                        <div class="file-actions" *ngIf="form.get('foto')?.value">
+                        <a class="link"
+                            [attr.href]="previewUrls['foto']"
+                            target="_blank" rel="noopener">ver</a>
+                        <button type="button" class="link danger" (click)="removeFile('foto')">quitar</button>
                         </div>
+
                     </div>
                     <div class="file-hint">PNG/JPG/WEBP · máx 200KB</div>
                 </div>
@@ -205,11 +209,14 @@
 
                     <div class="file-meta" *ngIf="form.get('fichaafiliacionfile')?.value as f">
                         <span class="file-name">{{ f.name }}</span>
-                        <div class="file-actions">
-                            <button type="button" class="link" (click)="previewImage('foto')" *ngIf="false">ver</button>
-                            <button type="button" class="link danger"
-                                (click)="removeFile('fichaafiliacionfile')">quitar</button>
+                    <!-- Ficha afiliación (PDF) -->
+                       <div class="file-actions" *ngIf="form.get('fichaafiliacionfile')?.value">
+                        <a class="link"
+                            [attr.href]="previewUrls['fichaafiliacionfile']"
+                            target="_blank" rel="noopener">ver</a>
+                        <button type="button" class="link danger" (click)="removeFile('fichaafiliacionfile')">quitar</button>
                         </div>
+
                     </div>
                     <div class="file-hint">PDF · máx 2MB</div>
                 </div>
@@ -225,9 +232,14 @@
 
                     <div class="file-meta" *ngIf="form.get('hojadevida')?.value as f">
                         <span class="file-name">{{ f.name }}</span>
-                        <div class="file-actions">
-                            <button type="button" class="link danger" (click)="removeFile('hojadevida')">quitar</button>
+                       <!-- Hoja de Vida (PDF) -->
+                        <div class="file-actions" *ngIf="form.get('hojadevida')?.value">
+                        <a class="link"
+                            [attr.href]="previewUrls['hojadevida']"
+                            target="_blank" rel="noopener">ver</a>
+                        <button type="button" class="link danger" (click)="removeFile('hojadevida')">quitar</button>
                         </div>
+
                     </div>
                     <div class="file-hint">PDF · máx 2MB</div>
                 </div>
@@ -243,10 +255,14 @@
 
                     <div class="file-meta" *ngIf="form.get('copiadocumento')?.value as f">
                         <span class="file-name">{{ f.name }}</span>
-                        <div class="file-actions">
-                            <button type="button" class="link danger"
-                                (click)="removeFile('copiadocumento')">quitar</button>
+                       <!-- Documento Identidad (PDF) -->
+                        <div class="file-actions" *ngIf="form.get('copiadocumento')?.value">
+                        <a class="link"
+                            [attr.href]="previewUrls['copiadocumento']"
+                            target="_blank" rel="noopener">ver</a>
+                        <button type="button" class="link danger" (click)="removeFile('copiadocumento')">quitar</button>
                         </div>
+
                     </div>
                     <div class="file-hint">PDF · máx 2MB</div>
                 </div>

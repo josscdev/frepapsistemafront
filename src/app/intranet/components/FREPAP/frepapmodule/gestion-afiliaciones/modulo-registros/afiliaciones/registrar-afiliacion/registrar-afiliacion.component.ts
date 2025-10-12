@@ -92,6 +92,9 @@ export class RegistrarAfiliacionComponent {
   usuario: string = '';
 
   sexosList: Opcion[] = [];
+  previewUrls: Record<'foto' | 'fichaafiliacionfile' | 'hojadevida' | 'copiadocumento', string> = {
+  foto: '', fichaafiliacionfile: '', hojadevida: '', copiadocumento: ''
+};
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { ubigeos: UbigeoItem[] }) {
     this.idemppaisnegcue = Number(localStorage.getItem('idemppaisnegcue')) || 0;
@@ -442,8 +445,8 @@ export class RegistrarAfiliacionComponent {
     ev: Event
   ) {
     const input = ev.target as HTMLInputElement;
-    const file = input?.files && input.files.length ? input.files[0] : null;
-    if (!file) return;
+  const file = input?.files && input.files.length ? input.files[0] : null;
+  if (!file) return;
 
     // 🔹 Definir tipos y tamaños permitidos
     let validTypes: string[] = [];
@@ -473,17 +476,30 @@ export class RegistrarAfiliacionComponent {
     }
 
     // 🔹 Guardar en el FormControl
-    this.form.get(controlName)?.setValue(file);
-    this.form.get(controlName)?.markAsDirty();
+     this.form.get(controlName)?.setValue(file);
+  this.form.get(controlName)?.markAsDirty();
 
+
+   if (this.previewUrls[controlName]) URL.revokeObjectURL(this.previewUrls[controlName]);
+  this.previewUrls[controlName] = URL.createObjectURL(file);
     // 🔹 Resetear el input para permitir volver a elegir la misma foto después
     input.value = '';
   }
 
-  removeFile(controlName: 'foto' | 'fichaafiliacionfile' | 'hojadevida' | 'copiadocumento') {
-    this.form.get(controlName)?.setValue(null);
-    this.form.get(controlName)?.markAsDirty();
+removeFile(controlName: 'foto' | 'fichaafiliacionfile' | 'hojadevida' | 'copiadocumento') {
+  this.form.get(controlName)?.setValue(null);
+  this.form.get(controlName)?.markAsDirty();
+  if (this.previewUrls[controlName]) {
+    URL.revokeObjectURL(this.previewUrls[controlName]);
+    this.previewUrls[controlName] = '';
   }
+}
+
+ngOnDestroy() {
+  (Object.keys(this.previewUrls) as Array<keyof typeof this.previewUrls>).forEach(k => {
+    if (this.previewUrls[k]) URL.revokeObjectURL(this.previewUrls[k]);
+  });
+}
 
   previewImage(controlName: 'foto') {
     const f = this.form.get(controlName)?.value as File | null;
@@ -492,6 +508,42 @@ export class RegistrarAfiliacionComponent {
     window.open(url, '_blank'); // abre en nueva pestaña
   }
 
+
+private isImage(type: string | undefined) {
+  return !!type && type.startsWith('image/');
+}
+private isPdf(type: string | undefined) {
+  return type === 'application/pdf';
+}
+
+
+
+previewFile(
+  controlName: 'foto' | 'fichaafiliacionfile' | 'hojadevida' | 'copiadocumento'
+) {
+  const f = this.form.get(controlName)?.value as File | null;
+  if (!f) return;
+
+  const url = URL.createObjectURL(f);
+
+  // Abrir en nueva pestaña con visor del navegador
+  // (Chrome/Edge/Firefox muestran PDF nativo; para imágenes igual)
+  const win = window.open(url, '_blank', 'noopener,noreferrer');
+
+  // Si el navegador bloquea popups, intenta con un <a> invisible
+  if (!win || win.closed || typeof win.closed === 'undefined') {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  // Liberar el blob URL luego de un rato (evitar fugas de memoria)
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
   // ===== Acciones =====
   onNoClick(): void {
     this.dialogRef.close();
