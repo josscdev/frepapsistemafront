@@ -136,4 +136,8 @@ export interface RespuestaAfiliacionDesactivar {
   message: string;
 }
 
-
+export interface RegistrarAfiliacionResponse {
+  ok: boolean;
+  message: string;
+  files?: Record<string, string | null>;
+}

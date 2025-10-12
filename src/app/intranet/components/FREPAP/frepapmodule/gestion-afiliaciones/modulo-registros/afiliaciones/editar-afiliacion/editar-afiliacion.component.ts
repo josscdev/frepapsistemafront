@@ -11,13 +11,14 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { firstValueFrom } from 'rxjs';
 
 type UbigeoItem = { codubicacion: string; region?: string; provincia?: string; distrito?: string };
 
 @Component({
   selector: 'app-editar-afiliacion',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatInputModule, MatDatepickerModule, MatNativeDateModule,MatFormFieldModule, MatButtonModule, NgSelectModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatButtonModule, NgSelectModule],
   templateUrl: './editar-afiliacion.component.html',
   styleUrls: ['./editar-afiliacion.component.css']
 })
@@ -25,15 +26,15 @@ export class EditarAfiliacionComponent implements OnInit {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<EditarAfiliacionComponent>);
   private svc = inject(AfiliacionesService);
-  private sanitizer= inject(DomSanitizer);
-  fileFoto: File|null = null;
-  fileFicha: File|null = null;
-  fileHv: File|null = null;
-  fileCopia: File|null = null;
+  private sanitizer = inject(DomSanitizer);
+  fileFoto: File | null = null;
+  fileFicha: File | null = null;
+  fileHv: File | null = null;
+  fileCopia: File | null = null;
 
   form!: FormGroup;
   loading = true;
-    dto?: any; // 👈 agrega esto
+  dto?: any; // 👈 agrega esto
 
 
   // catálogos mínimos para mostrar — si quieres selects, puedes armar como en Registrar
@@ -41,30 +42,30 @@ export class EditarAfiliacionComponent implements OnInit {
   provincias: { id: string; nombre: string }[] = [];
   distritos: { id: string; nombre: string }[] = [];
   // Cache para filtrar rápido
-private byRR = new Map<string, UbigeoItem[]>();   // RR -> items
-private byRRPP = new Map<string, UbigeoItem[]>(); // RRPP -> items
+  private byRR = new Map<string, UbigeoItem[]>();   // RR -> items
+  private byRRPP = new Map<string, UbigeoItem[]>(); // RRPP -> items
 
-// Reutiliza los catálogos como en Registrar
-sexosList = [
-  { id: 'M', nombre: 'Masculino', code: 'M', display: 'Masculino' },
-  { id: 'F', nombre: 'Femenino',  code: 'F', display: 'Femenino'  },
-];
-tiposDocumento: Array<{ idtipodocumento: any; nombretipodocumento: string }> = [];
-estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
+  // Reutiliza los catálogos como en Registrar
+  sexosList = [
+    { id: 'M', nombre: 'Masculino', code: 'M', display: 'Masculino' },
+    { id: 'F', nombre: 'Femenino', code: 'F', display: 'Femenino' },
+  ];
+  tiposDocumento: Array<{ idtipodocumento: any; nombretipodocumento: string }> = [];
+  estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
 
   idemppaisnegcue = Number(localStorage.getItem('idemppaisnegcue')) || 0;
-  usuariomodificacion  = localStorage.getItem('user') || ''; // 👈 del LS
+  usuariomodificacion = localStorage.getItem('user') || ''; // 👈 del LS
 
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: { idafiliacion: number; ubigeos: UbigeoItem[] }
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.form = this.fb.group({
       // mismos nombres que usarás luego para editar
-     
+
 
       numficha: [null, Validators.required],
       fechaafiliacion: [null, Validators.required],
@@ -97,7 +98,7 @@ estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
       fichaafiliacionpdf: [null],
       hojadevidapdf: [null],
       copiadocumentopdf: [null],
-      usuariomodificacion: this.usuariomodificacion ,
+      usuariomodificacion: this.usuariomodificacion,
 
     });
 
@@ -105,25 +106,25 @@ estadosCiviles: Array<{ idestadocivil: any; nombreestadocivil: string }> = [];
     this.initUbigeoCatalogs(this.data.ubigeos);
 
     // Llamarlas en ngOnInit, antes o después de this.cargar():
-      this.getListarTipoDocumentos();
-      this.getListarEstadosCiviles();
+    this.getListarTipoDocumentos();
+    this.getListarEstadosCiviles();
 
-      // inicializa catálogos/caches
-this.setupUbigeos(this.data.ubigeos);
+    // inicializa catálogos/caches
+    this.setupUbigeos(this.data.ubigeos);
 
-// Cambios en RR → recalcular PP y limpiar DD
-this.form.get('rr')?.valueChanges.subscribe((rr: string | null) => {
-  this.form.patchValue({ pp: null, dd: null }, { emitEvent: false });
-  this.provincias = rr ? this.buildProvincias(rr) : [];
-  this.distritos = [];
-  
-});
+    // Cambios en RR → recalcular PP y limpiar DD
+    this.form.get('rr')?.valueChanges.subscribe((rr: string | null) => {
+      this.form.patchValue({ pp: null, dd: null }, { emitEvent: false });
+      this.provincias = rr ? this.buildProvincias(rr) : [];
+      this.distritos = [];
 
-// Cambios en PP → recalcular DD
-this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
-  this.form.patchValue({ dd: null }, { emitEvent: false });
-  this.distritos = rrpp ? this.buildDistritos(rrpp) : [];
-});
+    });
+
+    // Cambios en PP → recalcular DD
+    this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
+      this.form.patchValue({ dd: null }, { emitEvent: false });
+      this.distritos = rrpp ? this.buildDistritos(rrpp) : [];
+    });
 
     // carga desde el back
     this.cargar();
@@ -133,40 +134,40 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
   // getSafePdf(field: 'fichaafiliacionpdf' | 'hojadevidapdf'): SafeResourceUrl | null {
   //   const rawValue = this.form.value[field];
   //   if (!rawValue) return null;
-  
+
   //   // quitar el encabezado si lo tiene
   //   const base64 = rawValue.replace(/^data:application\/pdf;base64,/, '');
   //   const byteCharacters = atob(base64);
   //   const byteNumbers = new Array(byteCharacters.length);
-  
+
   //   for (let i = 0; i < byteCharacters.length; i++) {
   //     byteNumbers[i] = byteCharacters.charCodeAt(i);
   //   }
-  
+
   //   const byteArray = new Uint8Array(byteNumbers);
   //   const blob = new Blob([byteArray], { type: 'application/pdf' });
   //   const url = URL.createObjectURL(blob);
-  
+
   //   return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   // }
-  
+
   getSafePdf(field: 'fichaafiliacionpdf' | 'hojadevidapdf' | 'copiadocumentopdf'): SafeResourceUrl | null {
-  const rawValue = this.form.value[field];
-  if (!rawValue) return null;
+    const rawValue = this.form.value[field];
+    if (!rawValue) return null;
 
-  const base64 = rawValue.replace(/^data:application\/pdf;base64,/, '');
-  const byteCharacters = atob(base64);
-  const byteNumbers = new Array(byteCharacters.length);
+    const base64 = rawValue.replace(/^data:application\/pdf;base64,/, '');
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
 
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
-
-  const byteArray = new Uint8Array(byteNumbers);
-  const blob = new Blob([byteArray], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
-  return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-}
 
 
   private initUbigeoCatalogs(list: UbigeoItem[]) {
@@ -183,28 +184,28 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
       if (dd && !ddSet.has(dd)) ddSet.set(dd, it.distrito ?? `Dist ${dd}`);
     }
 
-    this.regiones = Array.from(rrSet, ([id, nombre]) => ({ id, nombre })).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-    this.provincias = Array.from(ppSet, ([id, nombre]) => ({ id, nombre })).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-    this.distritos = Array.from(ddSet, ([id, nombre]) => ({ id, nombre })).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+    this.regiones = Array.from(rrSet, ([id, nombre]) => ({ id, nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+    this.provincias = Array.from(ppSet, ([id, nombre]) => ({ id, nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+    this.distritos = Array.from(ddSet, ([id, nombre]) => ({ id, nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
   }
 
   private cargar() {
     this.loading = true;
     this.svc.getById(this.data.idafiliacion).subscribe({
       next: (dto) => {
-          console.log('getById', dto);
-          this.dto = {
+        console.log('getById', dto);
+        this.dto = {
           ...dto,
           // si quieres que el pipe date funcione bien, convierte a Date:
-            fechacreacion:     dto.fechacreacion     ? new Date(dto.fechacreacion)     : null,
-            fechamodificacion: dto.fechamodificacion ? new Date(dto.fechamodificacion) : null,
-            fechaanulacion:    dto.fechaanulacion    ? new Date(dto.fechaanulacion)    : null,
+          fechacreacion: dto.fechacreacion ? new Date(dto.fechacreacion) : null,
+          fechamodificacion: dto.fechamodificacion ? new Date(dto.fechamodificacion) : null,
+          fechaanulacion: dto.fechaanulacion ? new Date(dto.fechaanulacion) : null,
         };
 
         // mapear DTO -> form
-        const rr = dto.codubicacion?.substring(0,2) ?? null;
-        const pp = dto.codubicacion?.substring(0,4) ?? null;
-        const dd = dto.codubicacion?.substring(0,6) ?? null;
+        const rr = dto.codubicacion?.substring(0, 2) ?? null;
+        const pp = dto.codubicacion?.substring(0, 4) ?? null;
+        const dd = dto.codubicacion?.substring(0, 6) ?? null;
         console.log('respuesta cargar', dto)
         this.form.patchValue({
           numficha: dto.numficha ?? null,
@@ -249,102 +250,122 @@ this.form.get('pp')?.valueChanges.subscribe((rrpp: string | null) => {
 
   }
 
- private markAllAsTouched() {
+  private markAllAsTouched() {
     Object.values(this.form.controls).forEach(c => c.markAsTouched());
   }
 
   // >>> llama al back
-  async guardar() {
+  async guardar(): Promise<void> {
+    if (this.form.invalid) {
+      this.markAllAsTouched();
+      await Swal.fire('Campos incompletos', 'Completa los obligatorios.', 'warning');
+      return;
+    }
+
     const id = this.data.idafiliacion;
     const model = this.form.getRawValue();
 
-  if (this.form.invalid) {
-    this.markAllAsTouched();
-    await Swal.fire('Campos incompletos', 'Completa los obligatorios.', 'warning');
-    return;
-  }
-  
-
-    console.log('usuariomodificacion', this.form.value.usuariomodificacion);
-
     const fd = this.svc.buildUpdateFormData(model, {
-      foto:  this.fileFoto,
+      foto: this.fileFoto,
       ficha: this.fileFicha,
-      hv:    this.fileHv,
+      hv: this.fileHv,
       copia: this.fileCopia
     });
 
-
-    console.log('fd', fd);
     this.loading = true;
-    this.svc.update(id, fd).subscribe({
-      next: (res) => {
-        if (!res.ok) {
-          Swal.fire('Error', res.error || 'No se pudo actualizar.', 'error');
-          return;
-        }
-        Swal.fire('OK', 'Afiliación actualizada.', 'success');
-        this.dialogRef.close(true);   // notifica al padre para refrescar
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', err?.error?.message || 'Fallo al actualizar', 'error');
-      },
-      complete: () => this.loading = false
-    });
+
+    try {
+      const resp = await firstValueFrom(this.svc.update(id, fd));
+
+      // ⚙️ Interpretar respuesta del backend
+      if (resp?.ok === false) {
+        // Si el mensaje contiene “ficha” o “documento” => advertencia
+        const isDuplicado =
+          resp.message?.toLowerCase().includes('ficha') ||
+          resp.message?.toLowerCase().includes('documento');
+
+        await Swal.fire({
+          icon: isDuplicado ? 'warning' : 'error',
+          title: isDuplicado ? 'Registro duplicado' : 'No se pudo actualizar',
+          text: resp.message || 'Verifica los datos ingresados.'
+        });
+
+        return; // no cerrar diálogo
+      }
+
+      // ✅ éxito
+      await Swal.fire({
+        icon: 'success',
+        title: 'Afiliación actualizada',
+        text: resp.message || 'Los cambios fueron guardados correctamente.',
+        showConfirmButton: false,
+        timer: 1500
+      });
+
+      this.dialogRef.close(true); // refresca lista padre
+    } catch (err: any) {
+      console.error(err);
+      const msg =
+        err?.error?.message ||
+        err?.message ||
+        'Hubo un error inesperado al actualizar.';
+      await Swal.fire({ icon: 'error', title: 'Error', text: msg });
+    } finally {
+      this.loading = false; // 🔹 Siempre apagar el spinner
+    }
   }
 
   // ====== validación y captura de archivos (idéntico a Registrar) ======
-  onFilePick(kind: 'foto'|'ficha'|'hv'|'copia', ev: Event) {
+  onFilePick(kind: 'foto' | 'ficha' | 'hv' | 'copia', ev: Event) {
     const input = ev.target as HTMLInputElement;
     const f = input?.files && input.files.length ? input.files[0] : null;
     if (!f) return;
 
     let ok = true, msg = '';
     if (kind === 'foto') {
-      const types = ['image/png','image/jpeg','image/jpg','image/webp'];
+      const types = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
       if (!types.includes(f.type)) { ok = false; msg = 'Solo imágenes (PNG/JPG/WEBP).'; }
-      if (f.size > 200*1024)       { ok = false; msg = 'La foto supera 200 KB.'; }
+      if (f.size > 200 * 1024) { ok = false; msg = 'La foto supera 200 KB.'; }
     } else {
       if (f.type !== 'application/pdf') { ok = false; msg = 'Solo PDF.'; }
-      if (f.size > 2*1024*1024)         { ok = false; msg = 'El PDF supera 2 MB.'; }
+      if (f.size > 2 * 1024 * 1024) { ok = false; msg = 'El PDF supera 2 MB.'; }
     }
     if (!ok) { Swal.fire('Archivo inválido', msg, 'warning'); input.value = ''; return; }
 
-    if (kind === 'foto')  this.fileFoto = f;
+    if (kind === 'foto') this.fileFoto = f;
     if (kind === 'ficha') this.fileFicha = f;
-    if (kind === 'hv')    this.fileHv = f;
+    if (kind === 'hv') this.fileHv = f;
     if (kind === 'copia') this.fileCopia = f;
 
     input.value = ''; // permitir re-seleccionar el mismo archivo
   }
 
-  removeFile(kind: 'foto'|'ficha'|'hv'|'copia') {
-    if (kind === 'foto')  this.fileFoto = null;
+  removeFile(kind: 'foto' | 'ficha' | 'hv' | 'copia') {
+    if (kind === 'foto') this.fileFoto = null;
     if (kind === 'ficha') this.fileFicha = null;
-    if (kind === 'hv')    this.fileHv = null;
+    if (kind === 'hv') this.fileHv = null;
     if (kind === 'copia') this.fileCopia = null;
   }
 
 
   private dataUrlToBlobUrl(dataUrl: string) {
-  const [meta, b64] = dataUrl.split(',');
-  const mime = (meta.match(/data:(.*?);base64/) || [])[1] || 'application/octet-stream';
-  const bin = atob(b64);
-  const len = bin.length;
-  const u8 = new Uint8Array(len);
-  for (let i = 0; i < len; i++) u8[i] = bin.charCodeAt(i);
-  const blob = new Blob([u8], { type: mime });
-  const url = URL.createObjectURL(blob);
-  return { blob, url };
-}
+    const [meta, b64] = dataUrl.split(',');
+    const mime = (meta.match(/data:(.*?);base64/) || [])[1] || 'application/octet-stream';
+    const bin = atob(b64);
+    const len = bin.length;
+    const u8 = new Uint8Array(len);
+    for (let i = 0; i < len; i++) u8[i] = bin.charCodeAt(i);
+    const blob = new Blob([u8], { type: mime });
+    const url = URL.createObjectURL(blob);
+    return { blob, url };
+  }
 
-openDataUrlInNewTab(dataUrl?: string) {
-  if (!dataUrl) return;
-  const { url } = this.dataUrlToBlobUrl(dataUrl);
-  window.open(url, '_blank');                // ✅ ya no es data:, es blob:
-  setTimeout(() => URL.revokeObjectURL(url), 60_000); // liberar memoria luego
-}
+  openDataUrlInNewTab(dataUrl?: string) {
+    if (!dataUrl) return;
+    const { url } = this.dataUrlToBlobUrl(dataUrl);
+    window.open(url, '_blank');                // ✅ ya no es data:, es blob:
+    setTimeout(() => URL.revokeObjectURL(url), 60_000); // liberar memoria luego
+  }
   transformToUpperCase(event: Event, campo: string): void {
     const input = event.target as HTMLInputElement;
     const start = input.selectionStart || 0;
@@ -367,86 +388,86 @@ openDataUrlInNewTab(dataUrl?: string) {
 
 
 
-getListarTipoDocumentos() {
-  this.svc.listarTipoDocumentos(this.idemppaisnegcue).subscribe({
-    next: (data) => {
-      this.tiposDocumento = data.map((it: any) => ({
-        idtipodocumento: it.idtipodocumento,
-        nombretipodocumento: `(${it.abreviatura}) ${it.nombretipodocumento}`
-      }));
+  getListarTipoDocumentos() {
+    this.svc.listarTipoDocumentos(this.idemppaisnegcue).subscribe({
+      next: (data) => {
+        this.tiposDocumento = data.map((it: any) => ({
+          idtipodocumento: it.idtipodocumento,
+          nombretipodocumento: `(${it.abreviatura}) ${it.nombretipodocumento}`
+        }));
+      }
+    });
+  }
+
+  getListarEstadosCiviles() {
+    this.svc.listarEstadosCiviles(this.idemppaisnegcue).subscribe({
+      next: (data) => this.estadosCiviles = data
+    });
+  }
+
+  private setupUbigeos(list: UbigeoItem[]) {
+    const clean = (list || []).filter(x => x?.codubicacion?.trim()?.length >= 2);
+    const rrSeen = new Map<string, string>();
+
+    for (const it of clean) {
+      const rr = it.codubicacion.substring(0, 2);
+      const rrpp = it.codubicacion.substring(0, 4);
+
+      if (!this.byRR.has(rr)) this.byRR.set(rr, []);
+      this.byRR.get(rr)!.push(it);
+
+      if (!this.byRRPP.has(rrpp)) this.byRRPP.set(rrpp, []);
+      this.byRRPP.get(rrpp)!.push(it);
+
+      if (!rrSeen.has(rr)) rrSeen.set(rr, it.region?.trim() || `Región ${rr}`);
     }
-  });
-}
 
-getListarEstadosCiviles() {
-  this.svc.listarEstadosCiviles(this.idemppaisnegcue).subscribe({
-    next: (data) => this.estadosCiviles = data
-  });
-}
-
-private setupUbigeos(list: UbigeoItem[]) {
-  const clean = (list || []).filter(x => x?.codubicacion?.trim()?.length >= 2);
-  const rrSeen = new Map<string, string>();
-
-  for (const it of clean) {
-    const rr = it.codubicacion.substring(0, 2);
-    const rrpp = it.codubicacion.substring(0, 4);
-
-    if (!this.byRR.has(rr)) this.byRR.set(rr, []);
-    this.byRR.get(rr)!.push(it);
-
-    if (!this.byRRPP.has(rrpp)) this.byRRPP.set(rrpp, []);
-    this.byRRPP.get(rrpp)!.push(it);
-
-    if (!rrSeen.has(rr)) rrSeen.set(rr, it.region?.trim() || `Región ${rr}`);
+    this.regiones = Array.from(rrSeen.entries())
+      .map(([id, nombre]) => ({ id, nombre }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
   }
 
-  this.regiones = Array.from(rrSeen.entries())
-    .map(([id, nombre]) => ({ id, nombre }))
-    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
-}
-
-private buildProvincias(rr: string) {
-  const provSeen = new Map<string, string>(); // RRPP -> nombre
-  const items = this.byRR.get(rr) || [];
-  for (const it of items) {
-    const rrpp = it.codubicacion.substring(0, 4);
-    if (!provSeen.has(rrpp)) provSeen.set(rrpp, it.provincia?.trim() || `Prov ${rrpp}`);
+  private buildProvincias(rr: string) {
+    const provSeen = new Map<string, string>(); // RRPP -> nombre
+    const items = this.byRR.get(rr) || [];
+    for (const it of items) {
+      const rrpp = it.codubicacion.substring(0, 4);
+      if (!provSeen.has(rrpp)) provSeen.set(rrpp, it.provincia?.trim() || `Prov ${rrpp}`);
+    }
+    return Array.from(provSeen.entries())
+      .map(([id, nombre]) => ({ id, nombre }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
   }
-  return Array.from(provSeen.entries())
-    .map(([id, nombre]) => ({ id, nombre }))
-    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
-}
 
-private buildDistritos(rrpp: string) {
-  const distSeen = new Map<string, string>(); // RRPPDD -> nombre
-  const items = this.byRRPP.get(rrpp) || [];
-  for (const it of items) {
-    const id = it.codubicacion.substring(0, 6);
-    if (!distSeen.has(id)) distSeen.set(id, it.distrito?.trim() || `Dist ${id}`);
+  private buildDistritos(rrpp: string) {
+    const distSeen = new Map<string, string>(); // RRPPDD -> nombre
+    const items = this.byRRPP.get(rrpp) || [];
+    for (const it of items) {
+      const id = it.codubicacion.substring(0, 6);
+      if (!distSeen.has(id)) distSeen.set(id, it.distrito?.trim() || `Dist ${id}`);
+    }
+    return Array.from(distSeen.entries())
+      .map(([id, nombre]) => ({ id, nombre }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
   }
-  return Array.from(distSeen.entries())
-    .map(([id, nombre]) => ({ id, nombre }))
-    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
-}
 
-// ✅ Util: abre un File en nueva pestaña con URL temporal (se libera luego)
-private openFileInNewTab(file: File) {
-  const url = URL.createObjectURL(file);
-  window.open(url, '_blank');
-  // libera memoria (1 min es suficiente)
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
-}
+  // ✅ Util: abre un File en nueva pestaña con URL temporal (se libera luego)
+  private openFileInNewTab(file: File) {
+    const url = URL.createObjectURL(file);
+    window.open(url, '_blank');
+    // libera memoria (1 min es suficiente)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
 
-// ✅ Genérico: vista previa según “kind”
-previewNew(kind: 'foto'|'ficha'|'hv'|'copia') {
-  let f: File | null = null;
-  if (kind === 'foto')  f = this.fileFoto;
-  if (kind === 'ficha') f = this.fileFicha;
-  if (kind === 'hv')    f = this.fileHv;
-  if (kind === 'copia') f = this.fileCopia;
-  if (!f) return;
-  this.openFileInNewTab(f);
-}
+  // ✅ Genérico: vista previa según “kind”
+  previewNew(kind: 'foto' | 'ficha' | 'hv' | 'copia') {
+    let f: File | null = null;
+    if (kind === 'foto') f = this.fileFoto;
+    if (kind === 'ficha') f = this.fileFicha;
+    if (kind === 'hv') f = this.fileHv;
+    if (kind === 'copia') f = this.fileCopia;
+    if (!f) return;
+    this.openFileInNewTab(f);
+  }
 
 }

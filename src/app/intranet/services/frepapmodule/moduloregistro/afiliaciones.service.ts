@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { AfiliacionCreateDto, FiltroAfiliacion, FiltroAfiliacionDesactivar, ListarAfiliacion, ListarEstadoCivil, ListarOpcionUbigeo, ListarTipoDocumento, RespuestaAfiliacionDesactivar } from '../../../components/FREPAP/frepapmodule/gestion-afiliaciones/modulo-registros/afiliaciones/models/afiliacion';
+import { AfiliacionCreateDto, FiltroAfiliacion, FiltroAfiliacionDesactivar, ListarAfiliacion, ListarEstadoCivil, ListarOpcionUbigeo, ListarTipoDocumento, RegistrarAfiliacionResponse, RespuestaAfiliacionDesactivar } from '../../../components/FREPAP/frepapmodule/gestion-afiliaciones/modulo-registros/afiliaciones/models/afiliacion';
 import { catchError, firstValueFrom, Observable, throwError } from 'rxjs';
 
 @Injectable({
@@ -46,7 +46,7 @@ export class AfiliacionesService {
   async registrarAfiliacion(
     model: AfiliacionCreateDto,
     files: { foto?: File; fichaafiliacionfile?: File; hojadevida?: File; copiadocumento?: File }
-  ): Promise<any> {
+  ): Promise<RegistrarAfiliacionResponse> {
     const fd = new FormData();
 
     Object.entries(model).forEach(([k, v]) => v != null && fd.append(k, String(v)));
@@ -58,7 +58,9 @@ export class AfiliacionesService {
     // Ajusta la ruta según tu controller: [Route("api/[controller]")]
     const url = `${this.apiUrl}Afiliaciones/registrarafiliacion`;
 
-    return await firstValueFrom(this.http.post(url, fd));
+    return await firstValueFrom(
+      this.http.post<RegistrarAfiliacionResponse>(url, fd)
+    );
   }
 
   listarEstadosCiviles(idemppaisnegcue: number): Observable<ListarEstadoCivil[]> {
